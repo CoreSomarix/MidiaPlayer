@@ -45,6 +45,9 @@
         .music-new-badge.visible { display: block; animation: badgeGlow 2s ease-in-out infinite; }
         .photos-new-badge { position: absolute; top: -6px; right: -6px; width: 22px; height: 22px; background: #4cf02a; border: 2.5px solid #ffffff; border-radius: 50%; display: none; z-index: 10; pointer-events: none; }
         .photos-new-badge.visible { display: block; animation: photosBadgeGlow 2s ease-in-out infinite; }
+        .settings-update-badge { position: absolute; top: -6px; right: -6px; width: 22px; height: 22px; background: #a855f7; border: 2.5px solid #ffffff; border-radius: 50%; display: none; z-index: 10; pointer-events: none; }
+        .settings-update-badge.visible { display: block; animation: updateBadgePulse 1.6s ease-in-out infinite; }
+        @keyframes updateBadgePulse { 0%, 100% { box-shadow: 0 0 8px rgba(168, 85, 247, 0.8); transform: scale(1); } 50% { box-shadow: 0 0 22px rgba(168, 85, 247, 1), 0 0 36px rgba(216, 180, 254, 0.8); transform: scale(1.18); } }
         @keyframes photosBadgeGlow { 0%, 100% { box-shadow: 0 0 6px rgba(76, 240, 42, 0.7); transform: scale(1); } 50% { box-shadow: 0 0 16px rgba(76, 240, 42, 1), 0 0 28px rgba(121, 248, 98, 0.6); transform: scale(1.12); } }
         @keyframes badgeGlow { 0%, 100% { box-shadow: 0 0 6px rgba(45, 160, 227, 0.7); transform: scale(1); } 50% { box-shadow: 0 0 16px rgba(45, 160, 227, 1), 0 0 28px rgba(100, 200, 255, 0.6); transform: scale(1.12); } }
         .dock-item.boot-active { visibility: visible; animation: waveUp 0.9s cubic-bezier(0.2, 0.8, 0.4, 1) forwards; }
@@ -249,7 +252,7 @@
         /* ========================================================== */
         /*  PHOTOS APPLET CSS                                           */
         /* ========================================================== */
-        .photos-applet-bg { background: linear-gradient(165deg, #1e5631 0%, #2a6b42 35%, #3d8f5a 70%, #4a9e66 100%); background-size: 200% 200%; animation: photosGradientShift 18s cubic-bezier(0.4, 0, 0.2, 1) infinite alternate; }
+        .photos-applet-bg { background: linear-gradient(165deg, #22E674 0%, #DCE61C 100%); background-size: 200% 200%; animation: photosGradientShift 18s cubic-bezier(0.4, 0, 0.2, 1) infinite alternate; }
         .photos-applet-bg::after { content: ''; position: absolute; inset: 0; background-image: radial-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px); background-size: 24px 24px; pointer-events: none; }
         @keyframes photosGradientShift { 0% { background-position: 0% 0%; } 100% { background-position: 100% 100%; } }
         .photos-gallery-panel { flex: 1; overflow-y: auto; background: rgba(30, 86, 49, 0.55); backdrop-filter: blur(8px); border-radius: 28px; border: 2px solid rgba(126, 217, 87, 0.35); padding: 28px; margin-bottom: 70px; }
@@ -279,7 +282,7 @@
         .photo-action-pill:hover { background: rgba(255,255,255,0.32); transform: scale(1.02); }
         .photos-back-btn { position: absolute; bottom: 30px; left: 60px; background: rgba(255,255,255,0.2); backdrop-filter: blur(8px); color: white; border: 1px solid rgba(255,255,255,0.2); padding: 10px 24px; border-radius: 30px; font-weight: 700; font-size: 1rem; cursor: pointer; transition: background 0.2s, transform 0.2s; z-index: 20; }
         .photos-back-btn:hover { background: rgba(255,255,255,0.4); transform: scale(1.05); }
-        #puzzle-board { display: grid; gap: 3px; max-width: 600px; max-height: 600px; margin: 0 auto; width: min(80vw, 600px); aspect-ratio: 1/1; }
+        #puzzle-board { display: grid; gap: 3px; max-width: 600px; margin: 0 auto; width: min(80vw, 52vh, 600px); aspect-ratio: 1/1; }
         .puzzle-piece { cursor: pointer; border-radius: 6px; overflow: hidden; transition: transform 0.15s, box-shadow 0.15s; border: 2px solid transparent; }
         .puzzle-piece canvas { width: 100%; height: 100%; display: block; }
         .puzzle-piece.selected { border-color: #fff; box-shadow: 0 0 16px rgba(255,255,255,0.6); transform: scale(1.03); }
@@ -485,6 +488,7 @@
         <div class="dock-item" data-app="settings">
             <div class="speech-bubble-wrapper"><div class="speech-bubble" id="bubble-4"><div class="bubble-pointer"></div><div class="bubble-title">Settings</div><div class="bubble-subtitle">Customize Midia</div></div></div>
             <div class="app-icon app-settings"><img src="settings.png" alt="Settings"></div>
+            <span class="settings-update-badge" id="settings-update-badge"></span>
         </div>
     </main>
 
@@ -1658,7 +1662,7 @@
                     MusicAppState.folderPath = settingsFolder || null;
                     MusicAppState.folderLinked = false;
                     const pathEl = document.getElementById('auto-folder-path');
-                    if (pathEl) pathEl.textContent = settingsFolder || 'No music folder is linked yet.';
+                    if (pathEl) pathEl.textContent = 'No music folder is linked yet.';
                     this.navigateTo('onboarding');
                 },
 
@@ -1672,7 +1676,7 @@
                         MusicAppState.folderPath = folderPath;
                         SettingsAppState.music.folderPath = folderPath;
                         const pathEl = document.getElementById('auto-folder-path');
-                        if (pathEl) pathEl.textContent = folderPath;
+                        if (pathEl) pathEl.textContent = 'No music folder is linked yet.';
                         SettingsApplet.saveSettings();
                         await ipcRenderer.invoke('set-music-folder', folderPath).catch(() => {});
                         this.performScan(folderPath, true);
@@ -2124,7 +2128,7 @@
             };
 
             const SettingsAppState = {
-                version: '1.0.0',
+                version: '1.0.1',
                 music: { folderPath: null, defaultVolume: 70, bgmWhileBrowsing: true, visualizerDefault: true, audioOutputDevice: 'system' },
                 photos: { folderPath: null, slideshowSpeed: 5, puzzleGrid: 6, doodlePen: '#ef4444', doodleTool: 'brush', thumbnailQuality: 'medium' },
                 sound: { muteAll: false, sfxEnabled: true, sfxVolume: 80, bgmVolume: 80, menuMusicPath: null, sfxToggles: { dock: true, bubble: true, click: true, dvd: true, music: true, photos: true, settings: true } },
@@ -2163,6 +2167,7 @@
                     this.applet.classList.add('visible');
                     this.navigateTo('menu');
                     document.querySelectorAll('.applet-content').forEach(el => el.scrollTop = 0);
+                    this.checkUpdateBadge();
                 },
 
                 async doClose() {
@@ -2706,6 +2711,7 @@
                         try {
                             const result = ipcRenderer ? await ipcRenderer.invoke('check-for-update') : { hasUpdate: false };
                             await new Promise(r => setTimeout(r, 900));
+                            this.checkUpdateBadge();
                             if (result.hasUpdate) {
                                 SettingsSFX.playUpdateFound();
                                 statusEl.innerHTML = 'A new version is available!';
@@ -2727,6 +2733,8 @@
                     document.getElementById('settings-update-yes').addEventListener('click', () => {
                         SettingsSFX.playUIClick();
                         updateModal.classList.remove('active');
+                        const badge = document.getElementById('settings-update-badge');
+                        if (badge) badge.classList.remove('visible');
                         this.startUpdate();
                     });
                 },
@@ -2764,6 +2772,16 @@
                     setTimeout(() => {
                         if (ipcRenderer) ipcRenderer.invoke('restart-app').catch(() => {});
                     }, 3500);
+                },
+
+                async checkUpdateBadge() {
+                    try {
+                        const result = ipcRenderer ? await ipcRenderer.invoke('check-for-update') : { hasUpdate: false };
+                        const badge = document.getElementById('settings-update-badge');
+                        if (badge) badge.classList.toggle('visible', !!result.hasUpdate);
+                    } catch (e) {
+                        console.error('Update badge check failed:', e);
+                    }
                 }
             };
 
@@ -2801,7 +2819,7 @@
                         this.move(e.key);
                     } else if (e.key === 'Enter') {
                         if (isTyping) return;
-                        if (this.current) { e.preventDefault(); this.current.click(); }
+                        if (this.current) { e.preventDefault(); if (this.current.classList.contains('dock-item')) HoverManager.onMouseLeave(this.current); this.current.click(); }
                     } else if (e.key === 'Escape') {
                         if (isTyping) return;
                         e.preventDefault();
@@ -2913,7 +2931,11 @@
                 rgba(c, a) { return `rgba(${c[0]}, ${c[1]}, ${c[2]}, ${a})`; },
 
                 select(el) {
+                    if (this.current && this.current !== el && this.current.classList.contains('dock-item')) {
+                        HoverManager.onMouseLeave(this.current);
+                    }
                     this.current = el;
+                    if (el.classList.contains('dock-item')) HoverManager.onMouseEnter(el);
                     if (this.current.getBoundingClientRect().top < 0 || this.current.getBoundingClientRect().bottom > window.innerHeight) {
                         el.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
                     }
@@ -2936,6 +2958,7 @@
                 },
 
                 clear() {
+                    if (this.current && this.current.classList.contains('dock-item')) HoverManager.onMouseLeave(this.current);
                     this.current = null;
                     this.itemsCache = null;
                     this.cachedScope = null;
@@ -3086,6 +3109,7 @@
                 });
 
                 SettingsApplet.init();
+                SettingsApplet.checkUpdateBadge();
                 SettingsApplet.loadSettings().then(() => {
                     return MusicApplet.init();
                 }).then(() => {
