@@ -2,6 +2,7 @@ const { app, BrowserWindow, ipcMain, dialog } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const https = require('https');
+const { spawn } = require('child_process');
 const fsp = fs.promises; // Use async file system promises
 const util = require('util');
 const readdir = util.promisify(fs.readdir);
@@ -343,10 +344,12 @@ ipcMain.handle('select-background-file', async (event, type) => {
   return result.canceled ? null : result.filePaths[0];
 });
 
-ipcMain.handle('check-for-update', async () => {
+const UPDATE_MANIFEST_URL = 'https://raw.githubusercontent.com/CoreSomarix/MidiaPlayer/main/assets/update-manifest.json';
+
+async function getUpdateManifest() {
   let manifest = null;
   try {
-    manifest = await fetchRemoteManifest('https://raw.githubusercontent.com/CoreSomarix/MidiaPlayer/main/assets/update-manifest.json');
+    manifest = await fetchRemoteManifest(UPDATE_MANIFEST_URL);
   } catch (e) {
     console.error('Remote update check failed:', e);
   }
@@ -360,10 +363,98 @@ ipcMain.handle('check-for-update', async () => {
       console.error('Local update check failed:', e);
     }
   }
+  return manifest;
+}
+
+function downloadFile(url, dest, onProgress) {
+  return new Promise((resolve) => {
+    let done = false;
+    const finish = (result) => { if (!done) { done = true; resolve(result); } };
+    const file = fs.createWriteStream(dest);
+    const req = https.get(url, { timeout: 120000 }, (res) => {
+      if (res.statusCode !== 200) {
+        res.resume();
+        file.close();
+        try { fs.unlinkSync(dest); } catch (e) {}
+        finish({ ok: false, error: 'Download failed (HTTP ' + res.statusCode + ').' });
+        return;
+      }
+      const total = parseInt(res.headers['content-length'] || '0', 10);
+      let received = 0;
+      res.on('data', (chunk) => {
+        received += chunk.length;
+        if (total > 0 && onProgress) onProgress(Math.min(100, Math.round((received / total) * 100)));
+      });
+      res.pipe(file);
+      file.on('finish', () => {
+        file.close();
+        finish({ ok: true, path: dest });
+      });
+      file.on('error', (e) => {
+        console.error('Write error:', e);
+        finish({ ok: false, error: e.message || 'Write failed.' });
+      });
+      res.on('error', (e) => {
+        console.error('Download error:', e);
+        file.close();
+        finish({ ok: false, error: e.message || 'Download failed.' });
+      });
+    });
+    req.on('timeout', () => {
+      req.destroy();
+      file.close();
+      try { fs.unlinkSync(dest); } catch (e) {}
+      finish({ ok: false, error: 'Download timed out.' });
+    });
+    req.on('error', (e) => {
+      file.close();
+      try { fs.unlinkSync(dest); } catch (e2) {}
+      finish({ ok: false, error: e.message || 'Download failed.' });
+    });
+  });
+}
+
+ipcMain.handle('check-for-update', async () => {
+  const manifest = await getUpdateManifest();
   if (manifest && manifest.version && manifest.version !== CURRENT_VERSION) {
-    return { hasUpdate: true, version: manifest.version };
+    return { hasUpdate: true, version: manifest.version, url: manifest.url || null };
   }
   return { hasUpdate: false, version: CURRENT_VERSION };
+});
+
+ipcMain.handle('download-update', async (event) => {
+  const win = BrowserWindow.fromWebContents(event.sender);
+  const manifest = await getUpdateManifest();
+  if (!manifest || !manifest.version || manifest.version === CURRENT_VERSION) {
+    return { ok: false, error: 'No update available.' };
+  }
+  if (!manifest.url) return { ok: false, error: 'No download URL found in the update manifest.' };
+  try {
+    const dest = path.join(app.getPath('temp'), `Midia-Setup-${manifest.version}.exe`);
+    if (fs.existsSync(dest)) {
+      try { fs.unlinkSync(dest); } catch (e) {}
+    }
+    return await downloadFile(manifest.url, dest, (pct) => {
+      if (win && !win.isDestroyed()) win.webContents.send('update-download-progress', pct);
+    });
+  } catch (e) {
+    console.error('Update download failed:', e);
+    return { ok: false, error: e.message || 'Download failed.' };
+  }
+});
+
+ipcMain.handle('install-update', (event, filePath) => {
+  if (!filePath || typeof filePath !== 'string' || !fs.existsSync(filePath)) {
+    return { ok: false, error: 'Installer file not found.' };
+  }
+  try {
+    spawn(filePath, ['--updated'], { detached: true, stdio: 'ignore' }).unref();
+    app.quit();
+    return { ok: true };
+  } catch (e) {
+    console.error('Failed to launch installer:', e);
+    return { ok: false, error: e.message || 'Failed to launch installer.' };
+  }
 });
 
 function fetchRemoteManifest(url) {

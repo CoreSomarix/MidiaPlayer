@@ -2751,27 +2751,44 @@
                     SettingsSFX.playUpdating();
                     downloadModal.classList.add('active');
 
-                    let progress = 0;
-                    const interval = setInterval(() => {
-                        progress += 1 + Math.random() * 2;
-                        const p = Math.min(progress, 100);
+                    if (!ipcRenderer) return;
+
+                    const onProgress = (e, pct) => {
+                        const p = Math.min(100, Math.max(0, pct));
                         pctEl.textContent = Math.floor(p) + '%';
                         ringFg.style.strokeDashoffset = CIRC * (1 - p / 100);
-                        if (p >= 100) {
-                            clearInterval(interval);
-                            this.finishUpdate(downloadModal);
+                    };
+                    ipcRenderer.on('update-download-progress', onProgress);
+
+                    ipcRenderer.invoke('download-update').then((result) => {
+                        ipcRenderer.removeListener('update-download-progress', onProgress);
+                        if (!result || !result.ok) {
+                            downloadModal.classList.remove('active');
+                            SettingsSFX.stopUpdating();
+                            const statusEl = document.getElementById('settings-update-status');
+                            if (statusEl) statusEl.innerHTML = 'Update download failed.<span class="sub">Check with Somarix on Discord for any updates!</span>';
+                            return;
                         }
-                    }, 120);
+                        pctEl.textContent = '100%';
+                        ringFg.style.strokeDashoffset = 0;
+                        this.finishUpdate(downloadModal, result.path);
+                    }).catch(() => {
+                        ipcRenderer.removeListener('update-download-progress', onProgress);
+                        downloadModal.classList.remove('active');
+                        SettingsSFX.stopUpdating();
+                    });
                 },
 
-                finishUpdate(downloadModal) {
+                finishUpdate(downloadModal, installerPath) {
                     downloadModal.classList.remove('active');
                     SettingsSFX.stopUpdating();
                     SettingsSFX.playComplete();
                     document.getElementById('settings-complete-modal').classList.add('active');
                     setTimeout(() => {
-                        if (ipcRenderer) ipcRenderer.invoke('restart-app').catch(() => {});
-                    }, 3500);
+                        if (ipcRenderer && installerPath) {
+                            ipcRenderer.invoke('install-update', installerPath).catch(() => {});
+                        }
+                    }, 3000);
                 },
 
                 async checkUpdateBadge() {
