@@ -371,47 +371,64 @@ function downloadFile(url, dest, onProgress) {
   return new Promise((resolve) => {
     let done = false;
     const finish = (result) => { if (!done) { done = true; resolve(result); } };
-    const file = fs.createWriteStream(dest);
-    const req = https.get(url, { timeout: 120000 }, (res) => {
-      if (res.statusCode !== 200) {
-        res.resume();
+
+    const downloadOnce = (currentUrl, redirectsLeft) => {
+      const file = fs.createWriteStream(dest);
+      const req = https.get(currentUrl, { timeout: 120000 }, (res) => {
+        if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
+          res.resume();
+          file.close();
+          try { fs.unlinkSync(dest); } catch (e) {}
+          if (redirectsLeft <= 0) {
+            finish({ ok: false, error: 'Too many redirects.' });
+            return;
+          }
+          const nextUrl = new URL(res.headers.location, currentUrl).toString();
+          downloadOnce(nextUrl, redirectsLeft - 1);
+          return;
+        }
+        if (res.statusCode !== 200) {
+          res.resume();
+          file.close();
+          try { fs.unlinkSync(dest); } catch (e) {}
+          finish({ ok: false, error: 'Download failed (HTTP ' + res.statusCode + ').' });
+          return;
+        }
+        const total = parseInt(res.headers['content-length'] || '0', 10);
+        let received = 0;
+        res.on('data', (chunk) => {
+          received += chunk.length;
+          if (total > 0 && onProgress) onProgress(Math.min(100, Math.round((received / total) * 100)));
+        });
+        res.pipe(file);
+        file.on('finish', () => {
+          file.close();
+          finish({ ok: true, path: dest });
+        });
+        file.on('error', (e) => {
+          console.error('Write error:', e);
+          finish({ ok: false, error: e.message || 'Write failed.' });
+        });
+        res.on('error', (e) => {
+          console.error('Download error:', e);
+          file.close();
+          finish({ ok: false, error: e.message || 'Download failed.' });
+        });
+      });
+      req.on('timeout', () => {
+        req.destroy();
         file.close();
         try { fs.unlinkSync(dest); } catch (e) {}
-        finish({ ok: false, error: 'Download failed (HTTP ' + res.statusCode + ').' });
-        return;
-      }
-      const total = parseInt(res.headers['content-length'] || '0', 10);
-      let received = 0;
-      res.on('data', (chunk) => {
-        received += chunk.length;
-        if (total > 0 && onProgress) onProgress(Math.min(100, Math.round((received / total) * 100)));
+        finish({ ok: false, error: 'Download timed out.' });
       });
-      res.pipe(file);
-      file.on('finish', () => {
+      req.on('error', (e) => {
         file.close();
-        finish({ ok: true, path: dest });
-      });
-      file.on('error', (e) => {
-        console.error('Write error:', e);
-        finish({ ok: false, error: e.message || 'Write failed.' });
-      });
-      res.on('error', (e) => {
-        console.error('Download error:', e);
-        file.close();
+        try { fs.unlinkSync(dest); } catch (e2) {}
         finish({ ok: false, error: e.message || 'Download failed.' });
       });
-    });
-    req.on('timeout', () => {
-      req.destroy();
-      file.close();
-      try { fs.unlinkSync(dest); } catch (e) {}
-      finish({ ok: false, error: 'Download timed out.' });
-    });
-    req.on('error', (e) => {
-      file.close();
-      try { fs.unlinkSync(dest); } catch (e2) {}
-      finish({ ok: false, error: e.message || 'Download failed.' });
-    });
+    };
+
+    downloadOnce(url, 5);
   });
 }
 
