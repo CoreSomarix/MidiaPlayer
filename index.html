@@ -401,7 +401,151 @@
         /*  KEYBOARD NAVIGATION HIGHLIGHT                              */
         /* ========================================================== */
         #keynav-highlight { position: fixed; z-index: 100000; border: 3px solid #ffffff; border-radius: 16px; pointer-events: none; display: none; transition: left 0.12s ease, top 0.12s ease, width 0.12s ease, height 0.12s ease; }
-    </style>
+
+        /* ========================================================== */
+        /*  DVD APPLET                                                  */
+        /* ========================================================== */
+        body.dvd-applet-open::before, body.dvd-applet-open::after { opacity: 0; }
+        body.dvd-applet-open #home-bg-video.playing { display: none; }
+
+        #dvd-applet { background: #000; }
+        #dvd-applet .dvd-fade-bg { position: absolute; inset: 0; background: radial-gradient(120% 120% at 50% 50%, #1a1206 0%, #000 100%); opacity: 0; transition: opacity 0.8s ease; z-index: -1; }
+        #dvd-applet.visible .dvd-fade-bg { opacity: 1; }
+
+        #dvd-video-surface { position: absolute; inset: 0; background: #000; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+        #dvd-canvas { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; }
+        #dvd-video-surface .dvd-no-video { position: absolute; inset: 0; z-index: 1; pointer-events: none; background: url('assets/dvd/icons/dvd-applet-splash.png') center / cover no-repeat; opacity: 0; transition: opacity 0.6s ease; }
+        #dvd-applet.ready #dvd-video-surface .dvd-no-video { opacity: 1; }
+        #dvd-applet.has-video #dvd-video-surface .dvd-no-video { opacity: 0 !important; }
+
+        /* Info bar */
+        #dvd-info-bar { position: absolute; top: 0; left: 0; right: 0; padding: 13px 28px; display: flex; justify-content: space-between; align-items: center; z-index: 20; background: linear-gradient(135deg, rgba(255, 158, 24, 0.36), rgba(255, 122, 0, 0.24)); border-bottom: 1px solid rgba(255, 190, 90, 0.4); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); box-shadow: 0 4px 24px rgba(255, 120, 0, 0.16); transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.35s ease; }
+        #dvd-info-bar.hidden-ui { transform: translateY(-110%); opacity: 0; }
+        .dvd-info-left { display: flex; align-items: center; gap: 18px; }
+        .dvd-info-dvd { display: flex; align-items: center; gap: 10px; }
+        .dvd-info-dvd img { width: 30px; height: 30px; object-fit: contain; filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.7)); }
+        .dvd-info-dvd-label { color: rgba(255, 255, 255, 0.95); font-weight: 700; letter-spacing: 2px; font-size: 1rem; text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6); }
+        .dvd-info-title { color: #ffffff; font-size: 1.5rem; font-weight: 700; text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6); }
+        .dvd-info-right { display: flex; align-items: center; gap: 16px; }
+        #dvd-info-time { color: rgba(255, 255, 255, 0.95); font-weight: 700; font-size: 1.05rem; text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6); }
+        #dvd-back-btn { background: linear-gradient(135deg, rgba(255, 158, 24, 0.32), rgba(255, 122, 0, 0.2)); border: 1px solid rgba(255, 200, 110, 0.5); color: #ffffff; font-weight: 700; padding: 8px 18px; border-radius: 22px; cursor: pointer; font-size: 0.95rem; transition: background 0.2s; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+        #dvd-back-btn:hover { background: linear-gradient(135deg, rgba(255, 190, 60, 0.5), rgba(255, 150, 20, 0.38)); }
+
+        /* Chapter indicator */
+        #dvd-chapter-indicator { position: absolute; top: 80px; left: 28px; z-index: 20; background: linear-gradient(135deg, rgba(255, 158, 24, 0.28), rgba(255, 122, 0, 0.16)); border: 1px solid rgba(255, 190, 90, 0.4); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); color: rgba(255, 255, 255, 0.95); font-weight: 700; font-size: 1.05rem; padding: 10px 20px; border-radius: 22px; opacity: 0; transform: translateY(-8px); pointer-events: none; transition: opacity 0.25s ease, transform 0.25s ease; box-shadow: 0 4px 18px rgba(255, 130, 0, 0.18); }
+        #dvd-notice { position: absolute; left: 50%; top: 32%; z-index: 22; transform: translateX(-50%) translateY(-8px); background: linear-gradient(135deg, rgba(255, 158, 24, 0.32), rgba(255, 122, 0, 0.2)); border: 1px solid rgba(255, 190, 90, 0.45); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); color: #ffffff; font-weight: 700; font-size: 1.1rem; padding: 14px 28px; border-radius: 26px; opacity: 0; pointer-events: none; transition: opacity 0.25s ease, transform 0.25s ease; box-shadow: 0 8px 26px rgba(255, 130, 0, 0.22); white-space: normal; max-width: min(680px, 84vw); text-align: center; line-height: 1.35; }
+        #dvd-notice.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+        #dvd-chapter-indicator.show { opacity: 1; transform: translateY(0); }
+
+        /* Tip popup */
+        #dvd-tip-popup { position: absolute; top: 20px; left: 28px; z-index: 25; display: flex; flex-direction: column; gap: 6px; background: linear-gradient(135deg, rgba(255, 158, 24, 0.26), rgba(255, 122, 0, 0.14)); border-left: 4px solid #ffb400; border-radius: 14px; padding: 14px 20px; max-width: 400px; opacity: 0; transform: translateY(-10px); pointer-events: none; transition: opacity 0.4s ease, transform 0.4s ease; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); box-shadow: 0 4px 18px rgba(255, 130, 0, 0.18); }
+        #dvd-tip-popup.show { opacity: 1; transform: translateY(0); }
+        .dvd-tip-title { color: #ffb400; font-weight: 700; font-size: 0.85rem; letter-spacing: 3px; }
+        .dvd-tip-body { color: rgba(255, 255, 255, 0.92); font-size: 0.95rem; line-height: 1.45; }
+
+        /* Bottom controls */
+        #dvd-controls { position: absolute; bottom: 0; left: 0; right: 0; z-index: 20; display: flex; flex-direction: column; align-items: center; gap: 14px; padding-bottom: 24px; transform: translateY(120%); opacity: 0; transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.3s ease; }
+        #dvd-controls.show { transform: translateY(0); opacity: 1; }
+
+        /* Seekbar */
+        #dvd-seekbar { display: flex; align-items: center; gap: 14px; width: min(720px, 62%); background: linear-gradient(135deg, rgba(255, 158, 24, 0.28), rgba(255, 122, 0, 0.16)); border: 1px solid rgba(255, 190, 90, 0.35); padding: 12px 22px; border-radius: 30px; opacity: 0; transform: translateY(10px); pointer-events: none; transition: opacity 0.25s ease, transform 0.25s ease; backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); }
+        #dvd-seekbar.show { opacity: 1; transform: translateY(0); }
+        .dvd-seek-label { color: #ffb400; font-weight: 700; font-size: 0.85rem; letter-spacing: 1px; min-width: 44px; }
+        .dvd-seek-time { color: #ffffff; font-weight: 700; font-size: 0.85rem; font-variant-numeric: tabular-nums; min-width: 62px; text-align: center; text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5); }
+        .dvd-seek-remain { color: #ffb400; font-weight: 700; font-size: 0.85rem; font-variant-numeric: tabular-nums; min-width: 62px; text-align: center; text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5); }
+        #dvd-seek-track { flex: 1; height: 6px; border-radius: 3px; background: rgba(255, 190, 90, 0.3); overflow: hidden; }
+        #dvd-seek-fill { height: 100%; width: 0%; background: linear-gradient(90deg, #fdcb04, #fcd661); border-radius: 3px; transition: width 0.25s linear; }
+        #dvd-seek-fill.ff { animation: dvdSeekFF 1.1s linear infinite; }
+        #dvd-seek-fill.rw { animation: dvdSeekRW 1.1s linear infinite; }
+        @keyframes dvdSeekFF { 0% { width: 8%; } 100% { width: 92%; } }
+        @keyframes dvdSeekRW { 0% { width: 92%; } 100% { width: 8%; } }
+
+        /* Control bar pill */
+        #dvd-control-pill { display: flex; align-items: center; justify-content: space-between; gap: 12px; width: min(920px, 88%); background: linear-gradient(135deg, rgba(255, 158, 24, 0.3), rgba(255, 122, 0, 0.18)); border: 1px solid rgba(255, 190, 90, 0.4); padding: 14px 22px; border-radius: 40px; backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); box-shadow: 0 10px 36px rgba(255, 120, 0, 0.22); }
+        .dvd-ctrl-group { display: flex; align-items: center; gap: 10px; }
+        .dvd-ctrl-btn { width: 52px; height: 52px; border-radius: 50%; background: rgba(255, 170, 40, 0.2); border: 1px solid rgba(255, 190, 90, 0.4); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background 0.18s, transform 0.18s; }
+        .dvd-ctrl-btn:hover { background: rgba(255, 195, 70, 0.4); transform: scale(1.06); }
+        .dvd-ctrl-btn.primary { width: 64px; height: 64px; background: linear-gradient(135deg, #fdcb04, #f0a500); border: none; }
+        .dvd-ctrl-btn.primary:hover { background: linear-gradient(135deg, #ffd94a, #f5b400); transform: scale(1.08); }
+        .dvd-ctrl-btn.primary.needs-play { background: linear-gradient(135deg, #ffa033, #ff6b00); animation: dvdNeedsPlayPulse 1.6s ease-in-out infinite; }
+        .dvd-ctrl-btn.primary.needs-play:hover { background: linear-gradient(135deg, #ffb45a, #ff7a1a); }
+        @keyframes dvdNeedsPlayPulse { 0%, 100% { box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.3), 0 0 12px rgba(255, 120, 0, 0.7); } 50% { box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.55), 0 0 26px rgba(255, 140, 0, 1); } }
+        .dvd-ctrl-btn img { width: 26px; height: 26px; object-fit: contain; filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.35)); }
+        .dvd-ctrl-btn.primary img { width: 30px; height: 30px; }
+
+        /* Volume popup (WMC-inspired) */
+        #dvd-volume-popup { position: absolute; bottom: 150px; right: 30px; z-index: 21; display: flex; flex-direction: column; align-items: center; gap: 14px; background: linear-gradient(135deg, rgba(255, 158, 24, 0.34), rgba(255, 122, 0, 0.2)); border: 1px solid rgba(255, 190, 90, 0.45); border-radius: 24px; padding: 20px 18px 28px; opacity: 0; transform: translateY(12px) scale(0.96); pointer-events: none; transition: opacity 0.25s ease, transform 0.25s ease; backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); box-shadow: 0 10px 30px rgba(255, 120, 0, 0.22); }
+        #dvd-volume-popup.show { opacity: 1; transform: translateY(0) scale(1); pointer-events: auto; }
+        .dvd-vol-icon { width: 30px; height: 30px; object-fit: contain; filter: drop-shadow(0 0 6px rgba(0, 0, 0, 0.6)); }
+        #dvd-volume-track { position: relative; width: 8px; height: 210px; border-radius: 6px; background: rgba(255, 255, 255, 0.18); cursor: pointer; touch-action: none; outline: none; }
+        #dvd-volume-track:focus-visible { box-shadow: 0 0 0 3px rgba(255, 190, 90, 0.55); }
+        #dvd-volume-fill { position: absolute; left: 0; right: 0; bottom: 0; border-radius: 6px; background: linear-gradient(180deg, #ffcf5c, #ff9d00); height: 70%; }
+        #dvd-volume-thumb { position: absolute; left: 50%; top: 0; width: 22px; height: 22px; margin-left: -11px; border-radius: 50%; background: #ffb400; border: 2px solid rgba(255, 255, 255, 0.7); box-shadow: 0 0 12px rgba(255, 190, 20, 0.9); transform: translateY(-50%); pointer-events: none; }
+        .dvd-vol-label { color: #ffffff; font-weight: 700; font-size: 1.25rem; text-shadow: 0 2px 6px rgba(0, 0, 0, 0.5); }
+
+        /* Exit confirmation modal */
+        #dvd-exit-modal { position: fixed; inset: 0; z-index: 200; display: flex; align-items: center; justify-content: center; background: rgba(0, 0, 0, 0.55); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); opacity: 0; pointer-events: none; transition: opacity 0.25s ease; }
+        #dvd-exit-modal.active { opacity: 1; pointer-events: auto; }
+        .dvd-exit-box { background: linear-gradient(135deg, rgba(255, 158, 24, 0.36), rgba(255, 122, 0, 0.24)); border: 1px solid rgba(255, 190, 90, 0.5); border-radius: 24px; padding: 32px 40px; max-width: 460px; text-align: center; backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6); }
+        .dvd-exit-title { color: #ffffff; font-size: 1.4rem; font-weight: 700; margin-bottom: 10px; }
+        .dvd-exit-body { color: rgba(255, 255, 255, 0.9); font-size: 1rem; line-height: 1.5; margin-bottom: 24px; }
+        .dvd-exit-actions { display: flex; justify-content: center; gap: 12px; }
+        .dvd-exit-btn { background: rgba(255, 170, 40, 0.2); border: 1px solid rgba(255, 190, 90, 0.45); color: #ffffff; font-weight: 700; padding: 10px 24px; border-radius: 22px; cursor: pointer; font-size: 0.95rem; transition: background 0.18s, transform 0.18s; }
+        .dvd-exit-btn:hover { background: rgba(255, 195, 70, 0.38); transform: scale(1.04); }
+        .dvd-exit-btn.primary { background: linear-gradient(135deg, #ffc81a, #ff9d00); border-color: #ffd97a; color: #3a2200; }
+        .dvd-exit-btn.primary:hover { background: linear-gradient(135deg, #ffd94a, #ffb400); }
+
+        /* DVD settings menu (track-pill style) */
+        #dvd-settings-menu { position: absolute; right: 26px; top: 76px; z-index: 22; background: linear-gradient(135deg, rgba(60, 33, 4, 0.92), rgba(36, 19, 2, 0.94)); border: 1px solid rgba(255, 190, 90, 0.35); border-radius: 24px; padding: 18px; min-width: 300px; opacity: 0; transform: translateY(-10px) scale(0.98); pointer-events: none; transition: opacity 0.22s ease, transform 0.22s ease; backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); box-shadow: 0 14px 40px rgba(0, 0, 0, 0.4); }
+        #dvd-settings-menu.show { opacity: 1; transform: translateY(0) scale(1); pointer-events: auto; }
+        .dvd-settings-heading { color: #ffb84d; font-size: 0.8rem; font-weight: 700; letter-spacing: 3px; margin: 6px 6px 12px; }
+        .dvd-settings-group { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; }
+        .dvd-settings-pill { background: rgba(255, 170, 40, 0.2); border: 1px solid rgba(255, 190, 90, 0.35); color: rgba(255, 255, 255, 0.95); padding: 9px 18px; border-radius: 24px; font-weight: 700; font-size: 0.9rem; cursor: pointer; transition: background 0.18s, transform 0.18s, border-color 0.18s; }
+        .dvd-settings-pill:hover { background: rgba(255, 195, 70, 0.34); transform: scale(1.04); }
+        .dvd-settings-pill.selected { background: linear-gradient(135deg, #ffc81a, #ff9d00); border-color: #ffd97a; color: #3a2200; }
+
+        /* Captions / audio language bubble */
+        #dvd-option-bubble { position: absolute; bottom: 130px; z-index: 21; background: linear-gradient(135deg, rgba(60, 33, 4, 0.94), rgba(36, 19, 2, 0.96)); border: 1px solid rgba(255, 190, 90, 0.4); border-radius: 18px; padding: 10px 0; min-width: 210px; opacity: 0; transform: translateY(10px) scale(0.97); pointer-events: none; transition: opacity 0.2s ease, transform 0.2s ease; backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
+        #dvd-option-bubble.show { opacity: 1; transform: translateY(0) scale(1); pointer-events: auto; }
+        .dvd-option-item { display: flex; align-items: center; gap: 10px; padding: 10px 20px; color: rgba(255, 255, 255, 0.92); font-size: 0.9rem; cursor: pointer; transition: background 0.15s; }
+        .dvd-option-item:hover { background: rgba(255, 170, 40, 0.24); }
+        .dvd-option-item.selected { color: #ffc81a; }
+
+        /* Dock ready badge (orange, pops in when playback is ready) */
+        .dvd-ready-badge { position: absolute; top: -8px; right: -8px; width: 24px; height: 24px; background: #f97316; border: 2.5px solid #ffffff; border-radius: 50%; display: none; z-index: 12; pointer-events: none; box-shadow: 0 0 12px rgba(249, 115, 22, 0.8); }
+        .dvd-ready-badge.visible { display: block; animation: dvdBadgePop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1); }
+        @keyframes dvdBadgePop { 0% { transform: scale(0); } 60% { transform: scale(1.35); } 100% { transform: scale(1); } }
+        .dvd-ready-badge.visible.pulse { animation: dvdBadgePulse 2.4s ease-in-out infinite; }
+        @keyframes dvdBadgePulse { 0%, 100% { box-shadow: 0 0 8px rgba(249, 115, 22, 0.8); transform: scale(1); } 50% { box-shadow: 0 0 20px rgba(249, 115, 22, 1); transform: scale(1.12); } }
+
+        /* One-time onboarding: DVD dock bounce + badge fade-out */
+        .dock-item.onboard-bounce { visibility: visible; animation: onboardBounce 0.9s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+        @keyframes onboardBounce { 0% { transform: translateY(0) scale(1); } 25% { transform: translateY(-40px) scale(1.15); } 50% { transform: translateY(0) scale(0.95); } 75% { transform: translateY(-22px) scale(1.06); } 100% { transform: translateY(0) scale(1); } }
+        .dvd-ready-badge.fade-out { animation: dvdBadgeFade 0.5s ease forwards; }
+        @keyframes dvdBadgeFade { to { transform: scale(0); opacity: 0; } }
+        #dvd-onboarding-modal .music-modal-box { max-width: 560px; }
+        #dvd-onboarding-modal .music-modal-box p { line-height: 1.55; }
+
+        /* Loading popup */
+        #dvd-loading-popup { position: fixed; inset: 0; z-index: 90; display: flex; align-items: center; justify-content: center; background: rgba(0, 0, 0, 0.55); opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
+        #dvd-loading-popup.show { opacity: 1; pointer-events: auto; }
+        .dvd-loading-box { display: flex; flex-direction: column; align-items: center; gap: 10px; background: linear-gradient(135deg, rgba(60, 33, 4, 0.92), rgba(36, 19, 2, 0.95)); border: 1px solid rgba(255, 190, 90, 0.4); border-radius: 26px; padding: 30px 48px; backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); box-shadow: 0 14px 44px rgba(0, 0, 0, 0.45); }
+        .dvd-loading-title { color: #ffffff; font-size: 1.6rem; font-weight: 700; }
+        .dvd-loading-sub { color: #ffb400; font-weight: 700; letter-spacing: 3px; font-size: 0.9rem; }
+        .dvd-loading-spinner { width: 42px; height: 42px; border: 4px solid rgba(255, 190, 90, 0.25); border-top-color: #ffb400; border-radius: 50%; animation: dvdSpin 1s linear infinite; margin-bottom: 6px; }
+        @keyframes dvdSpin { to { transform: rotate(360deg); } }
+        html.gpu-software * {
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+    }
+        html.gpu-software body::before,
+        html.gpu-software #app-loading-screen::before,
+        html.gpu-software .applet-bg,
+        html.gpu-software .photos-applet-bg,
+        html.gpu-software .settings-applet-bg,
+        html.gpu-software .applet-wave { animation: none !important; }
+        html.gpu-software .applet-content { will-change: auto !important; }
+</style>
 </head>
 <body>
     <audio id="bgm-audio" src="assets/audio/bgm.mp3" preload="auto" loop></audio>
@@ -430,6 +574,24 @@
     <audio id="settings-sfx-complete" src="assets/audio/settings-update-complete.mp3" preload="auto"></audio>
     <audio id="settings-sfx-updating" src="assets/audio/settings-updating.mp3" preload="auto" loop></audio>
     <audio id="settings-sfx-back" src="assets/audio/settings-back.mp3" preload="auto"></audio>
+
+    <!-- DVD Applet SFX -->
+    <audio id="dvd-sfx-open" src="assets/audio/dvd-open.mp3" preload="auto"></audio>
+    <audio id="dvd-sfx-play" src="assets/audio/dvd-play.mp3" preload="auto"></audio>
+    <audio id="dvd-sfx-pause" src="assets/audio/dvd-pause.mp3" preload="auto"></audio>
+    <audio id="dvd-sfx-skip" src="assets/audio/dvd-skip.mp3" preload="auto"></audio>
+    <audio id="dvd-sfx-prev" src="assets/audio/dvd-prev.mp3" preload="auto"></audio>
+    <audio id="dvd-sfx-ff" src="assets/audio/dvd-ff.mp3" preload="auto"></audio>
+    <audio id="dvd-sfx-rw" src="assets/audio/dvd-rw.mp3" preload="auto"></audio>
+    <audio id="dvd-sfx-vol" src="assets/audio/dvd-vol.mp3" preload="auto"></audio>
+    <audio id="dvd-sfx-settings" src="assets/audio/dvd-settings.mp3" preload="auto"></audio>
+    <audio id="dvd-sfx-menu-hover" src="assets/audio/dvd-menu-hover.mp3" preload="auto"></audio>
+    <audio id="dvd-sfx-menu-click" src="assets/audio/dvd-menu-click.mp3" preload="auto"></audio>
+    <audio id="dvd-sfx-close" src="assets/audio/dvd-close.mp3" preload="auto"></audio>
+    <audio id="dvd-sfx-cannot-skip" src="assets/audio/dvd-cannot-skip.mp3" preload="auto"></audio>
+    <audio id="dvd-sfx-ui-appear" src="assets/audio/dvd-ui-appear.mp3" preload="auto"></audio>
+    <audio id="dvd-sfx-ui-disappear" src="assets/audio/dvd-ui-disappear.mp3" preload="auto"></audio>
+    <audio id="dvd-sfx-tip" src="assets/audio/dvd-tip.mp3" preload="auto"></audio>
 
     <!-- Welcome Slideshow SFX -->
     <audio id="sfx-welcome" src="assets/audio/welcome-sfx.mp3" preload="auto"></audio>
@@ -483,7 +645,10 @@
                     <div class="bubble-subtitle" id="dvd-bubble-subtitle">Watch DVD & Blu-ray Movies</div>
                 </div>
             </div>
-            <div class="app-icon app-dvd"><img src="dvd.png" alt="DVD"></div>
+            <div class="dock-icon-wrap">
+                <div class="app-icon app-dvd"><img src="dvd.png" alt="DVD"></div>
+                <span class="dvd-ready-badge" id="dvd-ready-badge"></span>
+            </div>
         </div>
         <div class="dock-item" data-app="settings">
             <div class="speech-bubble-wrapper"><div class="speech-bubble" id="bubble-4"><div class="bubble-pointer"></div><div class="bubble-title">Settings</div><div class="bubble-subtitle">Customize Midia</div></div></div>
@@ -750,11 +915,108 @@
 
     <div id="photos-fullscreen"><img id="photos-fullscreen-img" src="" alt="Fullscreen"></div>
 
+    <!-- ========================================================== -->
+    <!-- DVD APPLET HTML                                              -->
+    <!-- ========================================================== -->
+    <div id="dvd-applet" class="applet-container">
+        <div class="dvd-fade-bg"></div>
+
+            <div id="dvd-player-view">
+            <div id="dvd-video-surface"><canvas id="dvd-canvas"></canvas><span class="dvd-no-video"></span></div>
+
+            <div id="dvd-info-bar" class="hidden-ui">
+                <div class="dvd-info-left">
+                    <div class="dvd-info-dvd"><img src="dvd.png" alt="DVD"><span class="dvd-info-dvd-label">DVD</span></div>
+                    <div class="dvd-info-title" id="dvd-info-title">No Disc</div>
+                </div>
+                <div class="dvd-info-right">
+                    <span id="dvd-info-time">12:00</span>
+                    <button id="dvd-back-btn">← Back to Home</button>
+                </div>
+            </div>
+
+            <div id="dvd-chapter-indicator">Chapter 1 of 1</div>
+
+            <div id="dvd-notice"></div>
+
+            <div id="dvd-tip-popup">
+                <span class="dvd-tip-title">TIP</span>
+                <span class="dvd-tip-body">Hover over at the bottom screen or press space for media playback controls</span>
+            </div>
+
+            <div id="dvd-controls">
+                <div id="dvd-seekbar"><span class="dvd-seek-label" id="dvd-seek-label">FF</span><span class="dvd-seek-time" id="dvd-seek-time">0:00</span><div id="dvd-seek-track"><div id="dvd-seek-fill"></div></div><span class="dvd-seek-remain" id="dvd-seek-remain">-0:00</span></div>
+                <div id="dvd-control-pill">
+                    <div class="dvd-ctrl-group">
+                        <button class="dvd-ctrl-btn" id="dvd-btn-captions" title="Captions"><img src="assets/dvd/icons/captions.png" alt="Captions"></button>
+                        <button class="dvd-ctrl-btn" id="dvd-btn-audio" title="Audio Language"><img src="assets/dvd/icons/audio.png" alt="Audio"></button>
+                    </div>
+                    <div class="dvd-ctrl-group">
+                        <button class="dvd-ctrl-btn" id="dvd-btn-prev" title="Previous Chapter"><img src="assets/dvd/icons/prev.png" alt="Previous"></button>
+                        <button class="dvd-ctrl-btn" id="dvd-btn-rw" title="Rewind"><img src="assets/dvd/icons/rewind.png" alt="Rewind"></button>
+                        <button class="dvd-ctrl-btn primary" id="dvd-btn-play" title="Play"><img src="assets/dvd/icons/play.png" alt="Play"></button>
+                        <button class="dvd-ctrl-btn" id="dvd-btn-stop" title="Stop"><img src="assets/dvd/icons/stop.png" alt="Stop"></button>
+                        <button class="dvd-ctrl-btn" id="dvd-btn-ff" title="Fast Forward"><img src="assets/dvd/icons/fast-forward.png" alt="Fast Forward"></button>
+                        <button class="dvd-ctrl-btn" id="dvd-btn-skip" title="Next Chapter"><img src="assets/dvd/icons/skip.png" alt="Skip"></button>
+                    </div>
+                    <div class="dvd-ctrl-group">
+                        <button class="dvd-ctrl-btn" id="dvd-btn-volume" title="Volume"><img src="assets/dvd/icons/volume.png" alt="Volume"></button>
+                        <button class="dvd-ctrl-btn" id="dvd-btn-settings" title="Settings"><img src="assets/dvd/icons/settings.png" alt="Settings"></button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="dvd-option-bubble"></div>
+
+            <div id="dvd-settings-menu">
+                <div class="dvd-settings-heading">ZOOM</div>
+                <div class="dvd-settings-group" id="dvd-zoom-group">
+                    <button class="dvd-settings-pill selected" data-zoom="normal">Normal</button>
+                    <button class="dvd-settings-pill" data-zoom="stretch">Stretch</button>
+                    <button class="dvd-settings-pill" data-zoom="crop">Crop</button>
+                    <button class="dvd-settings-pill" data-zoom="dynamic">Dynamic</button>
+                </div>
+                <div class="dvd-settings-heading">DVD MENU</div>
+                <div class="dvd-settings-group">
+                    <button class="dvd-settings-pill" id="dvd-btn-title-menu">Skip to Title Menu</button>
+                </div>
+            </div>
+
+            <div id="dvd-volume-popup">
+                <img class="dvd-vol-icon" src="assets/dvd/icons/volume.png" alt="Volume">
+                <div id="dvd-volume-track" role="slider" tabindex="0" aria-label="Volume" aria-valuemin="0" aria-valuemax="100" aria-valuenow="70">
+                    <div id="dvd-volume-fill"></div>
+                    <div id="dvd-volume-thumb"></div>
+                </div>
+                <span class="dvd-vol-label" id="dvd-vol-label">70%</span>
+            </div>
+
+            <div id="dvd-exit-modal">
+                <div class="dvd-exit-box">
+                    <div class="dvd-exit-title">Are you sure you want to leave?</div>
+                    <div class="dvd-exit-body">This will stop the current DVD playback that is currently playing</div>
+                    <div class="dvd-exit-actions">
+                        <button class="dvd-exit-btn" id="dvd-exit-no">Cancel</button>
+                        <button class="dvd-exit-btn primary" id="dvd-exit-yes">Yes, Leave</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="dvd-loading-popup">
+        <div class="dvd-loading-box">
+            <div class="dvd-loading-spinner"></div>
+            <div class="dvd-loading-title">Loading DVD</div>
+            <div class="dvd-loading-sub">PLEASE WAIT</div>
+        </div>
+    </div>
+
     <!-- DVD Error Modal -->
     <div id="dvd-error-modal" class="music-modal">
         <div class="music-modal-box">
-            <h2>Error</h2>
-            <p>The DVD Applet currently isn't working right now. Development of the applet will be underway and we are exited to release this applet soon! For any updates contact Somarix on Discord!</p>
+            <h2 id="dvd-error-title">No Disc</h2>
+            <p id="dvd-error-msg">Please insert a DVD to start DVD playback.</p>
             <div class="modal-actions"><button class="modal-btn modal-btn-yes" id="modal-dvd-ok">Okay</button></div>
         </div>
     </div>
@@ -767,6 +1029,17 @@
             <div class="modal-actions">
                 <button class="modal-btn modal-btn-no" id="welcome-prev-btn" style="display:none;">Previous</button>
                 <button class="modal-btn modal-btn-yes" id="welcome-next-btn">Next</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- DVD Applet Onboarding (one-time) -->
+    <div id="dvd-onboarding-modal" class="music-modal">
+        <div class="music-modal-box">
+            <h2 id="dvd-onboarding-title"></h2>
+            <p id="dvd-onboarding-body"></p>
+            <div class="modal-actions">
+                <button class="modal-btn modal-btn-yes" id="dvd-onboarding-ok">OK</button>
             </div>
         </div>
     </div>
@@ -839,6 +1112,14 @@
                         <div class="settings-menu-text">
                             <div class="settings-menu-title">Check for Updates</div>
                             <div class="settings-menu-desc">See if a newer version of Midia is available</div>
+                        </div>
+                        <div class="settings-menu-chevron">›</div>
+                    </div>
+                    <div class="settings-menu-item" data-action="export-log">
+                        <img class="settings-menu-icon" src="assets/settings/system-icon.png" alt="Export Log">
+                        <div class="settings-menu-text">
+                            <div class="settings-menu-title">Export Log</div>
+                            <div class="settings-menu-desc">Save a diagnostic log to help fix issues</div>
                         </div>
                         <div class="settings-menu-chevron">›</div>
                     </div>
@@ -1021,7 +1302,7 @@
                 <div class="settings-option-row"><span class="settings-option-label">Dock Hover</span><button class="settings-toggle" data-bind="sound.sfxToggles.dock"><span class="knob"></span></button></div>
                 <div class="settings-option-row"><span class="settings-option-label">Bubble / Tooltip</span><button class="settings-toggle" data-bind="sound.sfxToggles.bubble"><span class="knob"></span></button></div>
                 <div class="settings-option-row"><span class="settings-option-label">Click / Exit</span><button class="settings-toggle" data-bind="sound.sfxToggles.click"><span class="knob"></span></button></div>
-                <div class="settings-option-row"><span class="settings-option-label">DVD Error</span><button class="settings-toggle" data-bind="sound.sfxToggles.dvd"><span class="knob"></span></button></div>
+                <div class="settings-option-row"><span class="settings-option-label">DVD Applet</span><button class="settings-toggle" data-bind="sound.sfxToggles.dvd"><span class="knob"></span></button></div>
                 <div class="settings-option-row"><span class="settings-option-label">Music Applet</span><button class="settings-toggle" data-bind="sound.sfxToggles.music"><span class="knob"></span></button></div>
                 <div class="settings-option-row"><span class="settings-option-label">Photos Applet</span><button class="settings-toggle" data-bind="sound.sfxToggles.photos"><span class="knob"></span></button></div>
                 <div class="settings-option-row"><span class="settings-option-label">Settings Applet</span><button class="settings-toggle" data-bind="sound.sfxToggles.settings"><span class="knob"></span></button></div>
@@ -1220,6 +1501,7 @@
     </div>
 
     <script src="photos-applet.js"></script>
+    <script src="dvd-engine.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const fs = window.require('fs');
@@ -1231,6 +1513,9 @@
                 if (electron) ipcRenderer = electron.ipcRenderer;
             } catch (e) {
                 console.warn('IPC Renderer unavailable.');
+            }
+            if (process.argv && process.argv.indexOf('--midia-gpu-software') >= 0) {
+                document.documentElement.classList.add('gpu-software');
             }
 
             const state = { isAnimating: false, hoverTimeout: null, showSeconds: false };
@@ -1259,6 +1544,22 @@
                 clickSFX: new Audio('assets/audio/click.mp3'),
                 exitSFX: new Audio('assets/audio/exit.mp3'),
                 dvdErrorSFX: new Audio('assets/audio/dvd-error.mp3'),
+                dvdOpenSFX: document.getElementById('dvd-sfx-open'),
+                dvdPlaySFX: document.getElementById('dvd-sfx-play'),
+                dvdPauseSFX: document.getElementById('dvd-sfx-pause'),
+                dvdSkipSFX: document.getElementById('dvd-sfx-skip'),
+                dvdPrevSFX: document.getElementById('dvd-sfx-prev'),
+                dvdFfSFX: document.getElementById('dvd-sfx-ff'),
+                dvdRwSFX: document.getElementById('dvd-sfx-rw'),
+                dvdVolSFX: document.getElementById('dvd-sfx-vol'),
+                dvdSettingsSFX: document.getElementById('dvd-sfx-settings'),
+                dvdMenuHoverSFX: document.getElementById('dvd-sfx-menu-hover'),
+                dvdMenuClickSFX: document.getElementById('dvd-sfx-menu-click'),
+                dvdCloseSFX: document.getElementById('dvd-sfx-close'),
+                dvdCannotSkipSFX: document.getElementById('dvd-sfx-cannot-skip'),
+                dvdUiAppearSFX: document.getElementById('dvd-sfx-ui-appear'),
+                dvdUiDisappearSFX: document.getElementById('dvd-sfx-ui-disappear'),
+                dvdTipSFX: document.getElementById('dvd-sfx-tip'),
                 musicHoverCardSFX: document.getElementById('sfx-hover-card'),
                 musicClickUISFX: document.getElementById('sfx-click-ui'),
                 musicBackSFX: document.getElementById('sfx-back'),
@@ -1285,6 +1586,7 @@
                     this.bubbleSFX.load(); this.dockHoverSFX.load(); this.clickSFX.load(); this.exitSFX.load(); this.dvdErrorSFX.load();
                     this.musicHoverCardSFX?.load(); this.musicClickUISFX?.load(); this.musicBackSFX?.load(); this.musicPlaySFX?.load(); this.musicPauseSFX?.load(); this.musicSkipSFX?.load(); this.musicPrevSFX?.load(); this.musicBackBtnSFX?.load(); this.musicRefreshSFX?.load();
                     this.welcomeSFX?.load();
+                    [this.dvdOpenSFX, this.dvdPlaySFX, this.dvdPauseSFX, this.dvdSkipSFX, this.dvdPrevSFX, this.dvdFfSFX, this.dvdRwSFX, this.dvdVolSFX, this.dvdSettingsSFX, this.dvdMenuHoverSFX, this.dvdMenuClickSFX, this.dvdCloseSFX, this.dvdCannotSkipSFX, this.dvdUiAppearSFX, this.dvdUiDisappearSFX, this.dvdTipSFX].forEach(a => { if (a) a.load(); });
                 },
 
                 setMenuMusic(path) {
@@ -1300,6 +1602,23 @@
                 playClick() { if (!this._sfx('click', this.clickSFX)) return; this.clickSFX.currentTime = 0; this.clickSFX.play().catch(() => {}); },
                 playExit() { if (!this._sfx('click', this.exitSFX)) return; this.exitSFX.currentTime = 0; this.exitSFX.play().catch(() => {}); },
                 playDvdError() { if (!this._sfx('dvd', this.dvdErrorSFX)) return; this.dvdErrorSFX.currentTime = 0; this.dvdErrorSFX.play().catch(() => {}); },
+                _playDvd(a) { if (!this._sfx('dvd', a)) return; a.currentTime = 0; a.play().catch(() => {}); },
+                playDvdOpen() { this._playDvd(this.dvdOpenSFX); },
+                playDvdPlay() { this._playDvd(this.dvdPlaySFX); },
+                playDvdPause() { this._playDvd(this.dvdPauseSFX); },
+                playDvdSkip() { this._playDvd(this.dvdSkipSFX); },
+                playDvdPrev() { this._playDvd(this.dvdPrevSFX); },
+                playDvdFf() { this._playDvd(this.dvdFfSFX); },
+                playDvdRw() { this._playDvd(this.dvdRwSFX); },
+                playDvdVol() { this._playDvd(this.dvdVolSFX); },
+                playDvdSettings() { this._playDvd(this.dvdSettingsSFX); },
+                playDvdMenuHover() { this._playDvd(this.dvdMenuHoverSFX); },
+                playDvdMenuClick() { this._playDvd(this.dvdMenuClickSFX); },
+                playDvdClose() { this._playDvd(this.dvdCloseSFX); },
+                playDvdCannotSkip() { this._playDvd(this.dvdCannotSkipSFX); },
+                playDvdUiAppear() { this._playDvd(this.dvdUiAppearSFX); },
+                playDvdUiDisappear() { this._playDvd(this.dvdUiDisappearSFX); },
+                playDvdTip() { this._playDvd(this.dvdTipSFX); },
                 playMusicHoverCard() { if (!this._sfx('music', this.musicHoverCardSFX)) return; this.musicHoverCardSFX.currentTime = 0; this.musicHoverCardSFX.play().catch(() => {}); },
                 playMusicClickUI() { if (!this._sfx('music', this.musicClickUISFX)) return; this.musicClickUISFX.currentTime = 0; this.musicClickUISFX.play().catch(() => {}); },
                 playMusicBack() { if (!this._sfx('music', this.musicBackSFX)) return; this.musicBackSFX.currentTime = 0; this.musicBackSFX.play().catch(() => {}); },
@@ -1387,7 +1706,10 @@
                         this.bgm, this.photosBgm, this.doodleBgm, this.settingsBgm,
                         this.bubbleSFX, this.dockHoverSFX, this.clickSFX, this.exitSFX, this.dvdErrorSFX,
                         this.musicHoverCardSFX, this.musicClickUISFX, this.musicBackSFX, this.musicPlaySFX,
-                        this.musicPauseSFX, this.musicSkipSFX, this.musicPrevSFX, this.musicBackBtnSFX, this.musicRefreshSFX
+                        this.musicPauseSFX, this.musicSkipSFX, this.musicPrevSFX, this.musicBackBtnSFX, this.musicRefreshSFX,
+                        this.dvdOpenSFX, this.dvdPlaySFX, this.dvdPauseSFX, this.dvdSkipSFX, this.dvdPrevSFX,
+                        this.dvdFfSFX, this.dvdRwSFX, this.dvdVolSFX, this.dvdSettingsSFX,
+                        this.dvdMenuHoverSFX, this.dvdMenuClickSFX, this.dvdCloseSFX, this.dvdCannotSkipSFX, this.dvdUiAppearSFX, this.dvdUiDisappearSFX
                     ].forEach(el => { if (el) el.muted = muted; });
                     if (PhotosSFX) Object.values(PhotosSFX).forEach(v => { if (v instanceof Audio) v.muted = muted; });
                     if (SettingsSFX) Object.values(SettingsSFX).forEach(v => { if (v && typeof v === 'object' && 'muted' in v) v.muted = muted; });
@@ -1400,7 +1722,10 @@
                     const deviceId = SettingsAppState.music && SettingsAppState.music.audioOutputDevice;
                     const els = [
                         this.bgm, this.photosBgm, this.doodleBgm, this.settingsBgm,
-                        this.bubbleSFX, this.dockHoverSFX, this.clickSFX, this.exitSFX, this.dvdErrorSFX
+                        this.bubbleSFX, this.dockHoverSFX, this.clickSFX, this.exitSFX, this.dvdErrorSFX,
+                        this.dvdOpenSFX, this.dvdPlaySFX, this.dvdPauseSFX, this.dvdSkipSFX, this.dvdPrevSFX,
+                        this.dvdFfSFX, this.dvdRwSFX, this.dvdVolSFX, this.dvdSettingsSFX,
+                        this.dvdMenuHoverSFX, this.dvdMenuClickSFX, this.dvdCloseSFX, this.dvdCannotSkipSFX, this.dvdUiAppearSFX, this.dvdUiDisappearSFX
                     ];
                     if (MusicApplet && MusicApplet.audioPlayer) els.push(MusicApplet.audioPlayer);
                     els.forEach(el => { if (el && typeof el.setSinkId === 'function') { el.setSinkId(deviceId === 'system' ? '' : deviceId).catch(() => {}); } });
@@ -1490,7 +1815,7 @@
                 isWaveRunning: false,
 
                 startIdleTimer() {
-                    if (state.isAnimating || MusicApplet.isOpen || (window.PhotosApplet && PhotosApplet.isOpen) || SettingsApplet.isOpen) return;
+                    if (state.isAnimating || MusicApplet.isOpen || (window.PhotosApplet && PhotosApplet.isOpen) || SettingsApplet.isOpen || (window.DvdApplet && DvdApplet.isOpen)) return;
                     if (this.idleTimeout) clearTimeout(this.idleTimeout);
                     if (this.waveLoopTimeout) clearTimeout(this.waveLoopTimeout);
                     if (!this.isWaveRunning) this.stopIdleWave(false);
@@ -1580,7 +1905,14 @@
                     } else if (item.dataset.app === 'photos') {
                         sub.textContent = window.PhotosApplet ? PhotosApplet.getBubbleText() : 'View your collection of photos';
                     } else if (item.dataset.app === 'dvd') {
-                        sub.textContent = "Watch DVD & Blu-ray Movies";
+                        const titleEl = bubble.querySelector('.bubble-title');
+                        if (window.DvdApplet && DvdApplet.state.hasDisc && DvdApplet.state.discReady) {
+                            titleEl.textContent = DvdApplet.state.movieTitle || 'DVD';
+                            sub.textContent = "Current Disc";
+                        } else {
+                            titleEl.textContent = "No Disc";
+                            sub.textContent = "Please insert a DVD or a Blu-ray disc to continue";
+                        }
                     } else if (item.dataset.app === 'settings') {
                         sub.textContent = "Customize Midia.";
                     }
@@ -1590,11 +1922,11 @@
                     const bubbleEl = item.querySelector('.speech-bubble'); bubbleEl.style.background = config.gradient;
                     state.hoverTimeout = setTimeout(() => { bubble.classList.add('visible'); bubble.style.opacity = '1'; AudioManager.playBubble(); }, 1000);
                 },
-                onMouseLeave(item) { if (state.hoverTimeout) { clearTimeout(state.hoverTimeout); state.hoverTimeout = null; } const bubble = item.querySelector('.speech-bubble-wrapper'); bubble.classList.remove('visible'); bubble.style.opacity = '0'; item.querySelector('.app-icon').style.transform = 'scale(1)'; document.querySelectorAll('.dock-item').forEach(el => { el.style.marginLeft = ''; el.style.marginRight = ''; }); }
+                onMouseLeave(item) { if (state.hoverTimeout) { clearTimeout(state.hoverTimeout); state.hoverTimeout = null; } const bubble = item.querySelector('.speech-bubble-wrapper'); bubble.classList.remove('visible'); bubble.style.opacity = '0'; if (item.dataset.app === 'dvd') { const titleEl = item.querySelector('.bubble-title'); if (titleEl) titleEl.textContent = (window.DvdApplet && DvdApplet.state.hasDisc && DvdApplet.state.discReady) ? (DvdApplet.state.movieTitle || 'DVD') : 'No Disc'; } item.querySelector('.app-icon').style.transform = 'scale(1)'; document.querySelectorAll('.dock-item').forEach(el => { el.style.marginLeft = ''; el.style.marginRight = ''; }); }
             };
 
             const BootManager = {
-                _rebootTimer: null, play() { if (this._rebootTimer) clearTimeout(this._rebootTimer); IdleManager.forceReset(); const datetime = document.getElementById('datetime-display'); const items = document.querySelectorAll('.dock-item'); if (datetime) datetime.className = 'header-datetime'; items.forEach(el => { el.style.animationDelay = ''; el.style.transform = ''; el.querySelector('.app-icon').style.transform = ''; el.className = 'dock-item'; }); void document.body.offsetWidth; if (datetime) datetime.classList.add('boot-active'); const delays = [0, 150, 300, 450]; items.forEach((el, index) => { el.style.animationDelay = delays[index] + 'ms'; el.classList.add('boot-active'); }); state.isAnimating = true; setTimeout(() => { state.isAnimating = false; IdleManager.startIdleTimer(); }, 1800); },
+                _rebootTimer: null, play(holdLock) { if (this._rebootTimer) clearTimeout(this._rebootTimer); IdleManager.forceReset(); const datetime = document.getElementById('datetime-display'); const items = document.querySelectorAll('.dock-item'); if (datetime) datetime.className = 'header-datetime'; items.forEach(el => { el.style.animationDelay = ''; el.style.transform = ''; el.querySelector('.app-icon').style.transform = ''; el.className = 'dock-item'; }); void document.body.offsetWidth; if (datetime) datetime.classList.add('boot-active'); const delays = [0, 150, 300, 450]; items.forEach((el, index) => { el.style.animationDelay = delays[index] + 'ms'; el.classList.add('boot-active'); }); state.isAnimating = true; if (holdLock) return; setTimeout(() => { state.isAnimating = false; IdleManager.startIdleTimer(); }, 1800); },
                 exit(clickedItem, customCallback) { if (state.isAnimating) return; IdleManager.forceReset(); state.isAnimating = true; const datetime = document.getElementById('datetime-display'); const items = document.querySelectorAll('.dock-item'); if (this._rebootTimer) clearTimeout(this._rebootTimer); if (datetime) datetime.className = 'header-datetime exit-active'; let immediateSoundPlayed = false; items.forEach(el => { const isTarget = el === clickedItem; el.style.transform = 'translateY(0) scale(1)'; el.querySelector('.app-icon').style.transform = 'scale(1)'; el.style.animationDelay = ''; el.className = 'dock-item exit-active'; if (isTarget) el.style.animationDelay = '1s'; if (!isTarget && !immediateSoundPlayed) { AudioManager.playExit(); immediateSoundPlayed = true; } }); setTimeout(() => { AudioManager.playExit(); }, 1000); if (customCallback) { setTimeout(() => { customCallback(); state.isAnimating = false; }, 1500); } else { this._rebootTimer = setTimeout(() => { this.play(); }, 4000); } }
             };
 
@@ -2134,7 +2466,7 @@
                 sound: { muteAll: false, sfxEnabled: true, sfxVolume: 80, bgmVolume: 80, menuMusicPath: null, sfxToggles: { dock: true, bubble: true, click: true, dvd: true, music: true, photos: true, settings: true } },
                 clock: { format24h: false, showSeconds: false, idleTimeout: 60, launchFullscreen: false },
                 appearance: { type: 'gradient', colors: { top: '#074877', mid: '#177bbb', bottom: '#2da0e3' }, imagePath: null, videoPath: null, fps: 30, dockLabels: 'on-hover' },
-                system: { launchOnStartup: false, autoOpenMusic: false, autoOpenPhotos: false, language: 'en', welcomeShown: false }
+                system: { launchOnStartup: false, autoOpenMusic: false, autoOpenPhotos: false, language: 'en', welcomeShown: false, dvdOnboardingShown: false }
             };
 
             const SettingsApplet = {
@@ -2187,6 +2519,38 @@
                     if (this.views[viewId]) this.views[viewId].classList.add('active-view');
                 },
 
+                async exportLog() {
+                    const toast = document.getElementById('toast-notification');
+                    const tTitle = toast ? toast.querySelector('.toast-title') : null;
+                    const tBody = toast ? toast.querySelector('.toast-body') : null;
+                    const origTitle = tTitle ? tTitle.textContent : null;
+                    const origBody = tBody ? tBody.textContent : null;
+                    const showToast = (title, body, ms) => {
+                        if (!toast || !tTitle || !tBody) return;
+                        tTitle.textContent = title;
+                        tBody.textContent = body;
+                        toast.classList.add('active');
+                        setTimeout(() => {
+                            toast.classList.remove('active');
+                            if (origTitle) tTitle.textContent = origTitle;
+                            if (origBody) tBody.textContent = origBody;
+                        }, ms || 4000);
+                    };
+                    if (!ipcRenderer) { showToast('Export Log', 'Logging is not available in this build.'); return; }
+                    try {
+                        const res = await ipcRenderer.invoke('log:export');
+                        if (res && res.ok) {
+                            showToast('Log Exported', 'Saved to:\n' + res.path, 6000);
+                        } else if (res && res.canceled) {
+                            showToast('Export Log', 'Export canceled.');
+                        } else {
+                            showToast('Export Log', (res && res.error) || 'Export failed.');
+                        }
+                    } catch (e) {
+                        showToast('Export Log', 'Export failed: ' + (e && e.message ? e.message : e));
+                    }
+                },
+
                 setupNavigation() {
                     document.querySelectorAll('#settings-applet .nav-tab').forEach(tab => {
                         tab.addEventListener('click', () => {
@@ -2201,6 +2565,10 @@
                         item.addEventListener('mouseenter', () => SettingsSFX.playHover());
                         item.addEventListener('click', () => {
                             SettingsSFX.playUIClick();
+                            if (item.dataset.action === 'export-log') {
+                                this.exportLog();
+                                return;
+                            }
                             this.navigateTo(item.dataset.target);
                         });
                     });
@@ -2814,7 +3182,7 @@
                     'dvd-applet': '#fdcb04',
                     'settings-applet': '#6b4af0'
                 },
-                EXPLICIT: 'button, .dock-item, .nav-tab, .nav-back-btn, .settings-menu-item, .settings-seg-btn, .settings-toggle, .settings-pick-btn, .settings-reset-btn, .settings-apply-btn, .settings-select-btn, .settings-select-option, .sort-option, .folder-icon, .mini-player, .photo-tile, .puzzle-piece, .album-tile, .track-pill, .details-track-pill, .np-back-btn, .visualizer-toggle-btn, .onboarding-home-btn, .doodle-tool-btn, .doodle-color',
+                EXPLICIT: 'button, .dock-item, .nav-tab, .nav-back-btn, .settings-menu-item, .settings-seg-btn, .settings-toggle, .settings-pick-btn, .settings-reset-btn, .settings-apply-btn, .settings-select-btn, .settings-select-option, .sort-option, .folder-icon, .mini-player, .photo-tile, .puzzle-piece, .album-tile, .track-pill, .details-track-pill, .np-back-btn, .visualizer-toggle-btn, .onboarding-home-btn, .doodle-tool-btn, .doodle-color, .dvd-ctrl-btn, .dvd-settings-pill, .dvd-option-item, #dvd-back-btn',
 
                 init() {
                     this.highlight = document.createElement('div');
@@ -3015,6 +3383,11 @@
                         if (exitBtn) { exitBtn.click(); this.clear(); }
                         return;
                     }
+                    if (app.id === 'dvd-applet') {
+                        if (window.DvdApplet) DvdApplet.requestExit();
+                        this.clear();
+                        return;
+                    }
                     this.clear();
                 }
             };
@@ -3061,14 +3434,930 @@
                     this.modal.classList.remove('active');
                     SettingsAppState.system.welcomeShown = true;
                     SettingsApplet.saveSettings();
+                    if (!SettingsAppState.system.dvdOnboardingShown) {
+                        state.isAnimating = true;
+                        setTimeout(() => { DvdOnboarding.open(); }, 500);
+                    }
                 }
             };
 
+            const DvdOnboarding = {
+                modal: document.getElementById('dvd-onboarding-modal'),
+                titleEl: document.getElementById('dvd-onboarding-title'),
+                bodyEl: document.getElementById('dvd-onboarding-body'),
+                okBtn: document.getElementById('dvd-onboarding-ok'),
+                badge: document.getElementById('dvd-ready-badge'),
+                dvdItem: null,
+                steps: [
+                    { title: 'The DVD Applet now works', body: "The DVD applet is one of the core features for Midia & physical media collectors alike. you can now watch DVD's built into Midia via the DVD applet (compatible with dvd/bd drives external and internal)" },
+                    { title: 'Oh yeah', body: 'When inserting a disc & the disc is ready to play a indicator will come up along with the movies name when you hover over the icon, pretty sweet right?' },
+                    { title: 'One more thing', body: "The DVD applet is still under construction. There will be a few bugs and glitches that we are currently looking into such as the arrow keys not being mapped properly. However in the futre we will be looking into this and an update will patch those glitches. If you'd like to keep up on when the bugs will be fixed contact SomarixCore on Discord. Enjoy!" }
+                ],
+                step: 0,
+                active: false,
+                init() {
+                    this.dvdItem = document.querySelector('.dock-item[data-app="dvd"]');
+                    this.okBtn.addEventListener('click', () => this.next());
+                },
+                open() {
+                    if (this.active || SettingsAppState.system.dvdOnboardingShown) return;
+                    if (MusicApplet.isOpen || (window.PhotosApplet && PhotosApplet.isOpen) || SettingsApplet.isOpen || (window.DvdApplet && DvdApplet.isOpen)) return;
+                    this.active = true;
+                    this.step = 0;
+                    state.isAnimating = true;
+                    IdleManager.forceReset();
+                    if (this.dvdItem) {
+                        this.dvdItem.classList.remove('onboard-bounce');
+                        void this.dvdItem.offsetWidth;
+                        this.dvdItem.classList.add('onboard-bounce');
+                    }
+                    setTimeout(() => this.showStep(0), 1000);
+                },
+                showStep(i) {
+                    this.step = i;
+                    this.titleEl.textContent = this.steps[i].title;
+                    this.bodyEl.textContent = this.steps[i].body;
+                    this.modal.classList.add('active');
+                    AudioManager.playWelcome();
+                },
+                next() {
+                    SettingsSFX.playUIClick();
+                    if (this.step === 0) {
+                        this.modal.classList.remove('active');
+                        this.showBadge();
+                        setTimeout(() => this.showStep(1), 1200);
+                    } else if (this.step === 1) {
+                        this.modal.classList.remove('active');
+                        setTimeout(() => this.showStep(2), 250);
+                    } else {
+                        this.finish();
+                    }
+                },
+                showBadge() {
+                    if (!this.badge) return;
+                    this.badge.classList.remove('visible', 'pulse', 'fade-out');
+                    void this.badge.offsetWidth;
+                    this.badge.classList.add('visible', 'pulse');
+                },
+                finish() {
+                    this.modal.classList.remove('active');
+                    if (this.badge) {
+                        this.badge.classList.remove('pulse');
+                        this.badge.classList.add('fade-out');
+                        setTimeout(() => this.badge.classList.remove('visible', 'fade-out'), 550);
+                    }
+                    if (this.dvdItem) this.dvdItem.classList.remove('onboard-bounce');
+                    this.active = false;
+                    SettingsAppState.system.dvdOnboardingShown = true;
+                    SettingsApplet.saveSettings();
+                    state.isAnimating = false;
+                    IdleManager.startIdleTimer();
+                }
+            };
+
+            const DvdCore = {
+                real: false,
+                dev: false,
+                state: null,
+                discPath: null,
+                appletOpen: false,
+                engine: null,
+                rectLoop: null,
+
+                async init() {
+                    if (!ipcRenderer) return false;
+                    try {
+                        const caps = await ipcRenderer.invoke('dvd:capabilities');
+                        this.real = !!(caps && caps.real);
+                        this.dev = !!(caps && caps.dev);
+                    } catch (e) { this.real = false; }
+                    if (!this.real) return false;
+                    try {
+                        if (!window.DvdEngine) return false;
+                        this.engine = window.DvdEngine.create({
+                            canvas: document.getElementById('dvd-canvas'),
+                            onState: (s) => { this.state = s; if (window.DvdApplet) DvdApplet.applyState(s); },
+                            onEnded: () => { if (window.DvdApplet) DvdApplet.onEnded(); },
+                            onError: (err) => { if (window.DvdApplet) DvdApplet.onCoreError(err); },
+                            onFirstFrame: () => { const applet = document.getElementById('dvd-applet'); if (applet) applet.classList.add('has-video'); }
+                        });
+                    } catch (e) { this.engine = null; }
+                    if (!this.engine) { this.real = false; return false; }
+                    const applyDisc = (d) => {
+                        if (d && d.status === 'ready') {
+                            this.discPath = d.path;
+                            DvdApplet.setDisc({ title: d.title || 'DVD', totalChapters: 1 });
+                            if (this.appletOpen) {
+                                this.loadDisc(d.path).then(r => { if (r && r.ok) this.play(); });
+                            }
+                        } else {
+                            this.discPath = null;
+                            DvdApplet.noDisc();
+                        }
+                    };
+                    ipcRenderer.on('dvd:disc', (e, d) => applyDisc(d));
+                    try {
+                        const cur = await ipcRenderer.invoke('dvd:get-disc');
+                        if (cur) applyDisc(cur);
+                    } catch (e) { /* ignore */ }
+                    return true;
+                },
+
+                play() { if (this.engine) this.engine.play(); },
+                pause() { if (this.engine) this.engine.pause(); },
+                stop() { if (this.engine) this.engine.stop(); },
+                cancelAutoPlay() { if (this.engine && this.engine.cancelAutoPlay) this.engine.cancelAutoPlay(); },
+                seekBy(seconds) { if (this.engine) this.engine.seekBy(seconds); },
+                nextChapter() { if (this.engine) this.engine.nextChapter(); },
+                prevChapter() { if (this.engine) this.engine.prevChapter(); },
+                setVolume(v) { if (this.engine) this.engine.setVolume(Math.round(v * 100)); },
+                setZoom(z) { if (this.engine) this.engine.setZoom(z); },
+                setAudioTrack(i) { if (this.engine) this.engine.setAudioTrack(i); },
+                setSubtitle(i) { if (this.engine) this.engine.setSubtitle(i); },
+                goToTitleMenu() { if (this.engine) this.engine.goToTitleMenu(); },
+
+                eject() { return ipcRenderer.invoke('dvd:eject'); },
+                scan() { return ipcRenderer.invoke('dvd:scan'); },
+                loadTest() { return ipcRenderer.invoke('dvd:load-test'); },
+
+                async loadDisc(pathToLoad) {
+                    try {
+                        const spec = /^[A-Za-z]:[\\/]$/.test(pathToLoad) ? { kind: 'drive', path: pathToLoad } : { path: pathToLoad };
+                        const res = await ipcRenderer.invoke('dvd:load', spec);
+                        if (res && res.ok && this.engine) {
+                            const started = await this.engine.startMedia(res.mrl, res);
+                            this.discPath = pathToLoad;
+                            DvdApplet.setDisc({ title: res.title || 'DVD', totalChapters: 1 });
+                            if (started && started.ok) return { ok: true, title: res.title, chapters: started.chapters || 1 };
+                            return started || { ok: false, message: 'Playback failed to start' };
+                        }
+                        return res || { ok: false, message: 'Load failed' };
+                    } catch (e) {
+                        return { ok: false, message: e.message || 'Load failed' };
+                    }
+                },
+
+                isActionAllowed(action) {
+                    if (this.engine) return this.engine.isActionAllowed(action);
+                    return action === 'eject' || action === 'volume';
+                },
+
+                onAppletOpen() {
+                    this.appletOpen = true;
+                    ipcRenderer.send('dvd:applet-open', true);
+                    this.startRectLoop();
+                    if (this.dev && !this.discPath) {
+                        this.loadTest().then(p => {
+                            if (p) { this.loadDisc(p).then(r => { if (r && r.ok) this.play(); }); }
+                        });
+                    } else if (this.discPath) {
+                        this.loadDisc(this.discPath).then(r => { if (r && r.ok) this.play(); });
+                    }
+                },
+
+                onAppletClose() {
+                    this.appletOpen = false;
+                    this.stopRectLoop();
+                    ipcRenderer.send('dvd:applet-open', false);
+                },
+
+                startRectLoop() {
+                    this.stopRectLoop();
+                    this.rectLoop = setInterval(() => this.reportVideoRect(), 1000);
+                },
+
+                stopRectLoop() {
+                    if (this.rectLoop) { clearInterval(this.rectLoop); this.rectLoop = null; }
+                },
+
+                reportVideoRect() {}
+            };
+
+            const DvdApplet = {
+                applet: document.getElementById('dvd-applet'),
+                loadingPopup: document.getElementById('dvd-loading-popup'),
+                infoBar: document.getElementById('dvd-info-bar'),
+                controls: document.getElementById('dvd-controls'),
+                isOpen: false,
+                controlsVisible: false,
+                seekActive: false,
+                seekMode: 'ff',
+                seekTimeTimer: null,
+                chapterTimer: null,
+                volumeTimer: null,
+                tipTimer: null,
+                core: null,
+                state: {
+                    hasDisc: false,
+                    discReady: false,
+                    movieTitle: '',
+                    currentChapter: 1,
+                    totalChapters: 1,
+                    isPlaying: false,
+                    volume: 70,
+                    zoom: 'normal',
+                    audioTrack: 0,
+                    subtitleTrack: -1,
+                    audioTracks: ['English', 'Español', 'Français', 'Off'],
+                    subtitleTracks: ['Off', 'English', 'Español', 'Français']
+                },
+
+                init() {
+                    this.core = DvdCore;
+                    this.setupControls();
+                    this.setupMenuInput();
+                    this.setupVolume();
+                    this.setupSettingsMenu();
+                    this.setupOptionBubble();
+                    this.setupKeyboardShortcuts();
+                    this.setupUIIdle();
+                    this.setupInfoClock();
+                    if (ipcRenderer) ipcRenderer.on('dvd-media-key', (e, key) => this.onMediaKey(key));
+                    DvdCore.init().then(() => {
+                        if (!DvdCore.real) this.setDisc({ title: 'Demo Disc', totalChapters: 12 });
+                    });
+                },
+
+                async onDockClick() {
+                    if (this.isOpen || state.isAnimating) return;
+                    if (!this.state.hasDisc || !this.state.discReady) {
+                        let found = null;
+                        if (this.core && typeof this.core.scan === 'function') {
+                            try { found = await this.core.scan(); } catch (e) { found = null; }
+                        }
+                        if (found && found.path) {
+                            this.discPath = found.path;
+                            DvdApplet.setDisc({ title: found.title || 'DVD', totalChapters: 1 });
+                            AudioManager.playClick();
+                            this.open();
+                            return;
+                        }
+                        this.showError();
+                        return;
+                    }
+                    AudioManager.playClick();
+                    this.open();
+                },
+
+                showError() {
+                    const dvdItem = document.querySelector('.dock-item[data-app="dvd"]');
+                    const allItems = document.querySelectorAll('.dock-item');
+                    allItems.forEach(el => {
+                        if (el === dvdItem) return;
+                        const indexOfEl = Array.from(allItems).indexOf(el);
+                        const indexOfDvd = Array.from(allItems).indexOf(dvdItem);
+                        if (indexOfEl < indexOfDvd) el.style.marginRight = '40px';
+                        else el.style.marginLeft = '40px';
+                    });
+                    AudioManager.playDvdError();
+                    dvdItem.classList.add('shake-no');
+                    const modal = document.getElementById('dvd-error-modal');
+                    const title = document.getElementById('dvd-error-title');
+                    const msg = document.getElementById('dvd-error-msg');
+                    if (title) title.textContent = 'No Disc';
+                    if (msg) msg.textContent = 'Please insert a DVD to start DVD playback.';
+                    modal.classList.add('active');
+                    const ok = document.getElementById('modal-dvd-ok');
+                    const clear = () => {
+                        dvdItem.style.transform = 'translateY(0) scale(1)';
+                        dvdItem.style.visibility = 'visible';
+                        dvdItem.classList.remove('shake-no');
+                        allItems.forEach(el => { el.style.marginRight = ''; el.style.marginLeft = ''; });
+                        modal.classList.remove('active');
+                        ok.removeEventListener('click', clear);
+                    };
+                    ok.addEventListener('click', clear);
+                },
+
+                open() {
+                    if (this.isOpen) return;
+                    this.loadingPopup.classList.add('show');
+                    setTimeout(() => {
+                        this.loadingPopup.classList.remove('show');
+                        AudioManager.playDvdOpen();
+                        const dvdItem = document.querySelector('.dock-item[data-app="dvd"]');
+                        BootManager.exit(dvdItem, () => this.finishOpen());
+                    }, 950);
+                },
+
+                finishOpen() {
+                    if (this.isOpen) return;
+                    this.isOpen = true;
+                    document.body.classList.add('dvd-applet-open');
+                    AudioManager.fadeOutBGM();
+                    this.applet.classList.add('visible');
+                    setTimeout(() => this.applet.classList.add('ready'), 80);
+                    this.showUI();
+                    setTimeout(() => this.showTip(), 3000);
+                    if (this.core && this.core.onAppletOpen) this.core.onAppletOpen();
+                    if (ipcRenderer) { ipcRenderer.send('dvd-media-keys', true); ipcRenderer.send('dvd:scanning', false); }
+                },
+
+                close() {
+                    if (!this.isOpen) return;
+                    this.isOpen = false;
+                    this.state.isPlaying = false;
+                    this.stopSeekTimeTick();
+                    const playImg = document.querySelector('#dvd-btn-play img');
+                    if (playImg) playImg.src = 'assets/dvd/icons/play.png';
+                    const playBtn = document.getElementById('dvd-btn-play');
+                    if (playBtn) playBtn.classList.remove('needs-play');
+                    document.getElementById('dvd-exit-modal').classList.remove('active');
+                    if (this.core) this.core.stop();
+                    if (this.core && this.core.onAppletClose) this.core.onAppletClose();
+                    this.hideUI();
+                    this.applet.classList.remove('visible', 'ready');
+                    document.body.classList.remove('dvd-applet-open');
+                    AudioManager.playDvdClose();
+                    AudioManager.fadeInBGM();
+                    if (ipcRenderer) { ipcRenderer.send('dvd-media-keys', false); ipcRenderer.send('dvd:scanning', true); }
+                    BootManager.play();
+                },
+
+                setDisc(meta) {
+                    this.state.hasDisc = true;
+                    this.state.discReady = true;
+                    this.state.movieTitle = (meta && meta.title) || 'DVD';
+                    this.state.totalChapters = (meta && meta.totalChapters) || 1;
+                    this.state.currentChapter = 1;
+                    const infoTitle = document.getElementById('dvd-info-title');
+                    if (infoTitle) infoTitle.textContent = this.state.movieTitle;
+                    const appletEl = document.getElementById('dvd-applet');
+                    if (appletEl) appletEl.classList.remove('has-video');
+                    const badge = document.getElementById('dvd-ready-badge');
+                    if (badge) {
+                        badge.classList.remove('visible', 'pulse');
+                        void badge.offsetWidth;
+                        badge.classList.add('visible');
+                        setTimeout(() => badge.classList.add('pulse'), 600);
+                    }
+                },
+
+                noDisc() {
+                    this.state.hasDisc = false;
+                    this.state.discReady = false;
+                    this.state.movieTitle = '';
+                    const badge = document.getElementById('dvd-ready-badge');
+                    if (badge) badge.classList.remove('visible', 'pulse');
+                    const infoTitle = document.getElementById('dvd-info-title');
+                    if (infoTitle) infoTitle.textContent = 'No Disc';
+                    const appletEl = document.getElementById('dvd-applet');
+                    if (appletEl) appletEl.classList.remove('has-video');
+                },
+
+                setupControls() {
+                    document.getElementById('dvd-btn-play').addEventListener('click', () => this.togglePlayback());
+                    document.getElementById('dvd-btn-prev').addEventListener('click', () => this.prevChapter());
+                    document.getElementById('dvd-btn-skip').addEventListener('click', () => this.nextChapter());
+                    document.getElementById('dvd-btn-rw').addEventListener('click', () => this.toggleSeek('rw'));
+                    document.getElementById('dvd-btn-ff').addEventListener('click', () => this.toggleSeek('ff'));
+                    document.getElementById('dvd-btn-stop').addEventListener('click', () => this.stopPlayback());
+                    document.getElementById('dvd-btn-volume').addEventListener('click', () => this.toggleVolumePopup());
+                    document.getElementById('dvd-btn-settings').addEventListener('click', () => this.toggleSettingsMenu());
+                    document.getElementById('dvd-btn-captions').addEventListener('click', () => this.toggleOptionBubble('subtitle'));
+                    document.getElementById('dvd-btn-audio').addEventListener('click', () => this.toggleOptionBubble('audio'));
+                    document.getElementById('dvd-back-btn').addEventListener('click', () => this.requestExit());
+                    document.getElementById('dvd-exit-yes').addEventListener('click', () => this.confirmExit());
+                    document.getElementById('dvd-exit-no').addEventListener('click', () => this.cancelExit());
+                },
+
+                setupMenuInput() {
+                    const isDvdMenuActive = () => {
+                        const ap = document.getElementById('dvd-applet');
+                        if (!ap || !ap.classList.contains('visible')) return false;
+                        const core = window.DvdApplet ? DvdApplet.core : null;
+                        const eng = core && core.engine;
+                        const st = eng && eng.getState ? eng.getState() : null;
+                        return !!(st && st.loaded && st.isDvd);
+                    };
+                    document.addEventListener('keydown', (e) => {
+                        if (!isDvdMenuActive()) return;
+                        const t = e.target;
+                        const tag = t && t.tagName ? t.tagName.toLowerCase() : '';
+                        if (tag === 'input' || tag === 'textarea' || tag === 'select' || (t && t.isContentEditable)) return;
+                        const modal = document.getElementById('dvd-exit-modal');
+                        if (modal && modal.classList.contains('active')) return;
+                        const NAV = window.DvdEngine && window.DvdEngine.NAVIGATE;
+                        const eng = window.DvdApplet && DvdApplet.core && DvdApplet.core.engine;
+                        if (!NAV || !eng) return;
+                        let dir = -1;
+                        if (e.key === 'ArrowUp') dir = NAV.Up;
+                        else if (e.key === 'ArrowDown') dir = NAV.Down;
+                        else if (e.key === 'ArrowLeft') dir = NAV.Left;
+                        else if (e.key === 'ArrowRight') dir = NAV.Right;
+                        else if (e.key === 'Enter') dir = NAV.Activate;
+                        if (dir >= 0) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            eng.navigate(dir);
+                        }
+                    }, true);
+                    // Mouse support for the DVD menu: a click activates the
+                    // currently-highlighted button. (libvlc's memory-rendered
+                    // vout has no window to track the cursor position, so the
+                    // highlight itself still follows the arrow keys / remote.)
+                    const cv = document.getElementById('dvd-canvas');
+                    if (cv) cv.addEventListener('click', () => {
+                        if (!isDvdMenuActive()) return;
+                        const NAV = window.DvdEngine && window.DvdEngine.NAVIGATE;
+                        const eng = window.DvdApplet && DvdApplet.core && DvdApplet.core.engine;
+                        if (NAV && eng) eng.navigate(NAV.Activate);
+                    });
+                },
+
+                requestExit() {
+                    if (!this.isOpen) return;
+                    const modal = document.getElementById('dvd-exit-modal');
+                    if (modal.classList.contains('active')) return;
+                    AudioManager.playDvdMenuClick();
+                    modal.classList.add('active');
+                },
+
+                confirmExit() {
+                    document.getElementById('dvd-exit-modal').classList.remove('active');
+                    this.close();
+                },
+
+                cancelExit() {
+                    AudioManager.playDvdMenuClick();
+                    document.getElementById('dvd-exit-modal').classList.remove('active');
+                },
+
+                handleEject() {
+                    if (!this.isOpen) return;
+                    if (!this.guardAction('eject')) return;
+                    this.close();
+                },
+
+                togglePlayback() {
+                    if (!this.state.hasDisc) return;
+                    if (!this.guardAction('play')) return;
+                    if (this.seekActive) this.stopSeek();
+                    this.state.isPlaying = !this.state.isPlaying;
+                    const img = document.querySelector('#dvd-btn-play img');
+                    if (img) img.src = this.state.isPlaying ? 'assets/dvd/icons/pause.png' : 'assets/dvd/icons/play.png';
+                    const playBtn = document.getElementById('dvd-btn-play');
+                    if (playBtn) playBtn.classList.remove('needs-play');
+                    if (this.state.isPlaying) { AudioManager.playDvdPlay(); if (this.core) this.core.play(); }
+                    else { AudioManager.playDvdPause(); if (this.core) this.core.pause(); }
+                    this.showNotice(this.state.isPlaying ? 'Playing' : 'Paused');
+                },
+
+                stopPlayback() {
+                    if (!this.state.hasDisc) return;
+                    if (!this.guardAction('play')) return;
+                    if (this.seekActive) this.stopSeek();
+                    this.state.isPlaying = false;
+                    const img = document.querySelector('#dvd-btn-play img');
+                    if (img) img.src = 'assets/dvd/icons/play.png';
+                    const playBtn = document.getElementById('dvd-btn-play');
+                    if (playBtn) playBtn.classList.add('needs-play');
+                    const appletEl = document.getElementById('dvd-applet');
+                    if (appletEl) appletEl.classList.remove('has-video');
+                    if (this.core) this.core.cancelAutoPlay();
+                    if (this.core) this.core.stop();
+                    this.showNotice('Playback stopped, to continue playback again press play on the bottom navigation bar');
+                },
+
+                nextChapter() {
+                    if (!this.state.hasDisc) return;
+                    if (!this.guardAction('next')) return;
+                    if (this.state.currentChapter >= this.state.totalChapters) { this.showCannotSkip(); return; }
+                    this.state.currentChapter++;
+                    AudioManager.playDvdSkip();
+                    if (this.core) this.core.nextChapter();
+                    this.showChapter();
+                },
+
+                prevChapter() {
+                    if (!this.state.hasDisc) return;
+                    if (!this.guardAction('prev')) return;
+                    if (this.state.currentChapter <= 1) { this.showCannotSkip(); return; }
+                    this.state.currentChapter--;
+                    AudioManager.playDvdPrev();
+                    if (this.core) this.core.prevChapter();
+                    this.showChapter();
+                },
+
+                actionBlockMessages: {
+                    prev: 'Previous Chapter not available at this time',
+                    next: 'Next Chapter not available at this time',
+                    rw: 'Rewind not available at this time',
+                    ff: 'Fast Forward not available at this time',
+                    play: 'Playback not available at this time',
+                    volume: 'Volume not available at this time',
+                    settings: 'Settings not available at this time',
+                    audio: 'Audio Language not available at this time',
+                    captions: 'Captions not available at this time',
+                    zoom: 'Zoom not available at this time',
+                    titleMenu: 'Title Menu not available at this time',
+                    eject: 'Eject not available at this time'
+                },
+
+                guardAction(action) {
+                    if (this.core && this.core.isActionAllowed && !this.core.isActionAllowed(action)) {
+                        this.showBlocked(this.actionBlockMessages[action] || 'Action not available at this time');
+                        return false;
+                    }
+                    return true;
+                },
+
+                showBlocked(message) {
+                    AudioManager.playDvdCannotSkip();
+                    this.showNotice(message);
+                },
+
+                showCannotSkip() { this.showBlocked('Chapter not skippable at this time'); },
+
+                showNotice(message) {
+                    const msg = document.getElementById('dvd-notice');
+                    if (!msg) return;
+                    msg.textContent = message;
+                    msg.classList.add('show');
+                    if (this.noticeTimer) clearTimeout(this.noticeTimer);
+                    this.noticeTimer = setTimeout(() => msg.classList.remove('show'), 3500);
+                },
+
+                skipToTitleMenu() {
+                    if (!this.state.hasDisc) return;
+                    if (!this.guardAction('titleMenu')) return;
+                    AudioManager.playDvdMenuClick();
+                    this.hideSettingsMenu();
+                    if (this.core) this.core.goToTitleMenu();
+                    this.showTitleMenu();
+                    this.showNotice('Title Menu');
+                },
+
+                showTitleMenu() {
+                    const ind = document.getElementById('dvd-chapter-indicator');
+                    ind.textContent = 'Title Menu';
+                    ind.classList.add('show');
+                    if (this.chapterTimer) clearTimeout(this.chapterTimer);
+                    this.chapterTimer = setTimeout(() => ind.classList.remove('show'), 4000);
+                },
+
+                showChapter() {
+                    const ind = document.getElementById('dvd-chapter-indicator');
+                    ind.textContent = `Chapter ${this.state.currentChapter} of ${this.state.totalChapters}`;
+                    ind.classList.add('show');
+                    if (this.chapterTimer) clearTimeout(this.chapterTimer);
+                    this.chapterTimer = setTimeout(() => ind.classList.remove('show'), 4000);
+                },
+
+                toggleSeek(mode) {
+                    if (!this.state.hasDisc) return;
+                    if (!this.guardAction(mode === 'ff' ? 'ff' : 'rw')) return;
+                    if (this.seekActive && this.seekMode === mode) { this.stopSeek(); return; }
+                    if (this.seekActive) this.stopSeek();
+                    this.seekActive = true;
+                    this.seekMode = mode;
+                    const seekbar = document.getElementById('dvd-seekbar');
+                    const label = document.getElementById('dvd-seek-label');
+                    label.textContent = mode === 'ff' ? 'FF' : 'RW';
+                    seekbar.classList.add('show');
+                    this.startSeekTimeTick();
+                    if (mode === 'ff') { AudioManager.playDvdFf(); if (this.core) this.core.seekBy(120); }
+                    else { AudioManager.playDvdRw(); if (this.core) this.core.seekBy(-120); }
+                    this.showNotice(mode === 'ff' ? 'Fast Forwarding' : 'Rewinding');
+                },
+
+                stopSeek() {
+                    this.seekActive = false;
+                    this.stopSeekTimeTick();
+                    document.getElementById('dvd-seekbar').classList.remove('show');
+                    document.getElementById('dvd-seek-fill').className = '';
+                },
+
+                hideSeekbar() { this.stopSeek(); },
+
+                formatDur(sec) {
+                    sec = Math.max(0, Math.floor(sec || 0));
+                    const h = Math.floor(sec / 3600);
+                    const m = Math.floor((sec % 3600) / 60);
+                    const s = sec % 60;
+                    return h > 0 ? `${h}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}` : `${m}:${String(s).padStart(2, '0')}`;
+                },
+
+                updateSeekTimes() {
+                    const st = this.core && this.core.engine && this.core.engine.getState ? this.core.engine.getState() : null;
+                    const timeEl = document.getElementById('dvd-seek-time');
+                    const remainEl = document.getElementById('dvd-seek-remain');
+                    const fill = document.getElementById('dvd-seek-fill');
+                    if (!st || !timeEl || !remainEl) return;
+                    const t = Math.floor((st.time || 0) / 1000);
+                    const len = Math.floor((st.length || 0) / 1000);
+                    timeEl.textContent = this.formatDur(t);
+                    remainEl.textContent = '-' + this.formatDur(Math.max(0, len - t));
+                    if (fill && len > 0) fill.style.width = Math.min(100, (t / len) * 100) + '%';
+                },
+
+                startSeekTimeTick() {
+                    this.stopSeekTimeTick();
+                    this.updateSeekTimes();
+                    this.seekTimeTimer = setInterval(() => this.updateSeekTimes(), 250);
+                },
+
+                stopSeekTimeTick() {
+                    if (this.seekTimeTimer) { clearInterval(this.seekTimeTimer); this.seekTimeTimer = null; }
+                },
+
+                setupVolume() {
+                    const track = document.getElementById('dvd-volume-track');
+                    if (!track) return;
+                    const setFromY = (clientY) => {
+                        const r = track.getBoundingClientRect();
+                        let v = Math.round((1 - (clientY - r.top) / r.height) * 100);
+                        this.setStateVolume(Math.max(0, Math.min(100, v)));
+                    };
+                    const onDown = (e) => {
+                        e.preventDefault();
+                        try { track.focus(); track.setPointerCapture(e.pointerId); } catch (err) {}
+                        this._volDragging = true;
+                        setFromY(e.clientY);
+                    };
+                    const onMove = (e) => { if (this._volDragging) setFromY(e.clientY); };
+                    const onUp = () => { this._volDragging = false; this.scheduleVolumeHide(); };
+                    track.addEventListener('pointerdown', onDown);
+                    track.addEventListener('pointermove', onMove);
+                    track.addEventListener('pointerup', onUp);
+                    track.addEventListener('pointercancel', onUp);
+                    track.addEventListener('keydown', (e) => {
+                        if (e.key === 'ArrowUp' || e.key === 'ArrowRight') { e.preventDefault(); this.adjustVolume(5); }
+                        else if (e.key === 'ArrowDown' || e.key === 'ArrowLeft') { e.preventDefault(); this.adjustVolume(-5); }
+                    });
+                    track.addEventListener('wheel', (e) => { e.preventDefault(); this.adjustVolume(e.deltaY < 0 ? 5 : -5); }, { passive: false });
+                    this.updateVolVisual(this.state.volume != null ? this.state.volume : 70);
+                },
+
+                setStateVolume(v) {
+                    this.state.volume = v;
+                    this.updateVolVisual(v);
+                    document.getElementById('dvd-vol-label').textContent = v + '%';
+                    if (this.core) this.core.setVolume(v / 100);
+                },
+
+                updateVolVisual(v) {
+                    const track = document.getElementById('dvd-volume-track');
+                    const thumb = document.getElementById('dvd-volume-thumb');
+                    const fill = document.getElementById('dvd-volume-fill');
+                    if (!track || !thumb) return;
+                    const pct = Math.max(0, Math.min(100, v)) / 100;
+                    const range = track.clientHeight - thumb.offsetHeight;
+                    thumb.style.top = Math.round(range * (1 - pct)) + 'px';
+                    if (fill) fill.style.height = Math.round(pct * 100) + '%';
+                    const lbl = document.getElementById('dvd-vol-label');
+                    if (lbl) lbl.textContent = Math.round(v) + '%';
+                    if (track.getAttribute('role') === 'slider') track.setAttribute('aria-valuenow', String(Math.round(v)));
+                },
+
+                toggleVolumePopup() {
+                    if (!this.state.hasDisc) return;
+                    if (!this.guardAction('volume')) return;
+                    const popup = document.getElementById('dvd-volume-popup');
+                    const show = !popup.classList.contains('show');
+                    AudioManager.playDvdVol();
+                    popup.classList.toggle('show', show);
+                    if (show) { this.showUI(); this.scheduleVolumeHide(); }
+                },
+
+                showVolumePopup() {
+                    document.getElementById('dvd-volume-popup').classList.add('show');
+                    this.showUI();
+                    this.scheduleVolumeHide();
+                },
+
+                scheduleVolumeHide() {
+                    this.resetIdle();
+                },
+
+                hideVolumePopup() { document.getElementById('dvd-volume-popup').classList.remove('show'); },
+
+                adjustVolume(delta) {
+                    if (!this.guardAction('volume')) return;
+                    this.setStateVolume(Math.max(0, Math.min(100, this.state.volume + delta)));
+                    this.showVolumePopup();
+                },
+
+                setupSettingsMenu() {
+                    document.getElementById('dvd-settings-menu').querySelectorAll('.dvd-settings-pill').forEach(pill => {
+                        pill.addEventListener('mouseenter', () => AudioManager.playDvdMenuHover());
+                        pill.addEventListener('click', () => {
+                            if (pill.id === 'dvd-btn-title-menu') { this.skipToTitleMenu(); return; }
+                            if (!this.guardAction('zoom')) return;
+                            document.getElementById('dvd-settings-menu').querySelectorAll('.dvd-settings-pill').forEach(p => p.classList.remove('selected'));
+                            pill.classList.add('selected');
+                            this.state.zoom = pill.dataset.zoom;
+                            if (this.core) this.core.setZoom(pill.dataset.zoom);
+                            AudioManager.playDvdMenuClick();
+                        });
+                    });
+                },
+
+                toggleSettingsMenu() {
+                    if (!this.state.hasDisc) return;
+                    if (!this.guardAction('settings')) return;
+                    AudioManager.playDvdSettings();
+                    document.getElementById('dvd-settings-menu').classList.toggle('show');
+                },
+
+                hideSettingsMenu() { document.getElementById('dvd-settings-menu').classList.remove('show'); },
+
+                setupOptionBubble() {
+                    document.addEventListener('click', (e) => {
+                        const t = e.target;
+                        const isEl = !!(t && t.closest);
+                        const bubble = document.getElementById('dvd-option-bubble');
+                        if (bubble.classList.contains('show') && !bubble.contains(t) && !(isEl && t.closest('#dvd-btn-captions, #dvd-btn-audio'))) {
+                            bubble.classList.remove('show');
+                        }
+                        const settings = document.getElementById('dvd-settings-menu');
+                        if (settings.classList.contains('show') && !settings.contains(t) && !(isEl && t.closest('#dvd-btn-settings'))) {
+                            settings.classList.remove('show');
+                        }
+                        const vol = document.getElementById('dvd-volume-popup');
+                        if (vol.classList.contains('show') && !vol.contains(t) && !(isEl && t.closest('#dvd-btn-volume'))) {
+                            vol.classList.remove('show');
+                        }
+                    });
+                },
+
+                toggleOptionBubble(type) {
+                    if (!this.state.hasDisc) return;
+                    if (!this.guardAction(type === 'audio' ? 'audio' : 'captions')) return;
+                    const bubble = document.getElementById('dvd-option-bubble');
+                    if (bubble.classList.contains('show') && bubble.dataset.type === type) { bubble.classList.remove('show'); return; }
+                    this.refreshOptionBubble(type);
+                    bubble.dataset.type = type;
+                    const btnId = type === 'audio' ? 'dvd-btn-audio' : 'dvd-btn-captions';
+                    const btn = document.getElementById(btnId);
+                    const r = btn.getBoundingClientRect();
+                    bubble.style.left = Math.max(10, Math.min(window.innerWidth - 230, r.left + r.width / 2 - 105)) + 'px';
+                    bubble.classList.add('show');
+                },
+
+                refreshOptionBubble(type) {
+                    const bubble = document.getElementById('dvd-option-bubble');
+                    const list = type === 'audio' ? this.state.audioTracks : this.state.subtitleTracks;
+                    const selected = type === 'audio' ? this.state.audioTrack : this.state.subtitleTrack;
+                    bubble.innerHTML = '';
+                    list.forEach((label, i) => {
+                        const item = document.createElement('div');
+                        item.className = 'dvd-option-item' + (i === selected ? ' selected' : '');
+                        item.textContent = label;
+                        item.addEventListener('click', () => {
+                            if (type === 'audio') { this.state.audioTrack = i; if (this.core) this.core.setAudioTrack(i); }
+                            else { this.state.subtitleTrack = i; if (this.core) this.core.setSubtitle(i); }
+                            AudioManager.playDvdMenuClick();
+                            this.refreshOptionBubble(type);
+                        });
+                        bubble.appendChild(item);
+                    });
+                },
+
+                hideOptionBubble() { const b = document.getElementById('dvd-option-bubble'); if (b) b.classList.remove('show'); },
+
+                showUI() {
+                    if (!this.isOpen) return;
+                    if (!this.controlsVisible) AudioManager.playDvdUiAppear();
+                    this.infoBar.classList.remove('hidden-ui');
+                    this.controls.classList.add('show');
+                    this.controlsVisible = true;
+                    this.resetIdle();
+                    if (this.core && this.core.reportVideoRect) this.core.reportVideoRect();
+                },
+
+                hideUI() {
+                    if (!this.isOpen) return;
+                    if (this.controlsVisible) AudioManager.playDvdUiDisappear();
+                    if (this.idleTimer) { clearTimeout(this.idleTimer); this.idleTimer = null; }
+                    this.infoBar.classList.add('hidden-ui');
+                    this.controls.classList.remove('show');
+                    this.controlsVisible = false;
+                    this.hideSeekbar();
+                    this.hideOptionBubble();
+                    this.hideSettingsMenu();
+                    this.hideVolumePopup();
+                    if (this.core && this.core.reportVideoRect) this.core.reportVideoRect();
+                },
+
+                applyState(s) {
+                    if (!s) return;
+                    const playing = !!s.playing;
+                    if (playing !== this.state.isPlaying) {
+                        this.state.isPlaying = playing;
+                        const img = document.querySelector('#dvd-btn-play img');
+                        if (img) img.src = playing ? 'assets/dvd/icons/pause.png' : 'assets/dvd/icons/play.png';
+                    }
+                    if (playing) {
+                        const playBtn = document.getElementById('dvd-btn-play');
+                        if (playBtn) playBtn.classList.remove('needs-play');
+                        const appletEl = document.getElementById('dvd-applet');
+                        if (appletEl) appletEl.classList.add('has-video');
+                    }
+                    if (typeof s.chapterCount === 'number' && s.chapterCount >= 0) this.state.totalChapters = Math.max(1, s.chapterCount);
+                    if (typeof s.chapter === 'number' && s.chapter >= 0) this.state.currentChapter = s.chapter + 1;
+                    if (typeof s.title === 'string' && s.title) this.state.movieTitle = s.title;
+                    if (typeof s.volume === 'number' && s.volume >= 0) {
+                        this.state.volume = s.volume;
+                        this.updateVolVisual(s.volume);
+                        const lb = document.getElementById('dvd-vol-label');
+                        if (lb) lb.textContent = s.volume + '%';
+                    }
+                },
+
+                onEnded() {
+                    this.state.isPlaying = false;
+                    const img = document.querySelector('#dvd-btn-play img');
+                    if (img) img.src = 'assets/dvd/icons/play.png';
+                    this.showBlocked('Playback ended');
+                },
+
+                onCoreError(err) {
+                    this.showBlocked((err && err.message) || 'Playback error');
+                },
+
+                resetIdle() {
+                    if (!this.isOpen) return;
+                    if (this.idleTimer) clearTimeout(this.idleTimer);
+                    this.idleTimer = setTimeout(() => this.hideUI(), 3000);
+                },
+
+                setupUIIdle() {
+                    document.addEventListener('mousemove', (e) => {
+                        if (!this.isOpen) return;
+                        const overUI = e.target.closest && e.target.closest('#dvd-volume-popup, #dvd-settings-menu, #dvd-option-bubble, #dvd-controls, #dvd-info-bar, #dvd-exit-modal');
+                        if (e.clientY >= window.innerHeight - 100 || overUI) this.showUI();
+                    });
+                    document.addEventListener('keydown', () => { if (this.isOpen) this.showUI(); });
+                    document.addEventListener('click', () => { if (this.isOpen) this.showUI(); });
+                },
+
+                toggleControls() {
+                    if (this.controlsVisible) this.hideUI(); else this.showUI();
+                },
+
+                setupKeyboardShortcuts() {
+                    document.addEventListener('keydown', (e) => {
+                        if (!this.isOpen) return;
+                        const activeEl = document.activeElement;
+                        if (activeEl && activeEl.tagName === 'INPUT') return;
+                        if (e.code === 'Space') {
+                            e.preventDefault();
+                            this.toggleControls();
+                        }
+                    });
+                },
+
+                onMediaKey(key) {
+                    if (!this.isOpen) return;
+                    switch (key) {
+                        case 'VolumeUp': this.adjustVolume(5); break;
+                        case 'VolumeDown': this.adjustVolume(-5); break;
+                        case 'VolumeMute': this.setStateVolume(this.state.volume > 0 ? 0 : 70); this.showVolumePopup(); break;
+                        case 'MediaPlayPause': this.togglePlayback(); break;
+                        case 'MediaNextTrack': this.nextChapter(); break;
+                        case 'MediaPreviousTrack': this.prevChapter(); break;
+                    }
+                },
+
+                setupInfoClock() {
+                    const el = document.getElementById('dvd-info-time');
+                    const tick = () => {
+                        const now = new Date();
+                        const clockCfg = SettingsAppState.clock || {};
+                        const use24h = !!clockCfg.format24h;
+                        const showSecs = !!state.showSeconds || !!clockCfg.showSeconds;
+                        const minutes = String(now.getMinutes()).padStart(2, '0');
+                        const seconds = String(now.getSeconds()).padStart(2, '0');
+                        if (use24h) {
+                            const h = String(now.getHours()).padStart(2, '0');
+                            el.textContent = showSecs ? `${h}:${minutes}:${seconds}` : `${h}:${minutes}`;
+                        } else {
+                            let h = now.getHours(); const ap = h >= 12 ? 'PM' : 'AM'; h = h % 12 || 12;
+                            el.textContent = showSecs ? `${h}:${minutes}:${seconds} ${ap}` : `${h}:${minutes} ${ap}`;
+                        }
+                    };
+                    tick();
+                    setInterval(tick, 1000);
+                },
+
+                showTip() {
+                    const tip = document.getElementById('dvd-tip-popup');
+                    tip.classList.add('show');
+                    AudioManager.playDvdTip();
+                    if (this.tipTimer) clearTimeout(this.tipTimer);
+                    this.tipTimer = setTimeout(() => tip.classList.remove('show'), 6500);
+                }
+            };
+            window.DvdApplet = DvdApplet;
+
             const init = () => { 
-                AudioManager.init(); 
+                AudioManager.init();
                 PhotosSFX.init();
                 SettingsSFX.init();
+                DvdApplet.init();
                 WelcomeSlideshow.init();
+                DvdOnboarding.init();
                 KeyNav.init();
                 TimeManager.init(); 
                 HoverManager.init();
@@ -3088,35 +4377,7 @@
                         } else if(item.dataset.app === 'photos') {
                             BootManager.exit(item, () => { PhotosApplet.open(); });
                         } else if(item.dataset.app === 'dvd') {
-                            const dvdItem = document.querySelector('.dock-item[data-app="dvd"]');
-                            const allItems = document.querySelectorAll('.dock-item');
-                            
-                            allItems.forEach(el => {
-                                if (el === dvdItem) return;
-                                const indexOfEl = Array.from(allItems).indexOf(el);
-                                const indexOfDvd = Array.from(allItems).indexOf(dvdItem);
-                                if (indexOfEl < indexOfDvd) el.style.marginRight = '40px';
-                                else el.style.marginLeft = '40px';
-                            });
-
-                            AudioManager.playDvdError();
-                            dvdItem.classList.add('shake-no');
-                            document.getElementById('dvd-error-modal').classList.add('active');
-
-                            const handleDvdOk = () => {
-                                dvdItem.style.transform = 'translateY(0) scale(1)';
-                                dvdItem.style.visibility = 'visible';
-                                dvdItem.classList.remove('shake-no');
-                                
-                                allItems.forEach(el => { 
-                                    if(el === dvdItem) return;
-                                    el.style.marginRight = ''; 
-                                    el.style.marginLeft = ''; 
-                                });
-                                document.getElementById('dvd-error-modal').classList.remove('active');
-                                document.getElementById('modal-dvd-ok').removeEventListener('click', handleDvdOk);
-                            };
-                            document.getElementById('modal-dvd-ok').addEventListener('click', handleDvdOk);
+                            if (window.DvdApplet && !DvdApplet.isOpen) { DvdApplet.onDockClick(); }
                         } else if(item.dataset.app === 'settings') { 
                             BootManager.exit(item, () => { SettingsApplet.open(); }); 
                         } else { 
@@ -3139,9 +4400,14 @@
                     });
                 }).then(() => {
                     document.getElementById('app-loading-screen').classList.add('hidden');
-                    BootManager.play();
                     if (!SettingsAppState.system.welcomeShown) {
+                        BootManager.play();
                         setTimeout(() => { WelcomeSlideshow.open(); }, 2600);
+                    } else if (!SettingsAppState.system.dvdOnboardingShown) {
+                        BootManager.play(true);
+                        setTimeout(() => { DvdOnboarding.open(); }, 3000);
+                    } else {
+                        BootManager.play();
                     }
                 });
             };

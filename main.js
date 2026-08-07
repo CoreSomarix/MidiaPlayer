@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, dialog } = require('electron');
+﻿const { app, BrowserWindow, ipcMain, dialog, globalShortcut, Menu } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const https = require('https');
@@ -8,7 +8,14 @@ const util = require('util');
 const readdir = util.promisify(fs.readdir);
 const stat = util.promisify(fs.stat);
 
-function createWindow() {
+const dvdCore = require('./dvd-core');
+
+app.commandLine.appendSwitch('force-device-scale-factor', '1');
+// Hardware acceleration stays ENABLED: video now renders to a <canvas> and needs
+// the GPU compositor for 50-60fps. Weak-GPU machines are handled by the
+// gpuSoftware detection below (--midia-gpu-software disables heavy animations).
+
+function createWindow(gpuSoftware) {
   const win = new BrowserWindow({
     width: 1280,
     height: 720,
@@ -21,10 +28,17 @@ function createWindow() {
       nodeIntegration: true,
       contextIsolation: false,
       autoplayPolicy: 'no-user-gesture-required',
+      additionalArguments: gpuSoftware ? ['--midia-gpu-software'] : [],
     }
   });
 
   win.loadFile('index.html');
+
+  win.webContents.on('console-message', (event, level, message, line, sourceId) => {
+    if (dvdCore && typeof dvdCore.appendExternal === 'function') {
+      dvdCore.appendExternal('[renderer] ' + String(message) + ' (' + String(sourceId) + ':' + line + ')');
+    }
+  });
 
   win.once('ready-to-show', () => {
     win.center();
@@ -35,7 +49,46 @@ function createWindow() {
 }
 
 app.whenReady().then(() => {
-  createWindow();
+  Menu.setApplicationMenu(null);
+  let software = false;
+  try {
+    const status = app.getGPUFeatureStatus();
+    software = !status || (status.gpu_compositing !== 'enabled' && status.gpu_compositing !== 'native');
+  } catch (e) {}
+  const win = createWindow(software);
+  dvdCore.start(win);
+});
+
+// --- DVD APPLET MEDIA KEYS ---
+// Hardware media/volume keys (laptop front buttons, BT headphones) are only
+// captured while the DVD applet is open, so system volume works normally elsewhere.
+
+const DVD_MEDIA_KEYS = ['VolumeUp', 'VolumeDown', 'VolumeMute', 'MediaPlayPause', 'MediaNextTrack', 'MediaPreviousTrack'];
+
+function registerDvdMediaKeys() {
+  DVD_MEDIA_KEYS.forEach((key) => {
+    if (!globalShortcut.isRegistered(key)) {
+      globalShortcut.register(key, () => {
+        const win = BrowserWindow.getAllWindows()[0];
+        if (win && !win.isDestroyed()) win.webContents.send('dvd-media-key', key);
+      });
+    }
+  });
+}
+
+function unregisterDvdMediaKeys() {
+  DVD_MEDIA_KEYS.forEach((key) => {
+    if (globalShortcut.isRegistered(key)) globalShortcut.unregister(key);
+  });
+}
+
+ipcMain.on('dvd-media-keys', (event, enable) => {
+  if (enable) registerDvdMediaKeys();
+  else unregisterDvdMediaKeys();
+});
+
+app.on('will-quit', () => {
+  globalShortcut.unregisterAll();
 });
 
 app.on('window-all-closed', () => {
@@ -520,6 +573,50 @@ ipcMain.handle('select-menu-music', async () => {
 ipcMain.handle('set-fullscreen', (event, fullscreen) => {
   const win = BrowserWindow.getAllWindows()[0];
   if (win) win.setFullScreen(!!fullscreen);
+});
+
+function getVlcLogTail(maxLines) {
+  try {
+    const vlcLog = path.join(require('os').tmpdir(), 'midia-vlc.log');
+    if (!fs.existsSync(vlcLog)) return '(no VLC log file)';
+    const content = fs.readFileSync(vlcLog, 'utf8');
+    const lines = content.split('\n');
+    const tail = lines.slice(Math.max(0, lines.length - (maxLines || 200)));
+    return tail.join('\n');
+  } catch (e) {
+    return '(VLC log read failed: ' + e.message + ')';
+  }
+}
+
+ipcMain.handle('log:export', async (event) => {
+  try {
+    let gpu = 'n/a';
+    try { gpu = JSON.stringify(app.getGPUFeatureStatus()); } catch (e) {}
+    const info = [
+      '=== MIDIA DIAGNOSTIC LOG ===',
+      'Time:      ' + new Date().toLocaleString(),
+      'Version:   ' + (app.getVersion() || 'unknown'),
+      'Electron:  ' + process.versions.electron,
+      'Node:      ' + process.versions.node,
+      'Platform:  ' + process.platform + ' ' + process.arch,
+      'OS:        ' + process.platform + ' ' + require('os').release(),
+      'Packaged:  ' + app.isPackaged,
+      'GPU:       ' + gpu,
+      'Data dir:  ' + app.getPath('userData'),
+      ''
+    ];
+    const body = info.join('\n') + '--- LOG BUFFER ---\n' + dvdCore.getLogText() + '\n--- VLC LOG (tail) ---\n' + getVlcLogTail();
+    const result = await dialog.showSaveDialog(BrowserWindow.fromWebContents(event.sender), {
+      title: 'Export Diagnostic Log',
+      defaultPath: path.join(app.getPath('documents'), 'Midia-Log-' + new Date().toISOString().replace(/[:T]/g, '-').slice(0, 19) + '.txt'),
+      filters: [{ name: 'Text', extensions: ['txt'] }]
+    });
+    if (result.canceled || !result.filePath) return { ok: false, canceled: true };
+    fs.writeFileSync(result.filePath, body, 'utf8');
+    return { ok: true, path: result.filePath };
+  } catch (e) {
+    return { ok: false, error: (e && e.message) || 'Export failed' };
+  }
 });
 
 ipcMain.handle('set-launch-on-startup', (event, enable) => {
