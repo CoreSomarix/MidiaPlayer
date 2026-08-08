@@ -2026,10 +2026,15 @@
                 },
 
                 mergeNewTracks(fileList) {
-                    const existingPaths = new Set(MusicAppState.currentTracksList.map(t => t.path));
+                    const existingIndex = new Map(MusicAppState.currentTracksList.map((t, i) => [t.path, i]));
                     const toAdd = [];
                     fileList.forEach(newTrack => {
-                        if (!existingPaths.has(newTrack.path)) {
+                        const idx = existingIndex.get(newTrack.path);
+                        if (idx !== undefined) {
+                            // Update the existing entry in place (e.g. freshly
+                            // parsed metadata/cover replacing an "Unknown" one).
+                            MusicAppState.currentTracksList[idx] = newTrack;
+                        } else {
                             toAdd.push(newTrack);
                             MusicAppState.newTrackPaths.add(newTrack.path);
                         }
@@ -2037,7 +2042,7 @@
                     if (toAdd.length > 0) {
                         MusicAppState.currentTracksList.unshift(...toAdd);
                     }
-                    return toAdd.length;
+                    return { added: toAdd.length, updated: fileList.length - toAdd.length };
                 },
 
                 clearTrackNewBadge(trackPath) {
@@ -2056,14 +2061,14 @@
 
                 performSilentScan(folderPath) {
                     if (!folderPath || !ipcRenderer) return;
-                    const knownPaths = MusicAppState.currentTracksList.map(t => t.path);
+                    const knownTracks = MusicAppState.currentTracksList;
                     const completeHandler = (event, fileList) => {
                         ipcRenderer.removeListener('scan-complete', completeHandler);
 
-                        const newCount = this.mergeNewTracks(fileList);
-                        if (newCount === 0) return;
+                        const merged = this.mergeNewTracks(fileList);
+                        if (merged.added === 0 && merged.updated === 0) return;
 
-                        MusicAppState.newTrackCount = newCount;
+                        MusicAppState.newTrackCount = merged.added;
                         this.updateMusicBadge();
 
                         ipcRenderer.invoke('save-library', {
@@ -2076,7 +2081,7 @@
                         this.renderTracks();
                     };
                     ipcRenderer.on('scan-complete', completeHandler);
-                    ipcRenderer.send('scan-folder', { folderPath, knownPaths, incremental: true });
+                    ipcRenderer.send('scan-folder', { folderPath, knownTracks, incremental: true });
                 },
 
                 performScan(folderPath, initialLink) {
@@ -2133,7 +2138,7 @@
 
                 performIncrementalRefresh(folderPath) {
                     if (!ipcRenderer) return;
-                    const knownPaths = MusicAppState.currentTracksList.map(t => t.path);
+                    const knownTracks = MusicAppState.currentTracksList;
 
                     this.navigateTo('scanning');
                     document.getElementById('scanning-status-text').innerText = "Checking for new tracks...";
@@ -2147,13 +2152,13 @@
                         ipcRenderer.removeListener('scan-progress', progressHandler);
                         ipcRenderer.removeListener('scan-complete', completeHandler);
 
-                        const newCount = this.mergeNewTracks(fileList);
+                        const merged = this.mergeNewTracks(fileList);
 
-                        document.getElementById('scan-count').innerText = newCount;
-                        document.getElementById('scan-total').innerText = newCount;
+                        document.getElementById('scan-count').innerText = merged.added;
+                        document.getElementById('scan-total').innerText = merged.added;
 
-                        if (newCount > 0) {
-                            MusicAppState.newTrackCount = newCount;
+                        if (merged.added > 0 || merged.updated > 0) {
+                            MusicAppState.newTrackCount = merged.added;
                             this.updateMusicBadge();
                             ipcRenderer.invoke('save-library', {
                                 folderPath: folderPath,
@@ -2166,10 +2171,10 @@
                             this.renderAlbums();
                             this.renderTracks();
                             this.navigateTo('albums');
-                        }, newCount > 0 ? 600 : 200);
+                        }, (merged.added > 0 || merged.updated > 0) ? 600 : 200);
                     };
                     ipcRenderer.on('scan-complete', completeHandler);
-                    ipcRenderer.send('scan-folder', { folderPath, knownPaths, incremental: true });
+                    ipcRenderer.send('scan-folder', { folderPath, knownTracks, incremental: true });
                 },
 
                 performSort(sortBy) {

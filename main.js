@@ -183,9 +183,9 @@ ipcMain.handle('load-library', async () => {
 });
 
 // Deep Scan + Metadata + Local Image Extraction
-ipcMain.on('scan-folder', async (event, { folderPath, knownPaths = [], incremental = false }) => {
+ipcMain.on('scan-folder', async (event, { folderPath, knownTracks = [], incremental = false }) => {
   const fileList = [];
-  const knownSet = incremental ? new Set(knownPaths || []) : null;
+  const knownMap = incremental ? new Map((knownTracks || []).map(t => [t.path, t])) : null;
   
   let musicMetadata;
   try {
@@ -205,7 +205,13 @@ ipcMain.on('scan-folder', async (event, { folderPath, knownPaths = [], increment
         if (stats.isDirectory()) {
           await scanDir(fullPath);
         } else if (stats.isFile() && /\.(mp3|flac|wav|m4a|ogg)$/i.test(item)) {
-          if (incremental && knownSet.has(fullPath)) continue;
+          const existing = incremental && knownMap.has(fullPath) ? knownMap.get(fullPath) : null;
+          // Re-parse files whose stored metadata is stale/missing so a fixed
+          // metadata library can repair previously "Unknown Artist" tracks.
+          // metadataParsed is set after any successful parse (even if tags are
+          // genuinely absent) so tag-less files aren't re-parsed every launch.
+          const needsReparse = existing && !existing.metadataParsed;
+          if (incremental && existing && !needsReparse) continue;
 
           let metadata = { title: null, artist: null, album: null, trackNo: null };
           let coverLocalPath = null;
@@ -251,7 +257,8 @@ ipcMain.on('scan-folder', async (event, { folderPath, knownPaths = [], increment
             cover: coverLocalPath, 
             fileName: item,
             size: stats.size,
-            added: Date.now()
+            added: Date.now(),
+            metadataParsed: true
           });
 
           if (fileList.length % 5 === 0) {
