@@ -1,7 +1,8 @@
-﻿const { app, BrowserWindow, ipcMain, dialog, globalShortcut, Menu } = require('electron');
+﻿const { app, BrowserWindow, ipcMain, dialog, globalShortcut, Menu, session } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const https = require('https');
+const zlib = require('zlib');
 const { spawn } = require('child_process');
 const fsp = fs.promises; // Use async file system promises
 const util = require('util');
@@ -9,6 +10,16 @@ const readdir = util.promisify(fs.readdir);
 const stat = util.promisify(fs.stat);
 
 const dvdCore = require('./dvd-core');
+const mirraCore = require('./mirra-core');
+
+process.on('uncaughtException', (err) => {
+  try { dvdCore.appendExternal('[main] uncaughtException: ' + (err && err.stack ? err.stack : String(err))); } catch (e) {}
+  try { mirraCore.appendExternal('[main] uncaughtException: ' + (err && err.stack ? err.stack : String(err))); } catch (e) {}
+});
+process.on('unhandledRejection', (reason) => {
+  try { dvdCore.appendExternal('[main] unhandledRejection: ' + (reason && reason.stack ? reason.stack : String(reason))); } catch (e) {}
+  try { mirraCore.appendExternal('[main] unhandledRejection: ' + (reason && reason.stack ? reason.stack : String(reason))); } catch (e) {}
+});
 
 app.commandLine.appendSwitch('force-device-scale-factor', '1');
 // Hardware acceleration stays ENABLED: video now renders to a <canvas> and needs
@@ -22,11 +33,12 @@ function createWindow(gpuSoftware) {
     minWidth: 960,
     minHeight: 600,
     resizable: true,
-    backgroundColor: '#074877',
+    backgroundColor: '#0a1b30',
     show: false,
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false,
+      webviewTag: true,
       autoplayPolicy: 'no-user-gesture-required',
       additionalArguments: gpuSoftware ? ['--midia-gpu-software'] : [],
     }
@@ -36,7 +48,32 @@ function createWindow(gpuSoftware) {
 
   win.webContents.on('console-message', (event, level, message, line, sourceId) => {
     if (dvdCore && typeof dvdCore.appendExternal === 'function') {
-      dvdCore.appendExternal('[renderer] ' + String(message) + ' (' + String(sourceId) + ':' + line + ')');
+      const lv = ['verbose', 'info', 'warning', 'error'][level] || ('L' + level);
+      dvdCore.appendExternal('[renderer:' + lv + '] ' + String(message) + ' (' + String(sourceId) + ':' + line + ')');
+    }
+    if (mirraCore && typeof mirraCore.appendExternal === 'function') {
+      const lv = ['verbose', 'info', 'warning', 'error'][level] || ('L' + level);
+      mirraCore.appendExternal('[renderer:' + lv + '] ' + String(message) + ' (' + String(sourceId) + ':' + line + ')');
+    }
+    if (String(message).indexOf('[mirra]') === 0) {
+      const lv = ['verbose', 'info', 'warning', 'error'][level] || ('L' + level);
+      console.log('[renderer:' + lv + '] ' + String(message) + ' (' + String(sourceId) + ':' + line + ')');
+    }
+  });
+  win.webContents.on('render-process-gone', (event, details) => {
+    if (dvdCore && typeof dvdCore.appendExternal === 'function') {
+      dvdCore.appendExternal('[renderer] render-process-gone reason=' + String(details.reason) + ' exitCode=' + String(details.exitCode));
+    }
+    if (mirraCore && typeof mirraCore.appendExternal === 'function') {
+      mirraCore.appendExternal('[renderer] render-process-gone reason=' + String(details.reason) + ' exitCode=' + String(details.exitCode));
+    }
+  });
+  win.webContents.on('preload-error', (event, preloadPath, error) => {
+    if (dvdCore && typeof dvdCore.appendExternal === 'function') {
+      dvdCore.appendExternal('[renderer] preload-error: ' + String(preloadPath) + ' -> ' + String(error && error.message ? error.message : error));
+    }
+    if (mirraCore && typeof mirraCore.appendExternal === 'function') {
+      mirraCore.appendExternal('[renderer] preload-error: ' + String(preloadPath) + ' -> ' + String(error && error.message ? error.message : error));
     }
   });
 
@@ -57,6 +94,10 @@ app.whenReady().then(() => {
   } catch (e) {}
   const win = createWindow(software);
   dvdCore.start(win);
+  mirraCore.start(win);
+  initYoutubeBackend().catch((e) => {
+    console.error('[youtube] backend init failed:', e);
+  });
 });
 
 // --- DVD APPLET MEDIA KEYS ---
@@ -172,11 +213,13 @@ ipcMain.handle('load-library', async () => {
       const content = fs.readFileSync(LIBRARY_FILE, 'utf8');
       const data = JSON.parse(content);
       if (data && (data.folderPath || data.onboardingCompleted || data.isOnboardingComplete)) {
+        dvdCore.appendExternal('[music] load-library -> folder=' + String(data.folderPath) + ' tracks=' + (Array.isArray(data.tracks) ? data.tracks.length : 0));
         return data;
       }
     }
   } catch (e) {
     console.error('Failed to load library.', e);
+    dvdCore.appendExternal('[music] load-library FAILED: ' + (e && e.message ? e.message : e));
     try { fs.unlinkSync(LIBRARY_FILE); } catch (e2) {}
   }
   return null;
@@ -184,6 +227,7 @@ ipcMain.handle('load-library', async () => {
 
 // Deep Scan + Metadata + Local Image Extraction
 ipcMain.on('scan-folder', async (event, { folderPath, knownTracks = [], incremental = false }) => {
+  dvdCore.appendExternal('[music] scan-folder start incremental=' + String(!!incremental) + ' path=' + String(folderPath));
   const fileList = [];
   const knownMap = incremental ? new Map((knownTracks || []).map(t => [t.path, t])) : null;
   
@@ -191,8 +235,10 @@ ipcMain.on('scan-folder', async (event, { folderPath, knownTracks = [], incremen
   try {
     const module = await import('music-metadata');
     musicMetadata = module; 
+    dvdCore.appendExternal('[music] music-metadata loaded');
   } catch (e) {
     console.error("Failed to load music-metadata:", e);
+    dvdCore.appendExternal('[music] music-metadata FAILED to load: ' + (e && e.message ? e.message : e));
     musicMetadata = null;
   }
   
@@ -241,6 +287,9 @@ ipcMain.on('scan-folder', async (event, { folderPath, knownTracks = [], incremen
               metadata.title = path.basename(item, path.extname(item));
               metadata.artist = 'Unknown Artist';
               metadata.album = 'Unknown Album';
+              if (incremental) {
+                dvdCore.appendExternal('[music] metadata parse FAILED for ' + fullPath + ': ' + (metaErr && metaErr.message ? metaErr.message : metaErr));
+              }
             }
           } else {
             metadata.title = path.basename(item, path.extname(item));
@@ -275,8 +324,10 @@ ipcMain.on('scan-folder', async (event, { folderPath, knownTracks = [], incremen
   try {
     await scanDir(folderPath);
     event.sender.send('scan-complete', fileList);
+    dvdCore.appendExternal('[music] scan-folder complete -> ' + fileList.length + ' tracks');
   } catch (err) {
     console.error("Scan failed, folder might be missing:", err);
+    dvdCore.appendExternal('[music] scan-folder FAILED: ' + (err && err.message ? err.message : err));
     event.sender.send('scan-complete', []); 
   }
 });
@@ -314,6 +365,7 @@ ipcMain.handle('load-photos-library', async () => {
 });
 
 ipcMain.on('scan-photos-folder', async (event, { folderPath, knownPaths = [], incremental = false }) => {
+  dvdCore.appendExternal('[photos] scan-folder start incremental=' + String(!!incremental) + ' path=' + String(folderPath));
   const fileList = [];
   const knownSet = incremental ? new Set(knownPaths || []) : null;
   const imageExt = /\.(jpg|jpeg|png|gif|bmp|webp)$/i;
@@ -349,8 +401,10 @@ ipcMain.on('scan-photos-folder', async (event, { folderPath, knownPaths = [], in
   try {
     await scanDir(folderPath);
     event.sender.send('photos-scan-complete', fileList);
+    dvdCore.appendExternal('[photos] scan-folder complete -> ' + fileList.length + ' photos');
   } catch (err) {
     console.error('Photos scan failed:', err);
+    dvdCore.appendExternal('[photos] scan-folder FAILED: ' + (err && err.message ? err.message : err));
     event.sender.send('photos-scan-complete', []);
   }
 });
@@ -595,8 +649,14 @@ function getVlcLogTail(maxLines) {
   }
 }
 
-ipcMain.handle('log:export', async (event) => {
-  try {
+// Renderer -> main log bridge. Applets tag their own lifecycle/error lines so
+// the exported diagnostic log can be read per-applet.
+ipcMain.on('log:append', (event, line) => {
+  try { dvdCore.appendExternal('[applet] ' + String(line).slice(0, 2000)); } catch (e) { /* ignore */ }
+  try { mirraCore.appendExternal('[applet] ' + String(line).slice(0, 2000)); } catch (e) { /* ignore */ }
+});
+
+ipcMain.handle('log:export', async (event) => {  try {
     let gpu = 'n/a';
     try { gpu = JSON.stringify(app.getGPUFeatureStatus()); } catch (e) {}
     const info = [
@@ -612,7 +672,7 @@ ipcMain.handle('log:export', async (event) => {
       'Data dir:  ' + app.getPath('userData'),
       ''
     ];
-    const body = info.join('\n') + '--- LOG BUFFER ---\n' + dvdCore.getLogText() + '\n--- VLC LOG (tail) ---\n' + getVlcLogTail();
+    const body = info.join('\n') + '--- LOG BUFFER ---\n' + dvdCore.getLogText() + '\n--- MIRRA LOG ---\n' + mirraCore.getLogText() + '\n--- VLC LOG (tail) ---\n' + getVlcLogTail();
     const result = await dialog.showSaveDialog(BrowserWindow.fromWebContents(event.sender), {
       title: 'Export Diagnostic Log',
       defaultPath: path.join(app.getPath('documents'), 'Midia-Log-' + new Date().toISOString().replace(/[:T]/g, '-').slice(0, 19) + '.txt'),
@@ -673,5 +733,178 @@ ipcMain.handle('set-photos-folder', async (event, folderPath) => {
   } catch (e) {
     console.error('Failed to set photos folder:', e);
     return false;
+  }
+});
+
+// --- YOUTUBE TV BACKEND ---
+// Runs a persistent, TV-mode YouTube session with:
+//  * a "smart TV" user agent so youtube.com/tv serves its TV UI,
+//  * Ghostery ad-blocking (network + cosmetic) scoped to that session only,
+//  * SponsorBlock segment data so the applet can auto-skip in-video sponsors.
+
+const YOUTUBE_PARTITION = 'persist:youtube-tv';
+const YOUTUBE_TV_UA = 'Mozilla/5.0 (X11; Linux i686) AppleWebKit/534.24 (KHTML, like Gecko) Chrome/11.0.696.77 Large Screen Safari/534.24 GoogleTV/092754';
+const YOUTUBE_ADBLOCK_CACHE = path.join(app.getPath('userData'), 'youtube-adblock-engine.bin');
+const SPONSORBLOCK_API = 'https://sponsor.ajay.app/api/skipSegments';
+const SPONSORBLOCK_CATEGORIES = ['sponsor', 'selfpromo', 'interaction'];
+
+let youtubeBlocker = null;
+let youtubeAdblockReady = false;
+let youtubeCosmeticHandlersRegistered = false;
+let youtubeSession = null;
+
+// YouTube TV streams via server-side ABR (`sabr=1`): the server picks quality
+// per-segment from the client's measured download throughput, ignoring the
+// client's format list. Client-side URL rewriting can't cap it (signed URLs).
+// Instead we throttle the whole YouTube session's download throughput with
+// Electron's network emulation; the server ABR then adapts to the throttle.
+// Values are bytes/sec download throttles, set below the next tier's bitrate so
+// ABR is forced down to the target resolution. Approximate; tune if needed.
+const YOUTUBE_THROTTLE_BY_QUALITY = {
+  '720p60': 400000,     // ~3.2 Mbps: below typical 1080p, allows 720p
+  '1080p60': 700000,    // ~5.6 Mbps: below typical 1440p, allows 1080p
+  '1440p60': 1400000    // ~11.2 Mbps: below typical 4K, allows 1440p
+};
+let youtubeThrottleBps = null; // null = no throttle
+
+function httpsGetBuffer(url, timeoutMs = 20000) {
+  return new Promise((resolve) => {
+    const req = https.get(url, { timeout: timeoutMs, headers: { 'Accept-Encoding': 'gzip, deflate' } }, (res) => {
+      const status = res.statusCode || 0;
+      if (status >= 300 && status < 400 && res.headers.location) {
+        res.resume();
+        try {
+          resolve(httpsGetBuffer(new URL(res.headers.location, url).toString(), timeoutMs));
+        } catch (e) {
+          resolve({ status: 0, buffer: null });
+        }
+        return;
+      }
+      const chunks = [];
+      res.on('data', (c) => chunks.push(c));
+      res.on('end', () => {
+        let buffer = Buffer.concat(chunks);
+        const encoding = (res.headers['content-encoding'] || '').toLowerCase();
+        if ((encoding === 'gzip' || encoding === 'deflate') && buffer.length > 0) {
+          try {
+            buffer = encoding === 'gzip' ? zlib.gunzipSync(buffer) : zlib.inflateSync(buffer);
+          } catch (e) { /* keep as-is */ }
+        }
+        resolve({ status, buffer });
+      });
+      res.on('error', () => resolve({ status: 0, buffer: null }));
+    });
+    req.on('timeout', () => { req.destroy(); resolve({ status: 0, buffer: null }); });
+    req.on('error', () => resolve({ status: 0, buffer: null }));
+  });
+}
+
+// Minimal `fetch`-shim matching what @ghostery/adblocker expects.
+function adblockFetch(url) {
+  return httpsGetBuffer(url).then(({ status, buffer }) => {
+    if (status !== 200 || !buffer) throw new Error('adblock fetch failed: ' + url + ' (HTTP ' + status + ')');
+    const text = buffer.toString('utf8');
+    return {
+      text: async () => text,
+      json: async () => JSON.parse(text),
+      arrayBuffer: async () => buffer.buffer.slice(buffer.byteOffset, buffer.byteOffset + buffer.byteLength)
+    };
+  });
+}
+
+async function initYoutubeBackend() {
+  const ytSession = session.fromPartition(YOUTUBE_PARTITION);
+  youtubeSession = ytSession;
+  ytSession.setUserAgent(YOUTUBE_TV_UA);
+  dvdCore.appendExternal('[youtube] session ready (partition ' + YOUTUBE_PARTITION + ')');
+
+  try {
+    const { ElectronBlocker } = require('@ghostery/adblocker-electron');
+    const readCache = async (p) => new Uint8Array(await fsp.readFile(p));
+    const writeCache = async (p, data) => {
+      try { await fsp.mkdir(path.dirname(p), { recursive: true }); } catch (e) {}
+      await fsp.writeFile(p, Buffer.from(data));
+    };
+    const cached = fs.existsSync(YOUTUBE_ADBLOCK_CACHE);
+
+    youtubeBlocker = await ElectronBlocker.fromPrebuiltAdsAndTracking(adblockFetch, {
+      path: YOUTUBE_ADBLOCK_CACHE,
+      read: readCache,
+      write: writeCache
+    });
+
+    // Network blocking. Electron 22 predates session.registerPreloadScript, so
+    // the webRequest hooks are wired manually instead of enableBlockingInSession().
+    ytSession.webRequest.onBeforeRequest({ urls: ['<all_urls>'] }, (details, callback) => {
+      youtubeBlocker.onBeforeRequest(details, callback);
+    });
+    ytSession.webRequest.onHeadersReceived({ urls: ['<all_urls>'] }, (details, callback) => {
+      youtubeBlocker.onHeadersReceived(details, callback);
+    });
+
+    // Cosmetic blocking: the <webview> preload (from @ghostery/adblocker-electron-preload)
+    // requests rules through these channels. Register once; they are session-agnostic.
+    if (!youtubeCosmeticHandlersRegistered) {
+      ipcMain.handle('@ghostery/adblocker/inject-cosmetic-filters', (e, url, msg) => youtubeBlocker.onInjectCosmeticFilters(e, url, msg));
+      ipcMain.handle('@ghostery/adblocker/is-mutation-observer-enabled', (e) => youtubeBlocker.onIsMutationObserverEnabled(e));
+      youtubeCosmeticHandlersRegistered = true;
+    }
+
+    youtubeAdblockReady = true;
+    console.log('[youtube] ad-block engine ready (' + (cached ? 'cached engine' : 'fresh engine download') + ')');
+    dvdCore.appendExternal('[youtube] ad-block ready (' + (cached ? 'cached engine' : 'fresh engine download') + ')');
+  } catch (e) {
+    youtubeAdblockReady = false;
+    const reason = (e && e.message) ? e.message : String(e);
+    console.error('[youtube] ad-block engine unavailable:', e);
+    dvdCore.appendExternal('[youtube] ad-block unavailable: ' + reason);
+  }
+}
+
+ipcMain.handle('youtube:capabilities', () => ({
+  adblock: youtubeAdblockReady,
+  userAgent: YOUTUBE_TV_UA,
+  preloadPath: (() => {
+    try { return require.resolve('@ghostery/adblocker-electron-preload'); } catch (e) { return null; }
+  })()
+}));
+
+ipcMain.handle('youtube:set-quality-cap', (event, label) => {
+  if (label && Object.prototype.hasOwnProperty.call(YOUTUBE_THROTTLE_BY_QUALITY, label)) {
+    youtubeThrottleBps = YOUTUBE_THROTTLE_BY_QUALITY[label];
+  } else {
+    youtubeThrottleBps = null;
+  }
+  try {
+    if (youtubeSession) {
+      if (youtubeThrottleBps) {
+        youtubeSession.enableNetworkEmulation({ downloadThroughput: youtubeThrottleBps });
+        console.log('[youtube] download throttled to ' + youtubeThrottleBps + ' B/s (' + label + ')');
+      } else {
+        youtubeSession.disableNetworkEmulation();
+        console.log('[youtube] download throttle disabled');
+      }
+    }
+  } catch (e) {
+    console.error('[youtube] throttle error:', e);
+  }
+  return youtubeThrottleBps;
+});
+
+ipcMain.handle('youtube:sponsor-segments', async (event, videoId) => {
+  if (!videoId || typeof videoId !== 'string' || !/^[A-Za-z0-9_-]{11}$/.test(videoId)) return [];
+  try {
+    const categories = encodeURIComponent(JSON.stringify(SPONSORBLOCK_CATEGORIES));
+    const actionTypes = encodeURIComponent(JSON.stringify(['skip']));
+    const url = SPONSORBLOCK_API + '?videoID=' + videoId + '&categories=' + categories + '&actionTypes=' + actionTypes;
+    const { status, buffer } = await httpsGetBuffer(url, 15000);
+    if (status !== 200 || !buffer) return [];
+    const data = JSON.parse(buffer.toString('utf8'));
+    if (!Array.isArray(data)) return [];
+    return data
+      .filter((s) => s && Array.isArray(s.segment) && s.segment.length >= 2)
+      .map((s) => ({ start: s.segment[0], end: s.segment[1], category: s.category || 'sponsor' }));
+  } catch (e) {
+    return [];
   }
 });

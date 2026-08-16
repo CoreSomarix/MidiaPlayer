@@ -274,7 +274,11 @@ function registerIpc(win) {
     return result.filePaths[0];
   });
   ipcMain.handle('dvd:scan', async () => scanDiscs());
-  ipcMain.handle('dvd:capabilities', async () => ({ real: !!findVlcDir(), dev: devMode }));
+  ipcMain.handle('dvd:capabilities', async () => {
+    const vlcDir = findVlcDir();
+    dlog('[dvd-core] capabilities check: vlcDir=' + (vlcDir || 'null') + ' dev=' + devMode);
+    return { real: !!vlcDir, dev: devMode };
+  });
   ipcMain.handle('dvd:get-disc', () => {
     if (!lastDiscPath || !lastDiscInfo) return { status: 'none' };
     return { status: 'ready', kind: lastDiscInfo.kind, path: lastDiscInfo.path, title: lastDiscInfo.title };

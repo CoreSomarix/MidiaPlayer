@@ -1,59 +1,60 @@
 {
-    "name":  "miizu-media-center",
-    "version":  "1.0.7",
-    "main":  "main.js",
-    "scripts":  {
-                    "start":  "electron .",
-                    "build":  "electron-builder"
-                },
-    "devDependencies":  {
-                            "electron":  "22.3.27",
-                            "electron-builder":  "^24.9.1"
-                        },
-    "build":  {
-                  "appId":  "com.yourname.miizu",
-                  "productName":  "Midia",
-                  "directories":  {
-                                      "output":  "dist"
-                                  },
-                  "files":  [
-                                "**/*",
-                                "!vendor/**",
-                                "!dist/**",
-                                "!node_modules/.cache/**"
-                            ],
-                  "asar":  true,
-                  "npmRebuild":  false,
-                  "win":  {
-                              "target":  [
-                                             {
-                                                 "target":  "nsis",
-                                                 "arch":  [
-                                                              "ia32"
-                                                          ]
-                                             }
-                                         ],
-                              "artifactName":  "Midia-Setup-${version}.${ext}"
-                          },
-                  "extraResources":  [
-                                         {
-                                             "from":  "vendor/vlc",
-                                             "to":  "vendor/vlc",
-                                             "filter":  [
-                                                            "**/*"
-                                                        ]
-                                         }
-                                     ],
-                  "asarUnpack":  [
-                                     "node_modules/koffi/**/*"
-                                 ]
-              },
-    "dependencies":  {
-                         "koffi":  "2.14.1",
-                         "music-metadata":  "~10.7.1"
-                     },
-    "allowScripts":  {
-                         "electron@22.3.27":  true,
-                         "koffi@2.14.1":  true
-                     }
+    "name": "miizu-media-center",
+    "version": "1.0.8",
+    "main": "main.js",
+    "scripts": {
+        "start": "electron .",
+        "build": "electron-builder"
+    },
+    "devDependencies": {
+        "electron": "22.3.27",
+        "electron-builder": "^24.9.1"
+    },
+    "build": {
+        "appId": "com.yourname.miizu",
+        "productName": "Midia",
+        "directories": {
+            "output": "dist"
+        },
+        "files": [
+            "**/*",
+            "!vendor/**",
+            "!dist/**",
+            "!node_modules/.cache/**"
+        ],
+        "asar": true,
+        "npmRebuild": false,
+        "win": {
+            "target": [
+                {
+                    "target": "nsis",
+                    "arch": [
+                        "ia32"
+                    ]
+                }
+            ],
+            "artifactName": "Midia-Setup-${version}.${ext}"
+        },
+        "extraResources": [
+            {
+                "from": "vendor/vlc",
+                "to": "vendor/vlc",
+                "filter": [
+                    "**/*"
+                ]
+            }
+        ],
+        "asarUnpack": [
+            "node_modules/koffi/**/*"
+        ]
+    },
+    "dependencies": {
+        "@ghostery/adblocker-electron": "^2.18.2",
+        "koffi": "2.14.1",
+        "music-metadata": "~10.7.1"
+    },
+    "allowScripts": {
+        "electron@22.3.27": true,
+        "koffi@2.14.1": true
+    }
 }

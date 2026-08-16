@@ -12,9 +12,9 @@
             font-weight: 700; font-style: normal; font-display: swap;
         }
         * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; font-family: 'Cal Sans', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
-        body { height: 100vh; width: 100vw; overflow: hidden; background-color: #074877; display: flex; flex-direction: column; justify-content: flex-start; align-items: center; position: relative; transform: translateZ(0); backface-visibility: hidden; }
+        body { height: 100vh; width: 100vw; overflow: hidden; background-color: #0a1b30; display: flex; flex-direction: column; justify-content: flex-start; align-items: center; position: relative; transform: translateZ(0); backface-visibility: hidden; }
         
-        body::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; background: linear-gradient(175deg, var(--home-bg-top, #074877) 0%, var(--home-bg-mid, #177bbb) 40%, var(--home-bg-bottom, #2da0e3) 100%); background-size: 150% 150%; animation: subtleGradientShift 15s cubic-bezier(0.4, 0, 0.2, 1) infinite alternate; animation-delay: 0.5s; pointer-events: none; transition: opacity 0.5s ease; }
+        body::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; background: linear-gradient(175deg, var(--home-bg-top, #0a1b30) 0%, var(--home-bg-mid, #10395f) 40%, var(--home-bg-bottom, #2e86c4) 100%); background-size: 150% 150%; animation: subtleGradientShift 15s cubic-bezier(0.4, 0, 0.2, 1) infinite alternate; animation-delay: 0.5s; pointer-events: none; transition: opacity 0.5s ease; }
         @keyframes subtleGradientShift { 0% { background-position: 0% 0%; } 100% { background-position: 100% 100%; } }
         body.home-bg-image::before { background: linear-gradient(rgba(4, 20, 35, 0.4), rgba(4, 20, 35, 0.4)), var(--home-bg-image) center/cover no-repeat; background-size: cover; animation: none; }
         body.home-bg-video::before { opacity: 0; }
@@ -26,18 +26,13 @@
         body.settings-applet-open::before, body.settings-applet-open::after { opacity: 0; }
         body.settings-applet-open #home-bg-video.playing { display: none; }
 
-        #top-bar { display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 40px 60px; position: relative; z-index: 10; }
-        .header-datetime { display: flex; align-items: center; gap: 16px; color: #ffffff; font-weight: 700; font-size: 2.2rem; letter-spacing: -0.5px; text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); }
+        #top-bar { display: flex; justify-content: flex-start; align-items: center; width: 100%; padding: 40px 60px; position: relative; z-index: 10; }
+        .header-datetime { display: flex; align-items: center; gap: 16px; color: #ffffff; font-weight: 700; font-size: 2.2rem; letter-spacing: -0.5px; text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); background: rgba(255, 255, 255, 0.12); backdrop-filter: blur(20px) saturate(140%); -webkit-backdrop-filter: blur(20px) saturate(140%); border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 999px; padding: 14px 34px; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.25); }
         .datetime-separator { opacity: 0.85; font-weight: 700; }
-        .brand-logo-slot { display: flex; align-items: center; justify-content: flex-end; min-width: 120px; min-height: 48px; }
-        .midia-logo { height: 3.2rem; width: auto; max-width: 220px; object-fit: contain; display: block; filter: drop-shadow(0 0 14px rgba(240, 17, 200, 0.65)) drop-shadow(0 0 28px rgba(192, 38, 211, 0.45)); }
-        .midia-logo-fallback { color: #ffffff; font-weight: 700; font-size: 2.8rem; letter-spacing: -1px; line-height: 1; text-shadow: 0 0 18px rgba(240, 17, 200, 0.85), 0 0 36px rgba(192, 38, 211, 0.55); display: none; }
-        .brand-logo-slot.show-fallback .midia-logo { display: none; }
-        .brand-logo-slot.show-fallback .midia-logo-fallback { display: block; }
         
         #dock-container { display: flex; justify-content: center; align-items: flex-end; gap: 40px; position: absolute; bottom: 15%; z-index: 10; }
         .dock-item { position: relative; display: flex; flex-direction: column; align-items: center; cursor: pointer; visibility: hidden; transform: translateY(calc(100vh + 100px)) scale(0.7); transition: margin 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
-        @keyframes softHop { 0% { transform: translateY(0) scale(1); } 30% { transform: translateY(-32px) scale(1.12) rotate(-3deg); } 55% { transform: translateY(0) scale(0.95); } 72% { transform: translateY(-12px) scale(1.03) rotate(2deg); } 100% { transform: translateY(0) scale(1); } }
+        @keyframes softHop { 0% { transform: translateY(0) scale(1); } 30% { transform: translateY(-32px) scale(1.12); } 55% { transform: translateY(0) scale(0.95); } 72% { transform: translateY(-12px) scale(1.03); } 100% { transform: translateY(0) scale(1); } }
         .app-icon { width: 110px; height: 110px; border-radius: 28px; background: transparent; display: flex; justify-content: center; align-items: center; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2); transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease; position: relative; z-index: 2; overflow: hidden; }
         .app-icon img { width: 100%; height: 100%; object-fit: cover; }
         .dock-icon-wrap { position: relative; z-index: 2; flex-shrink: 0; }
@@ -61,7 +56,7 @@
 
         .speech-bubble-wrapper { position: absolute; bottom: calc(100% + 50px); left: 50%; transform: translateX(-50%) translateY(10px); opacity: 0; pointer-events: none; transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); z-index: 1; display: flex; flex-direction: column; align-items: center; }
         .speech-bubble-wrapper.visible { opacity: 0.95; transform: translateX(-50%) translateY(0); }
-        .speech-bubble { padding: 14px 24px; border-radius: 18px; text-align: center; position: relative; min-width: 150px; filter: drop-shadow(0 8px 24px rgba(0, 0, 0, 0.25)); overflow: visible; }
+        .speech-bubble { padding: 14px 24px; border-radius: 18px; text-align: center; position: relative; min-width: 150px; filter: drop-shadow(0 8px 24px rgba(0, 0, 0, 0.25)); overflow: visible; background: rgba(255, 255, 255, 0.35); backdrop-filter: blur(24px) saturate(160%); -webkit-backdrop-filter: blur(24px) saturate(160%); border: 1px solid rgba(255, 255, 255, 0.35); }
         .bubble-pointer { width: 18px; height: 18px; transform: rotate(45deg); position: absolute; bottom: -9px; left: 50%; margin-left: -9px; background: inherit; z-index: -1; }
         .bubble-title { color: #ffffff; font-size: 28px; font-weight: 700; margin-bottom: 2px; letter-spacing: -0.5px; line-height: 1.1; }
         .bubble-subtitle { color: #ffffff; font-size: 12px; font-weight: 400; line-height: 1.2; opacity: 0.9; margin: 0; white-space: nowrap; }
@@ -190,9 +185,9 @@
         .visualizer-toggle-btn:hover { background: rgba(255, 255, 255, 0.3); transform: scale(1.05); }
         #visualizer-canvas { width: 100%; height: 120px; display: none; }
 
-        .music-modal { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.5); display: flex; justify-content: center; align-items: center; z-index: 200; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; backdrop-filter: blur(4px); }
+        .music-modal { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(4, 12, 24, 0.55); display: flex; justify-content: center; align-items: center; z-index: 200; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; backdrop-filter: blur(16px) saturate(150%); -webkit-backdrop-filter: blur(16px) saturate(150%); }
         .music-modal.active { opacity: 1; pointer-events: auto; }
-        .music-modal-box { background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(10px); padding: 30px 40px; border-radius: 30px; text-align: center; max-width: 400px; border: 1px solid rgba(255, 255, 255, 0.1); transform: scale(0.95); transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
+        .music-modal-box { background: rgba(10, 24, 44, 0.6); backdrop-filter: blur(28px) saturate(160%); -webkit-backdrop-filter: blur(28px) saturate(160%); padding: 30px 40px; border-radius: 30px; text-align: center; max-width: 400px; border: 1px solid rgba(255, 255, 255, 0.18); box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4); transform: scale(0.95); transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
         .music-modal.active .music-modal-box { transform: scale(1); }
         .music-modal-box h2 { color: #fff; font-size: 1.4rem; margin-bottom: 10px; }
         .music-modal-box p { color: rgba(255,255,255,0.8); font-size: 0.9rem; margin-bottom: 25px; }
@@ -233,7 +228,7 @@
         .np-back-btn { color: #fff; font-weight: 700; font-size: 1.1rem; cursor: pointer; display: flex; align-items: center; gap: 8px; padding: 8px 20px; border-radius: 24px; transition: all 0.2s ease; }
         .np-back-btn:hover { background: rgba(255, 255, 255, 0.15); transform: scale(1.05); }
 
-        #music-tooltip { position: fixed; padding: 12px 20px; border-radius: 18px; background: linear-gradient(135deg, #f011c8 0%, #fb59d3 100%); color: #ffffff; font-weight: 700; font-size: 20px; letter-spacing: -0.5px; line-height: 1.1; filter: drop-shadow(0 8px 24px rgba(0, 0, 0, 0.25)); pointer-events: none; opacity: 0; transition: opacity 0.3s ease; z-index: 999; white-space: nowrap; overflow: visible; display: none; }
+        #music-tooltip { position: fixed; padding: 12px 20px; border-radius: 18px; background: rgba(255, 255, 255, 0.35); backdrop-filter: blur(24px) saturate(160%); -webkit-backdrop-filter: blur(24px) saturate(160%); border: 1px solid rgba(255, 255, 255, 0.35); color: #ffffff; font-weight: 700; font-size: 20px; letter-spacing: -0.5px; line-height: 1.1; filter: drop-shadow(0 8px 24px rgba(0, 0, 0, 0.25)); pointer-events: none; opacity: 0; transition: opacity 0.3s ease; z-index: 999; white-space: nowrap; overflow: visible; display: none; }
         #music-tooltip.visible { display: block; opacity: 1; }
         #music-tooltip .tooltip-pointer { width: 18px; height: 18px; transform: rotate(45deg); position: absolute; bottom: -9px; left: 50%; margin-left: -9px; background: inherit; z-index: -1; }
         #music-tooltip .tooltip-text { position: relative; z-index: 2; }
@@ -243,8 +238,8 @@
         #toast-notification .toast-title { font-weight: 700; font-size: 1rem; margin-bottom: 4px; }
         #toast-notification .toast-body { font-size: 0.85rem; opacity: 0.9; }
 
-        #app-loading-screen { position: fixed; inset: 0; z-index: 100; display: flex; flex-direction: column; justify-content: center; align-items: center; background-color: #074877; transition: opacity 0.6s ease, visibility 0.6s; overflow: hidden; }
-        #app-loading-screen::before { content: ''; position: absolute; inset: 0; background: linear-gradient(175deg, #074877 0%, #177bbb 40%, #2da0e3 100%); background-size: 150% 150%; animation: subtleGradientShift 15s cubic-bezier(0.4, 0, 0.2, 1) infinite alternate; animation-delay: 0.5s; pointer-events: none; }
+        #app-loading-screen { position: fixed; inset: 0; z-index: 100; display: flex; flex-direction: column; justify-content: center; align-items: center; background-color: #0a1b30; transition: opacity 0.6s ease, visibility 0.6s; overflow: hidden; }
+        #app-loading-screen::before { content: ''; position: absolute; inset: 0; background: linear-gradient(175deg, #0a1b30 0%, #10395f 40%, #2e86c4 100%); background-size: 150% 150%; animation: subtleGradientShift 15s cubic-bezier(0.4, 0, 0.2, 1) infinite alternate; animation-delay: 0.5s; pointer-events: none; }
         #app-loading-screen::after { content: ''; position: absolute; inset: 0; background-image: radial-gradient(rgba(255, 255, 255, 0.12) 1px, transparent 1px); background-size: 24px 24px; pointer-events: none; }
         #app-loading-screen.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
         #app-loading-screen .loading-content { position: relative; z-index: 1; display: flex; align-items: center; justify-content: center; }
@@ -545,6 +540,122 @@
         html.gpu-software .settings-applet-bg,
         html.gpu-software .applet-wave { animation: none !important; }
         html.gpu-software .applet-content { will-change: auto !important; }
+
+        /* ========================================================== */
+        /*  YOUTUBE APPLET CSS                                         */
+        /* ========================================================== */
+        body.youtube-applet-open::before, body.youtube-applet-open::after { opacity: 0; }
+        body.youtube-applet-open #home-bg-video.playing { display: none; }
+
+        #youtube-applet { background: #000; }
+        #youtube-applet .yt-fade-bg { position: absolute; inset: 0; background: radial-gradient(120% 120% at 50% 50%, #1a0505 0%, #000 100%); opacity: 0; transition: opacity 0.8s ease; z-index: -1; }
+        #youtube-applet.visible .yt-fade-bg { opacity: 1; }
+
+        #youtube-bg { position: absolute; inset: 0; z-index: 0; transition: opacity 0.5s ease; }
+        #youtube-bg.yt-bg-gradient { background: radial-gradient(circle at 50% 45%, var(--yt-grad-center, #C71515) 0%, var(--yt-grad-edge, #7A0505) 100%); }
+        #youtube-bg.yt-bg-image { background: var(--yt-bg-image) center / cover no-repeat; }
+        #youtube-bg.yt-bg-video { background: #000; }
+        #youtube-bg video.yt-bg-video-el { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+
+        #youtube-stage { position: absolute; z-index: 1; overflow: hidden; transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
+        #youtube-applet.yt-wallpaper-mode #youtube-stage { top: 50%; left: 50%; transform: translate(-50%, -50%); width: 70vw; aspect-ratio: 16 / 9; border-radius: 26px; border: 2px solid rgba(255, 255, 255, 0.2); box-shadow: 0 30px 90px rgba(0, 0, 0, 0.75), inset 0 0 0 1px rgba(255, 255, 255, 0.06); background: #000; }
+        #youtube-applet.yt-fullscreen-mode #youtube-stage { inset: 0; width: 100vw; height: 100vh; border-radius: 0; border: none; box-shadow: none; background: #000; }
+        #youtube-applet.yt-fullscreen-mode #youtube-bg { opacity: 0; }
+
+        #youtube-webview { position: absolute; inset: 0; width: 100%; height: 100%; border: none; background: #000; z-index: 1; }
+        #youtube-stage .yt-stage-placeholder { position: absolute; inset: 0; z-index: 2; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px; color: #fff; text-align: center; padding: 30px; background: radial-gradient(circle at 50% 40%, rgba(199, 21, 21, 0.25), rgba(0, 0, 0, 0.9)); }
+        .yt-stage-logo { width: 110px; height: 74px; border-radius: 20px; background: linear-gradient(135deg, #ff0000, #cc0000); display: flex; align-items: center; justify-content: center; box-shadow: 0 14px 40px rgba(255, 0, 0, 0.45); }
+        .yt-stage-logo svg { width: 52px; height: 52px; fill: #fff; }
+        .yt-stage-title { font-size: 2rem; font-weight: 800; letter-spacing: 0.5px; }
+        .yt-stage-subtitle { font-size: 1rem; color: rgba(255, 255, 255, 0.75); max-width: 440px; line-height: 1.55; }
+
+        #youtube-toast { position: fixed; bottom: 40px; left: 50%; z-index: 80; display: flex; align-items: center; gap: 10px; max-width: 70vw; background: rgba(8, 8, 12, 0.35); backdrop-filter: blur(24px) saturate(160%); -webkit-backdrop-filter: blur(24px) saturate(160%); border: 1px solid rgba(255, 255, 255, 0.22); border-radius: 14px; padding: 12px 22px; color: #fff; font-size: 0.95rem; box-shadow: 0 10px 34px rgba(0, 0, 0, 0.5); opacity: 0; pointer-events: none; transform: translateX(-50%) translateY(14px); transition: opacity 0.28s ease, transform 0.28s ease; text-align: center; }
+        #youtube-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+        #youtube-toast .yt-toast-title { font-weight: 800; color: #ff5252; white-space: nowrap; }
+
+        #youtube-home-btn { position: fixed; top: 18px; left: 18px; z-index: 70; width: 54px; height: 54px; border-radius: 18px; border: 1px solid rgba(255, 255, 255, 0.35); background: rgba(255, 255, 255, 0.16); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); display: flex; align-items: center; justify-content: center; cursor: pointer; opacity: 0; pointer-events: none; transform: scale(0.8); transition: opacity 0.35s ease, transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1); box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45); }
+        #youtube-home-btn.show { opacity: 1; pointer-events: auto; transform: scale(1); }
+        #youtube-home-btn img { width: 30px; height: 30px; object-fit: contain; }
+        #youtube-home-btn:hover { background: rgba(255, 255, 255, 0.3); }
+
+        #youtube-corner-hover { position: fixed; top: 0; left: 0; width: 150px; height: 150px; z-index: 65; }
+
+        #youtube-mode-modal .music-modal-box { max-width: 640px; }
+        .youtube-mode-options { display: flex; gap: 16px; margin-top: 6px; }
+        .youtube-mode-card { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 8px; background: rgba(255, 255, 255, 0.1); border: 2px solid rgba(255, 255, 255, 0.16); border-radius: 24px; padding: 26px 18px; color: #fff; cursor: pointer; font-family: inherit; text-align: center; transition: background 0.2s, transform 0.2s, border-color 0.2s; }
+        .youtube-mode-card:hover { background: rgba(255, 255, 255, 0.2); transform: scale(1.03); border-color: rgba(255, 255, 255, 0.5); }
+        .youtube-mode-card .yt-mode-icon { width: 52px; height: 52px; border-radius: 16px; background: linear-gradient(135deg, #ff0000, #cc0000); display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 24px rgba(255, 0, 0, 0.4); margin-bottom: 6px; }
+        .youtube-mode-card .yt-mode-icon svg { width: 26px; height: 26px; fill: #fff; }
+        .youtube-mode-card .yt-mode-name { font-size: 1.2rem; font-weight: 800; }
+        .youtube-mode-card .yt-mode-desc { font-size: 0.85rem; color: rgba(255, 255, 255, 0.7); line-height: 1.45; }
+        .youtube-mode-card .yt-mode-default { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.8px; color: #ffd23f; border: 1px solid rgba(255, 210, 63, 0.5); border-radius: 20px; padding: 3px 12px; margin-top: 4px; }
+        #youtube-mode-modal .modal-actions { margin-top: 22px; }
+
+        /* ========================================================== */
+        /*  MIRRA APPLET CSS                                            */
+        /* ========================================================== */
+        body.mirra-applet-open::before, body.mirra-applet-open::after { opacity: 0; }
+        body.mirra-applet-open #home-bg-video.playing { display: none; }
+
+        #mirra-applet { background: #0a1b30; }
+        #mirra-applet .mr-fade-bg { position: absolute; inset: 0; background: radial-gradient(120% 120% at 50% 50%, #0a2540 0%, #0a1b30 100%); opacity: 0; transition: opacity 0.8s ease; z-index: -1; }
+        #mirra-applet.visible .mr-fade-bg { opacity: 1; }
+
+        #mirra-bg { position: absolute; inset: 0; z-index: 0; transition: opacity 0.5s ease; }
+        #mirra-bg.mr-bg-gradient { background: linear-gradient(135deg, var(--mr-grad-center, #2ecc71) 0%, var(--mr-grad-mid, #1abc9c) 50%, var(--mr-grad-edge, #0077b6) 100%); background-size: 200% 200%; animation: mr-gradient-drift 12s ease-in-out infinite alternate; }
+        @keyframes mr-gradient-drift { 0% { background-position: 0% 0%; } 50% { background-position: 100% 100%; } 100% { background-position: 0% 100%; } }
+        #mirra-bg.mr-bg-image { background: var(--mr-bg-image) center / cover no-repeat; }
+        #mirra-bg.mr-bg-video { background: #000; }
+        #mirra-bg video.mr-bg-video-el { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+
+        #mirra-stage { position: absolute; z-index: 1; overflow: hidden; transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); display: flex; align-items: center; justify-content: center; }
+        #mirra-applet.mr-wallpaper-mode #mirra-stage { top: 50%; left: 50%; transform: translate(-50%, -50%); width: 45vw; max-width: 400px; aspect-ratio: 9 / 16; border-radius: 26px; border: 2px solid rgba(255, 255, 255, 0.2); box-shadow: 0 30px 90px rgba(0, 0, 0, 0.75), inset 0 0 0 1px rgba(255, 255, 255, 0.06); background: #000; }
+        #mirra-applet.mr-wallpaper-mode.mr-landscape #mirra-stage { width: 90vw; max-width: 1000px; }
+        #mirra-applet.mr-fullscreen-mode #mirra-stage { inset: 0; width: 100vw; height: 100vh; border-radius: 0; border: none; box-shadow: none; background: #000; }
+        #mirra-applet.mr-fullscreen-mode #mirra-bg { opacity: 0; }
+
+        #mirra-canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: none; background: #000; }
+
+        .mr-connection-menu { position: absolute; inset: 0; z-index: 5; display: flex; align-items: center; justify-content: center; }
+        .mr-connection-card { background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(24px) saturate(160%); -webkit-backdrop-filter: blur(24px) saturate(160%); border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 24px; padding: 40px 50px; text-align: center; max-width: 420px; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3); }
+        .mr-connection-icon { width: 200px; height: auto; margin-bottom: 20px; opacity: 0.9; }
+        .mr-connection-title { color: #ffffff; font-size: 1.3rem; font-weight: 800; margin-bottom: 12px; }
+        .mr-connection-sub { color: rgba(255, 255, 255, 0.8); font-size: 0.85rem; line-height: 1.5; margin-bottom: 4px; }
+
+        .mr-popup { position: absolute; inset: 0; z-index: 10; display: flex; align-items: center; justify-content: center; background: rgba(0, 0, 0, 0.4); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); opacity: 0; visibility: hidden; transition: opacity 0.35s ease, visibility 0.35s ease; }
+        .mr-popup.active { opacity: 1; visibility: visible; }
+        .mr-popup-card { background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(24px) saturate(160%); -webkit-backdrop-filter: blur(24px) saturate(160%); border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 24px; padding: 35px 45px; text-align: center; max-width: 380px; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4); transform: scale(0.85) translateY(12px); opacity: 0; transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.35s ease; }
+        .mr-popup.active .mr-popup-card { transform: scale(1) translateY(0); opacity: 1; }
+        .mr-popup-device-img { width: 80px; height: 80px; object-fit: contain; margin-bottom: 16px; border-radius: 20px; background: rgba(255, 255, 255, 0.1); padding: 12px; }
+        .mr-popup-device-name { color: #ffffff; font-size: 1.3rem; font-weight: 800; margin-bottom: 8px; }
+        .mr-popup-text { color: rgba(255, 255, 255, 0.8); font-size: 0.9rem; line-height: 1.5; margin-bottom: 6px; }
+        .mr-popup-status { color: #ffffff; font-size: 1.4rem; font-weight: 800; margin-bottom: 16px; }
+
+        .mr-spinner { width: 50px; height: 50px; border: 4px solid rgba(255, 255, 255, 0.2); border-top: 4px solid #00B4D8; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto; filter: drop-shadow(0 0 10px rgba(0, 180, 216, 0.6)); }
+
+        .mr-popup .modal-actions { margin-top: 20px; gap: 12px; }
+        .mr-popup .modal-btn { min-width: 100px; }
+        .mr-btn-yes { background: #00B4D8; color: #ffffff; }
+        .mr-btn-yes:hover { background: #0096c7; }
+        .mr-btn-no { background: rgba(255, 255, 255, 0.2); color: #ffffff; }
+        .mr-btn-no:hover { background: rgba(255, 255, 255, 0.3); }
+
+        #mirra-home-btn { position: fixed; top: 18px; left: 18px; z-index: 70; width: 54px; height: 54px; border-radius: 18px; border: 1px solid rgba(255, 255, 255, 0.35); background: rgba(255, 255, 255, 0.16); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); display: flex; align-items: center; justify-content: center; cursor: pointer; opacity: 0; pointer-events: none; transform: scale(0.8); transition: opacity 0.35s ease, transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1); box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45); }
+        #mirra-home-btn.show { opacity: 1; pointer-events: auto; transform: scale(1); }
+        #mirra-home-btn img { width: 30px; height: 30px; object-fit: contain; }
+        #mirra-home-btn:hover { background: rgba(255, 255, 255, 0.3); }
+
+        #mirra-corner-hover { position: fixed; top: 0; left: 0; width: 150px; height: 150px; z-index: 65; }
+
+        #mirra-mode-modal .music-modal-box { max-width: 640px; }
+        .mr-mode-options { display: flex; gap: 16px; margin-top: 6px; }
+        .mr-mode-card { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 8px; background: rgba(255, 255, 255, 0.1); border: 2px solid rgba(255, 255, 255, 0.16); border-radius: 24px; padding: 26px 18px; color: #fff; cursor: pointer; font-family: inherit; text-align: center; transition: background 0.2s, transform 0.2s, border-color 0.2s; }
+        .mr-mode-card:hover { background: rgba(255, 255, 255, 0.2); transform: scale(1.03); border-color: rgba(255, 255, 255, 0.5); }
+        .mr-mode-card .mr-mode-icon { width: 52px; height: 52px; border-radius: 16px; background: linear-gradient(135deg, #00B4D8, #0077B6); display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 24px rgba(0, 180, 216, 0.4); margin-bottom: 6px; }
+        .mr-mode-card .mr-mode-icon svg { width: 26px; height: 26px; fill: #fff; }
+        .mr-mode-card .mr-mode-name { font-size: 1.2rem; font-weight: 800; }
+        .mr-mode-card .mr-mode-desc { font-size: 0.85rem; color: rgba(255, 255, 255, 0.7); line-height: 1.45; }
+        #mirra-mode-modal .modal-actions { margin-top: 22px; }
 </style>
 </head>
 <body>
@@ -596,6 +707,15 @@
     <!-- Welcome Slideshow SFX -->
     <audio id="sfx-welcome" src="assets/audio/welcome-sfx.mp3" preload="auto"></audio>
 
+    <!-- Mirra Applet Audio -->
+    <audio id="mirra-bgm" src="assets/audio/mirra-bgm.mp3" preload="auto" loop></audio>
+    <audio id="sfx-mirra-detected" src="assets/audio/mirra-detected.mp3" preload="auto"></audio>
+    <audio id="sfx-mirra-connecting" src="assets/audio/mirra-connecting.mp3" preload="auto" loop></audio>
+    <audio id="sfx-mirra-connected" src="assets/audio/mirra-connected.mp3" preload="auto"></audio>
+    <audio id="sfx-mirra-disconnected" src="assets/audio/mirra-disconnected.mp3" preload="auto"></audio>
+    <audio id="sfx-mirra-hover" src="assets/audio/mirra-hover.mp3" preload="auto"></audio>
+    <audio id="sfx-mirra-click" src="assets/audio/mirra-click.mp3" preload="auto"></audio>
+
     <div id="toast-notification"><div class="toast-title">Tip</div><div class="toast-body">Press CTRL + R to unlink your linked music or photos folder at anytime!</div></div>
 
     <div id="app-loading-screen">
@@ -609,10 +729,6 @@
             <span id="date-display">Monday, September 12th</span>
             <span class="datetime-separator">|</span>
             <span id="time-display">3:00 PM</span>
-        </div>
-        <div id="brand-logo-slot" class="brand-logo-slot">
-            <img src="assets/midia-logo.png" alt="Midia." class="midia-logo" id="midia-logo">
-            <span class="midia-logo-fallback" id="midia-logo-fallback">Midia.</span>
         </div>
     </header>
 
@@ -648,6 +764,28 @@
             <div class="dock-icon-wrap">
                 <div class="app-icon app-dvd"><img src="dvd.png" alt="DVD"></div>
                 <span class="dvd-ready-badge" id="dvd-ready-badge"></span>
+            </div>
+        </div>
+        <div class="dock-item" data-app="youtube">
+            <div class="speech-bubble-wrapper">
+                <div class="speech-bubble" id="bubble-yt">
+                    <div class="bubble-pointer"></div>
+                    <div class="bubble-title">YouTube</div>
+                    <div class="bubble-subtitle" id="youtube-bubble-subtitle">Watch videos, ad-free</div>
+                </div>
+            </div>
+            <div class="app-icon app-youtube"><img src="assets/youtube/youtube.png" alt="YouTube"></div>
+        </div>
+        <div class="dock-item" data-app="mirra">
+            <div class="speech-bubble-wrapper">
+                <div class="speech-bubble" id="bubble-mirra">
+                    <div class="bubble-pointer"></div>
+                    <div class="bubble-title">Mirra</div>
+                    <div class="bubble-subtitle" id="mirra-bubble-subtitle">Mirror your phone screen</div>
+                </div>
+            </div>
+            <div class="dock-icon-wrap">
+                <div class="app-icon app-mirra"><img src="assets/mirra/mirra.png" alt="Mirra"></div>
             </div>
         </div>
         <div class="dock-item" data-app="settings">
@@ -1075,6 +1213,22 @@
                         </div>
                         <div class="settings-menu-chevron">›</div>
                     </div>
+                    <div class="settings-menu-item" data-target="youtube">
+                        <img class="settings-menu-icon" src="assets/youtube/youtube.png" alt="YouTube">
+                        <div class="settings-menu-text">
+                            <div class="settings-menu-title">YouTube</div>
+                            <div class="settings-menu-desc">View mode and wallpaper background</div>
+                        </div>
+                        <div class="settings-menu-chevron">›</div>
+                    </div>
+                    <div class="settings-menu-item" data-target="mirra">
+                        <img class="settings-menu-icon" src="assets/mirra/mirra.png" alt="Mirra">
+                        <div class="settings-menu-text">
+                            <div class="settings-menu-title">Mirra</div>
+                            <div class="settings-menu-desc">View mode and phone mirroring options</div>
+                        </div>
+                        <div class="settings-menu-chevron">›</div>
+                    </div>
                     <div class="settings-menu-item" data-target="sound">
                         <img class="settings-menu-icon" src="assets/settings/sound-icon.png" alt="Sound">
                         <div class="settings-menu-text">
@@ -1254,6 +1408,163 @@
             </div>
         </div>
 
+        <div id="settings-youtube-view" class="applet-view">
+            <nav class="applet-nav">
+                <div class="nav-tabs" style="flex:1; justify-content:space-between;">
+                    <div class="nav-back-btn" id="settings-youtube-back"><span style="font-size:1.5rem;">←</span> Settings</div>
+                    <img class="nav-tab nav-icon-tab nav-home-icon" data-target="home" src="assets/home-icon.png" alt="Home" title="Home">
+                </div>
+            </nav>
+            <div class="applet-content settings-panel">
+                <div class="settings-section-title">YouTube</div>
+                <div class="settings-section-sub">Choose how YouTube looks on your TV screen.</div>
+
+                <div class="settings-option-row">
+                    <span class="settings-option-label">View Mode</span>
+                    <div class="settings-segmented" id="yt-view-mode-segmented">
+                        <button class="settings-seg-btn active" data-ytmode="wallpaper">Wallpaper</button>
+                        <button class="settings-seg-btn" data-ytmode="fullscreen">Full Screen</button>
+                    </div>
+                </div>
+
+                <div class="settings-option-row">
+                    <span class="settings-option-label">Playback Quality</span>
+                    <div class="settings-segmented" id="yt-max-quality-segmented">
+                        <button class="settings-seg-btn" data-ytquality="720p60">720p60</button>
+                        <button class="settings-seg-btn active" data-ytquality="1080p60">1080p60</button>
+                        <button class="settings-seg-btn" data-ytquality="1440p60">1440p60</button>
+                    </div>
+                </div>
+
+                <div class="settings-subheading">Wallpaper View Background</div>
+                <div class="settings-option-row">
+                    <span class="settings-option-label">Background Type</span>
+                    <div class="settings-segmented" id="yt-bg-type-segmented">
+                        <button class="settings-seg-btn active" data-yttype="gradient">Gradient</button>
+                        <button class="settings-seg-btn" data-yttype="image">Image (PNG)</button>
+                        <button class="settings-seg-btn" data-yttype="video">Video (MP4)</button>
+                    </div>
+                </div>
+
+                <div class="settings-option-group" id="yt-bg-gradient-controls">
+                    <div class="settings-option-row">
+                        <span class="settings-option-label">Center Color</span>
+                        <input type="color" class="settings-color-pick" id="yt-bg-color-center" value="#C71515">
+                    </div>
+                    <div class="settings-option-row">
+                        <span class="settings-option-label">Edge Color</span>
+                        <input type="color" class="settings-color-pick" id="yt-bg-color-edge" value="#7A0505">
+                    </div>
+                </div>
+
+                <div class="settings-option-group" id="yt-bg-image-controls" style="display:none;">
+                    <div class="settings-option-row">
+                        <span class="settings-option-label">Background Image</span>
+                        <button class="settings-pick-btn" id="yt-bg-pick-image">Choose PNG...</button>
+                    </div>
+                    <div class="settings-file-preview" id="yt-bg-image-preview">No image selected</div>
+                </div>
+
+                <div class="settings-option-group" id="yt-bg-video-controls" style="display:none;">
+                    <div class="settings-option-row">
+                        <span class="settings-option-label">Background Video</span>
+                        <button class="settings-pick-btn" id="yt-bg-pick-video">Choose MP4...</button>
+                    </div>
+                    <div class="settings-file-preview" id="yt-bg-video-preview">No video selected</div>
+                </div>
+
+                <div class="settings-actions">
+                    <button class="settings-apply-btn" id="yt-bg-apply-btn">Apply & Save</button>
+                    <button class="settings-reset-btn" id="yt-bg-reset-btn">Reset Defaults</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="settings-mirra-view" class="applet-view">
+            <nav class="applet-nav">
+                <div class="nav-tabs" style="flex:1; justify-content:space-between;">
+                    <div class="nav-back-btn" id="settings-mirra-back"><span style="font-size:1.5rem;">←</span> Settings</div>
+                    <img class="nav-tab nav-icon-tab nav-home-icon" data-target="home" src="assets/home-icon.png" alt="Home" title="Home">
+                </div>
+            </nav>
+            <div class="applet-content settings-panel">
+                <div class="settings-section-title">Mirra</div>
+                <div class="settings-section-sub">Configure phone screen mirroring.</div>
+
+                <div class="settings-option-row">
+                    <span class="settings-option-label">View Mode</span>
+                    <div class="settings-segmented" id="mr-view-mode-segmented">
+                        <button class="settings-seg-btn active" data-mrmode="wallpaper">Wallpaper</button>
+                        <button class="settings-seg-btn" data-mrmode="fullscreen">Full Screen</button>
+                    </div>
+                </div>
+
+                <div class="settings-subheading">Wallpaper View Background</div>
+                <div class="settings-option-row">
+                    <span class="settings-option-label">Background Type</span>
+                    <div class="settings-segmented" id="mr-bg-type-segmented">
+                        <button class="settings-seg-btn active" data-mrtype="gradient">Gradient</button>
+                        <button class="settings-seg-btn" data-mrtype="image">Image (PNG)</button>
+                        <button class="settings-seg-btn" data-mrtype="video">Video (MP4)</button>
+                    </div>
+                </div>
+
+                <div class="settings-option-group" id="mr-bg-gradient-controls">
+                    <div class="settings-option-row">
+                        <span class="settings-option-label">Center Color</span>
+                        <input type="color" class="settings-color-pick" id="mr-bg-color-center" value="#2ecc71">
+                    </div>
+                    <div class="settings-option-row">
+                        <span class="settings-option-label">Mid Color</span>
+                        <input type="color" class="settings-color-pick" id="mr-bg-color-mid" value="#1abc9c">
+                    </div>
+                    <div class="settings-option-row">
+                        <span class="settings-option-label">Edge Color</span>
+                        <input type="color" class="settings-color-pick" id="mr-bg-color-edge" value="#0077b6">
+                    </div>
+                </div>
+
+                <div class="settings-option-group" id="mr-bg-image-controls" style="display:none;">
+                    <div class="settings-option-row">
+                        <span class="settings-option-label">Background Image</span>
+                        <button class="settings-pick-btn" id="mr-bg-pick-image">Choose PNG...</button>
+                    </div>
+                    <div class="settings-file-preview" id="mr-bg-image-preview">No image selected</div>
+                </div>
+
+                <div class="settings-option-group" id="mr-bg-video-controls" style="display:none;">
+                    <div class="settings-option-row">
+                        <span class="settings-option-label">Background Video</span>
+                        <button class="settings-pick-btn" id="mr-bg-pick-video">Choose MP4...</button>
+                    </div>
+                    <div class="settings-file-preview" id="mr-bg-video-preview">No video selected</div>
+                </div>
+
+                <div class="settings-actions">
+                    <button class="settings-apply-btn" id="mr-bg-apply-btn">Apply & Save</button>
+                    <button class="settings-reset-btn" id="mr-bg-reset-btn">Reset Defaults</button>
+                </div>
+
+                <div class="settings-subheading">scrcpy Configuration</div>
+                <div class="settings-option-row">
+                    <span class="settings-option-label">scrcpy Path</span>
+                    <div class="settings-path-actions">
+                        <span class="settings-path-display" id="settings-mirra-scrcpy-path">In system PATH</span>
+                        <button class="settings-pick-btn" id="settings-mirra-scrcpy-pick">Change...</button>
+                        <button class="settings-reset-btn" id="settings-mirra-scrcpy-reset">Reset</button>
+                    </div>
+                </div>
+                <div class="settings-option-row">
+                    <span class="settings-option-label">Additional Arguments</span>
+                    <input type="text" class="settings-text-input" id="mirra-custom-args" placeholder="--max-size 1024 --bit-rate 2M" style="background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 8px 16px; color: #fff; font-size: 0.9rem; outline: none; width: 300px; font-family: inherit;">
+                </div>
+                <div class="settings-option-row">
+                    <span class="settings-option-label">Device Status</span>
+                    <span class="settings-path-display" id="mirra-device-status">Not connected</span>
+                </div>
+            </div>
+        </div>
+
         <div id="settings-sound-view" class="applet-view">
             <nav class="applet-nav">
                 <div class="nav-tabs" style="flex:1; justify-content:space-between;">
@@ -1306,6 +1617,7 @@
                 <div class="settings-option-row"><span class="settings-option-label">Music Applet</span><button class="settings-toggle" data-bind="sound.sfxToggles.music"><span class="knob"></span></button></div>
                 <div class="settings-option-row"><span class="settings-option-label">Photos Applet</span><button class="settings-toggle" data-bind="sound.sfxToggles.photos"><span class="knob"></span></button></div>
                 <div class="settings-option-row"><span class="settings-option-label">Settings Applet</span><button class="settings-toggle" data-bind="sound.sfxToggles.settings"><span class="knob"></span></button></div>
+                <div class="settings-option-row"><span class="settings-option-label">Mirra Applet</span><button class="settings-toggle" data-bind="sound.sfxToggles.mirra"><span class="knob"></span></button></div>
             </div>
         </div>
 
@@ -1425,15 +1737,15 @@
                 <div class="settings-option-group" id="bg-gradient-controls">
                     <div class="settings-option-row">
                         <span class="settings-option-label">Top Color</span>
-                        <input type="color" class="settings-color-pick" id="bg-color-top" value="#074877">
+                        <input type="color" class="settings-color-pick" id="bg-color-top" value="#0a1b30">
                     </div>
                     <div class="settings-option-row">
                         <span class="settings-option-label">Middle Color</span>
-                        <input type="color" class="settings-color-pick" id="bg-color-mid" value="#177bbb">
+                        <input type="color" class="settings-color-pick" id="bg-color-mid" value="#10395f">
                     </div>
                     <div class="settings-option-row">
                         <span class="settings-option-label">Bottom Color</span>
-                        <input type="color" class="settings-color-pick" id="bg-color-bottom" value="#2da0e3">
+                        <input type="color" class="settings-color-pick" id="bg-color-bottom" value="#2e86c4">
                     </div>
                 </div>
 
@@ -1500,6 +1812,164 @@
         <div id="settings-complete-modal" class="music-modal"><div class="music-modal-box"><h2>Update has completed</h2><p>The program will now restart</p></div></div>
     </div>
 
+    <!-- ========================================================== -->
+    <!-- YOUTUBE APPLET HTML                                         -->
+    <!-- ========================================================== -->
+    <div id="youtube-applet" class="applet-container">
+        <div class="yt-fade-bg"></div>
+        <div id="youtube-bg"></div>
+
+        <div id="youtube-stage">
+            <div class="yt-stage-placeholder" id="youtube-placeholder">
+                <div class="yt-stage-logo">
+                    <svg viewBox="0 0 24 24"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.6A3 3 0 0 0 .5 6.2 31.3 31.3 0 0 0 0 12a31.3 31.3 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.6 9.4.6 9.4.6s7.5 0 9.4-.6a3 3 0 0 0 2.1-2.1A31.3 31.3 0 0 0 24 12a31.3 31.3 0 0 0-.5-5.8zM9.5 15.6V8.4l6.3 3.6-6.3 3.6z"/></svg>
+                </div>
+                <div class="yt-stage-title">YouTube TV</div>
+                <div class="yt-stage-subtitle" id="youtube-placeholder-sub">Loading YouTube TV…</div>
+            </div>
+            <webview id="youtube-webview" partition="persist:youtube-tv" useragent="Mozilla/5.0 (X11; Linux i686) AppleWebKit/534.24 (KHTML, like Gecko) Chrome/11.0.696.77 Large Screen Safari/534.24 GoogleTV/092754"></webview>
+        </div>
+
+        <div id="youtube-corner-hover"></div>
+        <button id="youtube-home-btn" title="Back to Home"><img src="assets/home-icon.png" alt="Home"></button>
+
+        <div id="youtube-mode-modal" class="music-modal">
+            <div class="music-modal-box">
+                <h2>How do you want to watch?</h2>
+                <p>Pick a view mode for YouTube. You can change this anytime in Settings.</p>
+                <div class="youtube-mode-options">
+                    <button class="youtube-mode-card" id="youtube-mode-wallpaper">
+                        <div class="yt-mode-icon"><svg viewBox="0 0 24 24"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.6A3 3 0 0 0 .5 6.2 31.3 31.3 0 0 0 0 12a31.3 31.3 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.6 9.4.6 9.4.6s7.5 0 9.4-.6a3 3 0 0 0 2.1-2.1A31.3 31.3 0 0 0 24 12a31.3 31.3 0 0 0-.5-5.8zM9.5 15.6V8.4l6.3 3.6-6.3 3.6z"/></svg></div>
+                        <span class="yt-mode-name">Wallpaper View</span>
+                        <span class="yt-mode-desc">Video floats over a custom wallpaper background</span>
+                        <span class="yt-mode-default">DEFAULT</span>
+                    </button>
+                    <button class="youtube-mode-card" id="youtube-mode-fullscreen">
+                        <div class="yt-mode-icon"><svg viewBox="0 0 24 24"><path d="M8 3H5a2 2 0 0 0-2 2v3h2V5h3V3zm8 0v2h3v3h2V5a2 2 0 0 0-2-2h-3zM3 16v3a2 2 0 0 0 2 2h3v-2H5v-3H3zm16 0v3h-3v2h3a2 2 0 0 0 2-2v-3h-2z"/></svg></div>
+                        <span class="yt-mode-name">Full Screen View</span>
+                        <span class="yt-mode-desc">Video fills the entire screen edge to edge</span>
+                    </button>
+                </div>
+                <div class="modal-actions">
+                    <button class="modal-btn modal-btn-no" id="youtube-mode-skip">Not Now</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="youtube-exit-modal" class="music-modal"><div class="music-modal-box"><h2>Exit YouTube?</h2><p>Return to the home menu?</p><div class="modal-actions"><button class="modal-btn modal-btn-yes" id="youtube-exit-yes">Yes</button><button class="modal-btn modal-btn-no" id="youtube-exit-no">No</button></div></div></div>
+    </div>
+
+    <!-- ========================================================== -->
+    <!-- MIRRA APPLET HTML                                            -->
+    <!-- ========================================================== -->
+    <div id="mirra-applet" class="applet-container">
+        <div class="mr-fade-bg"></div>
+        <div id="mirra-bg"></div>
+
+        <div id="mirra-stage">
+            <!-- Canvas for phone screen (only visible once connected) -->
+            <canvas id="mirra-canvas"></canvas>
+        </div>
+
+        <!-- Connection Menu (idle state) -->
+        <div class="mr-connection-menu" id="mr-connection-menu">
+            <div class="mr-connection-card">
+                <img class="mr-connection-icon" id="mr-connection-icon" src="assets/mirra/connection-icon.png" alt="">
+                <div class="mr-connection-title">Connect your Android Device Via USB</div>
+                <div class="mr-connection-sub">Connect your device via the PC/Laptop port in your Computer</div>
+                <div class="mr-connection-sub">Click "Instructions" on how to connect if you need any assistance</div>
+            </div>
+        </div>
+
+        <!-- Device Detected Popup -->
+        <div class="mr-popup" id="mr-detected-popup">
+            <div class="mr-popup-card">
+                <img class="mr-popup-device-img" id="mr-device-img" src="assets/mirra/device-icon.png" alt="">
+                <div class="mr-popup-device-name" id="mr-device-name">Unknown Device</div>
+                <div class="mr-popup-text">A device has been detected</div>
+                <div class="mr-popup-text">Would you like to connect to it now?</div>
+                <div class="modal-actions">
+                    <button class="modal-btn mr-btn-yes" id="mr-detected-yes">Yes</button>
+                    <button class="modal-btn mr-btn-no" id="mr-detected-no">No</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Connecting Popup -->
+        <div class="mr-popup" id="mr-connecting-popup">
+            <div class="mr-popup-card">
+                <div class="mr-popup-status">Connecting...</div>
+                <div class="mr-spinner"></div>
+            </div>
+        </div>
+
+        <!-- Connected Popup -->
+        <div class="mr-popup" id="mr-connected-popup">
+            <div class="mr-popup-card">
+                <div class="mr-popup-status">Connected!</div>
+            </div>
+        </div>
+
+        <!-- Disconnected Popup -->
+        <div class="mr-popup" id="mr-disconnected-popup">
+            <div class="mr-popup-card">
+                <div class="mr-popup-status">Device has been disconnected</div>
+                <div class="mr-popup-text">Returning to Mirra menu</div>
+            </div>
+        </div>
+
+        <div id="mirra-corner-hover"></div>
+        <button id="mirra-home-btn" title="Back to Home"><img src="assets/home-icon.png" alt="Home"></button>
+
+        <!-- View Mode Selection Modal -->
+        <div id="mirra-mode-modal" class="music-modal">
+            <div class="music-modal-box">
+                <h2>How do you want to mirror?</h2>
+                <p>Pick a view mode for Mirra. You can change this anytime in Settings.</p>
+                <div class="mr-mode-options">
+                    <button class="mr-mode-card" id="mirra-mode-wallpaper">
+                        <div class="mr-mode-icon"><svg viewBox="0 0 24 24"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.6A3 3 0 0 0 .5 6.2 31.3 31.3 0 0 0 0 12a31.3 31.3 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.6 9.4.6 9.4.6s7.5 0 9.4-.6a3 3 0 0 0 2.1-2.1A31.3 31.3 0 0 0 24 12a31.3 31.3 0 0 0-.5-5.8zM9.5 15.6V8.4l6.3 3.6-6.3 3.6z"/></svg></div>
+                        <span class="mr-mode-name">Wallpaper View</span>
+                        <span class="mr-mode-desc">Phone screen floats over a custom wallpaper background</span>
+                        <span class="yt-mode-default">DEFAULT</span>
+                    </button>
+                    <button class="mr-mode-card" id="mirra-mode-fullscreen">
+                        <div class="mr-mode-icon"><svg viewBox="0 0 24 24"><path d="M8 3H5a2 2 0 0 0-2 2v3h2V5h3V3zm8 0v2h3v3h2V5a2 2 0 0 0-2-2h-3zM3 16v3a2 2 0 0 0 2 2h3v-2H5v-3H3zm16 0v3h-3v2h3a2 2 0 0 0 2-2v-3h-2z"/></svg></div>
+                        <span class="mr-mode-name">Full Screen View</span>
+                        <span class="mr-mode-desc">Phone screen fills the entire display edge to edge</span>
+                    </button>
+                </div>
+                <div class="modal-actions">
+                    <button class="modal-btn modal-btn-no" id="mirra-mode-skip">Not Now</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Exit Modal -->
+        <div id="mirra-exit-modal" class="music-modal"><div class="music-modal-box"><h2>Exit Mirra?</h2><p>Return to the home menu?</p><div class="modal-actions"><button class="modal-btn modal-btn-yes" id="mr-exit-yes">Yes</button><button class="modal-btn modal-btn-no" id="mr-exit-no">No</button></div></div></div>
+    </div>
+
+    <script>
+        // Early global error capture. Runs before the applet scripts below so any
+        // parse/runtime error in photos-applet.js / dvd-engine.js / index.html still
+        // reaches the diagnostic log (Settings > Export Log).
+        (function () {
+            var ipc = null;
+            try { ipc = window.require('electron').ipcRenderer; } catch (e) {}
+            function push(line) {
+                try { if (ipc) ipc.send('log:append', line); } catch (e) {}
+                try { console.error(line); } catch (e) {}
+            }
+            window.addEventListener('error', function (e) {
+                push('[app:error] ' + (e && e.message ? e.message : 'unknown') + ' @ ' + (e && e.filename ? e.filename : '?') + ':' + (e && e.lineno ? e.lineno : 0) + '\n' + ((e && e.error && e.error.stack) || ''));
+            });
+            window.addEventListener('unhandledrejection', function (e) {
+                var r = e && e.reason;
+                push('[app:error] unhandledRejection: ' + (r && (r.stack || r.message)) || String(r));
+            });
+        })();
+    </script>
+
     <script src="photos-applet.js"></script>
     <script src="dvd-engine.js"></script>
     <script>
@@ -1518,6 +1988,30 @@
                 document.documentElement.classList.add('gpu-software');
             }
 
+            // Applet-tagged log helper. Every line is pushed to the main-process
+            // ring buffer (Settings > Export Log) prefixed with the applet name,
+            // and also echoed to the console for DevTools.
+            const AppLog = {
+                _send(tag, level, ...args) {
+                    let text;
+                    try {
+                        text = args.map((a) => {
+                            if (typeof a === 'string') return a;
+                            if (a instanceof Error) return a.stack || (a.message || String(a));
+                            if (typeof a === 'number' || typeof a === 'boolean') return String(a);
+                            if (a === null || a === undefined) return String(a);
+                            try { return JSON.stringify(a); } catch (e) { return String(a); }
+                        }).join(' ');
+                    } catch (e) { text = String(args); }
+                    const line = '[' + tag + ':' + level + '] ' + text;
+                    try { if (ipcRenderer) ipcRenderer.send('log:append', line); } catch (e) {}
+                    try { (level === 'error' ? console.error : level === 'warn' ? console.warn : console.log)(line); } catch (e) {}
+                },
+                log(tag, ...args) { this._send(tag, 'log', ...args); },
+                warn(tag, ...args) { this._send(tag, 'warn', ...args); },
+                error(tag, ...args) { this._send(tag, 'error', ...args); }
+            };
+
             const state = { isAnimating: false, hoverTimeout: null, showSeconds: false };
             const MusicAppState = { 
                 folderPath: null, 
@@ -1532,7 +2026,8 @@
                 queueTrackIndex: -1,
                 libraryReady: false
             };
-            const AppConfig = { music: { gradient: 'linear-gradient(135deg, #f011c8 0%, #fb59d3 100%)' }, photos: { gradient: 'linear-gradient(135deg, #4cf02a 0%, #79f862 100%)' }, dvd: { gradient: 'linear-gradient(135deg, #fdcb04 0%, #fcd661 100%)' }, settings: { gradient: 'linear-gradient(135deg, #6b4af0 0%, #947af7 100%)' } };
+            const AppConfig = { music: { gradient: 'linear-gradient(135deg, #f011c8 0%, #fb59d3 100%)' }, photos: { gradient: 'linear-gradient(135deg, #4cf02a 0%, #79f862 100%)' }, dvd: { gradient: 'linear-gradient(135deg, #fdcb04 0%, #fcd661 100%)' }, youtube: { gradient: 'linear-gradient(135deg, #c71515 0%, #7a0505 100%)' }, mirra: { gradient: 'linear-gradient(135deg, #00b4d8 0%, #0077b6 100%)' }, settings: { gradient: 'linear-gradient(135deg, #6b4af0 0%, #947af7 100%)' } };
+            function frostedGradient(gradient) { return gradient.replace(/#([0-9a-fA-F]{6})/g, (m, hex) => { const n = parseInt(hex, 16); return `rgba(${(n >> 16) & 255}, ${(n >> 8) & 255}, ${n & 255}, 0.45)`; }); }
 
             const AudioManager = {
                 bgm: document.getElementById('bgm-audio'),
@@ -1570,6 +2065,12 @@
                 musicBackBtnSFX: document.getElementById('sfx-back-btn'),
                 musicRefreshSFX: document.getElementById('sfx-refresh'),
                 welcomeSFX: document.getElementById('sfx-welcome'),
+                mirraDetectedSFX: document.getElementById('sfx-mirra-detected'),
+                mirraConnectingSFX: document.getElementById('sfx-mirra-connecting'),
+                mirraConnectedSFX: document.getElementById('sfx-mirra-connected'),
+                mirraDisconnectedSFX: document.getElementById('sfx-mirra-disconnected'),
+                mirraHoverSFX: document.getElementById('sfx-mirra-hover'),
+                mirraClickSFX: document.getElementById('sfx-mirra-click'),
                 bgmFadeInterval: null,
                 activeBgmKey: 'menu',
                 MENU_VOL: 0.3,
@@ -1586,6 +2087,7 @@
                     this.bubbleSFX.load(); this.dockHoverSFX.load(); this.clickSFX.load(); this.exitSFX.load(); this.dvdErrorSFX.load();
                     this.musicHoverCardSFX?.load(); this.musicClickUISFX?.load(); this.musicBackSFX?.load(); this.musicPlaySFX?.load(); this.musicPauseSFX?.load(); this.musicSkipSFX?.load(); this.musicPrevSFX?.load(); this.musicBackBtnSFX?.load(); this.musicRefreshSFX?.load();
                     this.welcomeSFX?.load();
+                    [this.mirraDetectedSFX, this.mirraConnectingSFX, this.mirraConnectedSFX, this.mirraDisconnectedSFX, this.mirraHoverSFX, this.mirraClickSFX].forEach(a => { if (a) a.load(); });
                     [this.dvdOpenSFX, this.dvdPlaySFX, this.dvdPauseSFX, this.dvdSkipSFX, this.dvdPrevSFX, this.dvdFfSFX, this.dvdRwSFX, this.dvdVolSFX, this.dvdSettingsSFX, this.dvdMenuHoverSFX, this.dvdMenuClickSFX, this.dvdCloseSFX, this.dvdCannotSkipSFX, this.dvdUiAppearSFX, this.dvdUiDisappearSFX, this.dvdTipSFX].forEach(a => { if (a) a.load(); });
                 },
 
@@ -1629,6 +2131,13 @@
                 playMusicBackBtn() { if (!this._sfx('music', this.musicBackBtnSFX)) return; this.musicBackBtnSFX.currentTime = 0; this.musicBackBtnSFX.play().catch(() => {}); },
                 playMusicRefresh() { if (!this._sfx('music', this.musicRefreshSFX)) return; this.musicRefreshSFX.currentTime = 0; this.musicRefreshSFX.play().catch(() => {}); },
                 playWelcome() { if (!this._sfx('click', this.welcomeSFX)) return; this.welcomeSFX.currentTime = 0; this.welcomeSFX.play().catch(() => {}); },
+                playMirraDetected() { if (!this._sfx('mirra', this.mirraDetectedSFX)) return; this.mirraDetectedSFX.currentTime = 0; this.mirraDetectedSFX.play().catch(() => {}); },
+                playMirraConnecting() { if (!this._sfx('mirra', this.mirraConnectingSFX)) return; this.mirraConnectingSFX.currentTime = 0; this.mirraConnectingSFX.play().catch(() => {}); },
+                stopMirraConnecting() { if (this.mirraConnectingSFX) { this.mirraConnectingSFX.pause(); this.mirraConnectingSFX.currentTime = 0; } },
+                playMirraConnected() { if (!this._sfx('mirra', this.mirraConnectedSFX)) return; this.mirraConnectedSFX.currentTime = 0; this.mirraConnectedSFX.play().catch(() => {}); },
+                playMirraDisconnected() { if (!this._sfx('mirra', this.mirraDisconnectedSFX)) return; this.mirraDisconnectedSFX.currentTime = 0; this.mirraDisconnectedSFX.play().catch(() => {}); },
+                playMirraHover() { if (!this._sfx('mirra', this.mirraHoverSFX)) return; this.mirraHoverSFX.currentTime = 0; this.mirraHoverSFX.play().catch(() => {}); },
+                playMirraClick() { if (!this._sfx('mirra', this.mirraClickSFX)) return; this.mirraClickSFX.currentTime = 0; this.mirraClickSFX.play().catch(() => {}); },
 
                 _sfx(key, el) {
                     if (SfxGate && !SfxGate.isAllowed(key)) return false;
@@ -1919,14 +2428,14 @@
 
                     if (state.hoverTimeout) clearTimeout(state.hoverTimeout);
                     bubble.classList.remove('visible'); bubble.style.opacity = '0';
-                    const bubbleEl = item.querySelector('.speech-bubble'); bubbleEl.style.background = config.gradient;
+                    const bubbleEl = item.querySelector('.speech-bubble'); bubbleEl.style.background = frostedGradient(config.gradient);
                     state.hoverTimeout = setTimeout(() => { bubble.classList.add('visible'); bubble.style.opacity = '1'; AudioManager.playBubble(); }, 1000);
                 },
                 onMouseLeave(item) { if (state.hoverTimeout) { clearTimeout(state.hoverTimeout); state.hoverTimeout = null; } const bubble = item.querySelector('.speech-bubble-wrapper'); bubble.classList.remove('visible'); bubble.style.opacity = '0'; if (item.dataset.app === 'dvd') { const titleEl = item.querySelector('.bubble-title'); if (titleEl) titleEl.textContent = (window.DvdApplet && DvdApplet.state.hasDisc && DvdApplet.state.discReady) ? (DvdApplet.state.movieTitle || 'DVD') : 'No Disc'; } item.querySelector('.app-icon').style.transform = 'scale(1)'; document.querySelectorAll('.dock-item').forEach(el => { el.style.marginLeft = ''; el.style.marginRight = ''; }); }
             };
 
             const BootManager = {
-                _rebootTimer: null, play(holdLock) { if (this._rebootTimer) clearTimeout(this._rebootTimer); IdleManager.forceReset(); const datetime = document.getElementById('datetime-display'); const items = document.querySelectorAll('.dock-item'); if (datetime) datetime.className = 'header-datetime'; items.forEach(el => { el.style.animationDelay = ''; el.style.transform = ''; el.querySelector('.app-icon').style.transform = ''; el.className = 'dock-item'; }); void document.body.offsetWidth; if (datetime) datetime.classList.add('boot-active'); const delays = [0, 150, 300, 450]; items.forEach((el, index) => { el.style.animationDelay = delays[index] + 'ms'; el.classList.add('boot-active'); }); state.isAnimating = true; if (holdLock) return; setTimeout(() => { state.isAnimating = false; IdleManager.startIdleTimer(); }, 1800); },
+                _rebootTimer: null, play(holdLock) { if (this._rebootTimer) clearTimeout(this._rebootTimer); IdleManager.forceReset(); const datetime = document.getElementById('datetime-display'); const items = document.querySelectorAll('.dock-item'); if (datetime) datetime.className = 'header-datetime'; items.forEach(el => { el.style.animationDelay = ''; el.style.transform = ''; el.querySelector('.app-icon').style.transform = ''; el.className = 'dock-item'; }); void document.body.offsetWidth; if (datetime) datetime.classList.add('boot-active'); const delays = [0, 150, 300, 450, 600]; items.forEach((el, index) => { el.style.animationDelay = delays[index] + 'ms'; el.classList.add('boot-active'); }); state.isAnimating = true; if (holdLock) return; setTimeout(() => { state.isAnimating = false; IdleManager.startIdleTimer(); }, 1800); },
                 exit(clickedItem, customCallback) { if (state.isAnimating) return; IdleManager.forceReset(); state.isAnimating = true; const datetime = document.getElementById('datetime-display'); const items = document.querySelectorAll('.dock-item'); if (this._rebootTimer) clearTimeout(this._rebootTimer); if (datetime) datetime.className = 'header-datetime exit-active'; let immediateSoundPlayed = false; items.forEach(el => { const isTarget = el === clickedItem; el.style.transform = 'translateY(0) scale(1)'; el.querySelector('.app-icon').style.transform = 'scale(1)'; el.style.animationDelay = ''; el.className = 'dock-item exit-active'; if (isTarget) el.style.animationDelay = '1s'; if (!isTarget && !immediateSoundPlayed) { AudioManager.playExit(); immediateSoundPlayed = true; } }); setTimeout(() => { AudioManager.playExit(); }, 1000); if (customCallback) { setTimeout(() => { customCallback(); state.isAnimating = false; }, 1500); } else { this._rebootTimer = setTimeout(() => { this.play(); }, 4000); } }
             };
 
@@ -1936,6 +2445,7 @@
                 isOpen: false,
 
                 init() { 
+                    AppLog.log('music', 'init start');
                     this.setupNavigation(); 
                     this.setupOnboardingAutoPath(); 
                     this.setupRefreshButtons(); 
@@ -1951,6 +2461,7 @@
                     return new Promise((resolve) => {
                         if (!ipcRenderer) {
                             console.error('IPC Renderer failed to load.');
+                            AppLog.error('music', 'ipcRenderer unavailable, showing onboarding');
                             this.showFirstLaunchOnboarding();
                             resolve();
                             return;
@@ -1960,6 +2471,7 @@
                             const settingsFolder = SettingsAppState.music.folderPath;
                             const libFolder = data && data.folderPath;
                             const folderPath = settingsFolder || libFolder;
+                            AppLog.log('music', 'init: folder=' + String(folderPath) + ' linked=' + String(!!folderPath) + ' cachedTracks=' + (data && data.tracks ? data.tracks.length : 0));
                             if (folderPath && fs && fs.existsSync(folderPath)) {
                                 MusicAppState.folderPath = folderPath;
                                 MusicAppState.folderLinked = true;
@@ -1982,10 +2494,11 @@
                                     }, 50);
                                 });
                             } else {
+                                AppLog.log('music', 'init: no valid folder, showing onboarding');
                                 this.showFirstLaunchOnboarding();
                                 resolve();
                             }
-                        }).catch(() => { this.showFirstLaunchOnboarding(); resolve(); });
+                        }).catch((e) => { AppLog.error('music', 'init: load-library rejected', e); this.showFirstLaunchOnboarding(); resolve(); });
                     });
                 },
 
@@ -2061,11 +2574,13 @@
 
                 performSilentScan(folderPath) {
                     if (!folderPath || !ipcRenderer) return;
+                    AppLog.log('music', 'silent-scan start: ' + String(folderPath));
                     const knownTracks = MusicAppState.currentTracksList;
                     const completeHandler = (event, fileList) => {
                         ipcRenderer.removeListener('scan-complete', completeHandler);
 
                         const merged = this.mergeNewTracks(fileList);
+                        AppLog.log('music', 'silent-scan complete: found=' + (fileList ? fileList.length : 0) + ' added=' + merged.added + ' updated=' + merged.updated);
                         if (merged.added === 0 && merged.updated === 0) return;
 
                         MusicAppState.newTrackCount = merged.added;
@@ -2086,6 +2601,7 @@
 
                 performScan(folderPath, initialLink) {
                     if (!folderPath) return;
+                    AppLog.log('music', 'full-scan start: ' + String(folderPath) + ' initialLink=' + String(!!initialLink));
 
                     if (!initialLink) {
                         this.performIncrementalRefresh(folderPath);
@@ -2108,6 +2624,8 @@
 
                         document.getElementById('scan-count').innerText = fileList.length;
                         document.getElementById('scan-total').innerText = fileList.length;
+
+                        AppLog.log('music', 'full-scan complete: ' + (fileList ? fileList.length : 0) + ' tracks');
 
                         MusicAppState.folderPath = folderPath;
                         MusicAppState.folderLinked = true;
@@ -2276,6 +2794,7 @@
 
                 playTrack(track) { 
                     if(!track || !track.path) return; 
+                    AppLog.log('music', 'playTrack: ' + String(track.name || '?') + ' | ' + String(track.path));
                     
                     let queueTracks = MusicAppState.currentTracksList;
                     if (MusicAppState.currentAlbumView) {
@@ -2330,6 +2849,7 @@
                 open() {
                     if (this.isOpen) return;
                     this.isOpen = true;
+                    AppLog.log('music', 'open');
                     MusicAppState.newTrackCount = 0;
                     this.updateMusicBadge();
                     document.body.classList.add('music-applet-open');
@@ -2364,6 +2884,7 @@
 
                 async doClose() {
                     if (!this.isOpen) return;
+                    AppLog.log('music', 'close');
                     if (MusicAppState.folderPath && ipcRenderer && MusicAppState.folderLinked) {
                         try {
                             await ipcRenderer.invoke('save-library', {
@@ -2459,7 +2980,7 @@
                     if (refreshBtn1) refreshBtn1.addEventListener('click', triggerRefresh);
                     if (refreshBtn2) refreshBtn2.addEventListener('click', triggerRefresh);
                 },
-                setupAudioControls() { const playBtn = document.getElementById('play-pause-btn'); const prevBtn = document.getElementById('prev-btn'); const skipBtn = document.getElementById('skip-btn'); const seekBar = document.querySelector('.np-seek-bar'); const timesDisplay = document.querySelector('.np-times'); const formatTime = (seconds) => { if (!seconds || isNaN(seconds)) return "0:00"; const min = Math.floor(seconds / 60); const sec = Math.floor(seconds % 60); return `${min}:${sec < 10 ? '0' : ''}${sec}`; }; this.audioPlayer.addEventListener('timeupdate', () => { if (!this.audioPlayer.duration) return; const currentTime = this.audioPlayer.currentTime; const duration = this.audioPlayer.duration; const progress = (currentTime / duration) * 100; seekBar.value = progress; const val = progress; seekBar.style.background = `linear-gradient(to right, #f424d0 0%, #f424d0 ${val}%, #ffffff ${val}%, #ffffff 100%)`; timesDisplay.querySelector('span:first-child').textContent = formatTime(currentTime); timesDisplay.querySelector('span:last-child').textContent = formatTime(duration); 
+                setupAudioControls() { const playBtn = document.getElementById('play-pause-btn'); const prevBtn = document.getElementById('prev-btn'); const skipBtn = document.getElementById('skip-btn'); const seekBar = document.querySelector('.np-seek-bar'); const timesDisplay = document.querySelector('.np-times'); this.audioPlayer.addEventListener('error', () => { AppLog.error('music', 'audio error code=' + String(this.audioPlayer.error && this.audioPlayer.error.code) + ' src=' + String(this.audioPlayer.currentSrc)); }); const formatTime = (seconds) => { if (!seconds || isNaN(seconds)) return "0:00"; const min = Math.floor(seconds / 60); const sec = Math.floor(seconds % 60); return `${min}:${sec < 10 ? '0' : ''}${sec}`; }; this.audioPlayer.addEventListener('timeupdate', () => { if (!this.audioPlayer.duration) return; const currentTime = this.audioPlayer.currentTime; const duration = this.audioPlayer.duration; const progress = (currentTime / duration) * 100; seekBar.value = progress; const val = progress; seekBar.style.background = `linear-gradient(to right, #f424d0 0%, #f424d0 ${val}%, #ffffff ${val}%, #ffffff 100%)`; timesDisplay.querySelector('span:first-child').textContent = formatTime(currentTime); timesDisplay.querySelector('span:last-child').textContent = formatTime(duration); 
                     }); 
                     this.audioPlayer.addEventListener('loadedmetadata', () => { seekBar.max = 100; seekBar.style.background = `linear-gradient(to right, #f424d0 0%, #f424d0 0%, #ffffff 0%, #ffffff 100%)`; timesDisplay.querySelector('span:last-child').textContent = formatTime(this.audioPlayer.duration); }); seekBar.addEventListener('input', () => { const val = seekBar.value; const duration = this.audioPlayer.duration || 0; this.audioPlayer.currentTime = (val / 100) * duration; seekBar.style.background = `linear-gradient(to right, #f424d0 0%, #f424d0 ${val}%, #ffffff ${val}%, #ffffff 100%)`; }); prevBtn.addEventListener('click', () => { if (MusicAppState.queueTrackIndex !== -1) { AudioManager.playMusicPrev(); this.playPreviousTrack(); } }); skipBtn.addEventListener('click', () => { if (MusicAppState.queueTrackIndex !== -1) { AudioManager.playMusicSkip(); this.playNextTrack(); } }); playBtn.addEventListener('click', () => { if(MusicAppState.queueTrackIndex === -1) return; if(MusicAppState.isPlaying) { AudioManager.playMusicPause(); this.audioPlayer.pause(); } else { AudioManager.playMusicPlay(); this.audioPlayer.play(); } });                     this.audioPlayer.addEventListener('play', () => { MusicAppState.isPlaying = true; document.getElementById('img-play').style.display = 'none'; document.getElementById('img-pause').style.display = 'block'; }); this.audioPlayer.addEventListener('pause', () => { MusicAppState.isPlaying = false; document.getElementById('img-play').style.display = 'block'; document.getElementById('img-pause').style.display = 'none'; }); }
             };
@@ -2468,10 +2989,12 @@
                 version: '1.0.2',
                 music: { folderPath: null, defaultVolume: 70, bgmWhileBrowsing: true, visualizerDefault: true, audioOutputDevice: 'system' },
                 photos: { folderPath: null, slideshowSpeed: 5, puzzleGrid: 6, doodlePen: '#ef4444', doodleTool: 'brush', thumbnailQuality: 'medium' },
-                sound: { muteAll: false, sfxEnabled: true, sfxVolume: 80, bgmVolume: 80, menuMusicPath: null, sfxToggles: { dock: true, bubble: true, click: true, dvd: true, music: true, photos: true, settings: true } },
+                sound: { muteAll: false, sfxEnabled: true, sfxVolume: 80, bgmVolume: 80, menuMusicPath: null, sfxToggles: { dock: true, bubble: true, click: true, dvd: true, music: true, photos: true, settings: true, mirra: true } },
                 clock: { format24h: false, showSeconds: false, idleTimeout: 60, launchFullscreen: false },
-                appearance: { type: 'gradient', colors: { top: '#074877', mid: '#177bbb', bottom: '#2da0e3' }, imagePath: null, videoPath: null, fps: 30, dockLabels: 'on-hover' },
-                system: { launchOnStartup: false, autoOpenMusic: false, autoOpenPhotos: false, language: 'en', welcomeShown: false, dvdOnboardingShown: false }
+                appearance: { type: 'gradient', colors: { top: '#0a1b30', mid: '#10395f', bottom: '#2e86c4' }, imagePath: null, videoPath: null, fps: 30, dockLabels: 'on-hover' },
+                system: { launchOnStartup: false, autoOpenMusic: false, autoOpenPhotos: false, language: 'en', welcomeShown: false, dvdOnboardingShown: false },
+                youtube: { viewMode: 'wallpaper', onboardingShown: false, maxQuality: '1080p60', background: { type: 'gradient', center: '#C71515', edge: '#7A0505', imagePath: null, videoPath: null } },
+                mirra: { viewMode: 'wallpaper', onboardingShown: false, scrcpyPath: null, customArgs: '', background: { type: 'gradient', center: '#2ecc71', mid: '#1abc9c', edge: '#0077b6', imagePath: null, videoPath: null } }
             };
 
             const SettingsApplet = {
@@ -2480,6 +3003,8 @@
                     menu: document.getElementById('settings-menu-view'),
                     music: document.getElementById('settings-music-view'),
                     photos: document.getElementById('settings-photos-view'),
+                    youtube: document.getElementById('settings-youtube-view'),
+                    mirra: document.getElementById('settings-mirra-view'),
                     sound: document.getElementById('settings-sound-view'),
                     display: document.getElementById('settings-display-view'),
                     system: document.getElementById('settings-system-view'),
@@ -2492,12 +3017,15 @@
                     this.setupNavigation();
                     this.setupSubMenus();
                     this.setupAppearance();
+                    this.setupYoutube();
+                    this.setupMirra();
                     this.setupUpdates();
                 },
 
                 open() {
                     if (this.isOpen) return;
                     this.isOpen = true;
+                    AppLog.log('settings', 'open');
                     document.body.classList.add('settings-applet-open');
                     AudioManager.crossfadeTo('settings');
                     SettingsSFX.playUIClick();
@@ -2510,6 +3038,7 @@
                 async doClose() {
                     if (!this.isOpen) return;
                     this.isOpen = false;
+                    AppLog.log('settings', 'close');
                     document.body.classList.remove('settings-applet-open');
                     this.applet.classList.remove('visible');
                     AudioManager.crossfadeTo('menu');
@@ -2907,10 +3436,10 @@
 
                     document.getElementById('bg-reset-btn').addEventListener('click', () => {
                         SettingsSFX.playUIClick();
-                        SettingsAppState.appearance.colors = { top: '#074877', mid: '#177bbb', bottom: '#2da0e3' };
-                        document.getElementById('bg-color-top').value = '#074877';
-                        document.getElementById('bg-color-mid').value = '#177bbb';
-                        document.getElementById('bg-color-bottom').value = '#2da0e3';
+                        SettingsAppState.appearance.colors = { top: '#0a1b30', mid: '#10395f', bottom: '#2e86c4' };
+                        document.getElementById('bg-color-top').value = '#0a1b30';
+                        document.getElementById('bg-color-mid').value = '#10395f';
+                        document.getElementById('bg-color-bottom').value = '#2e86c4';
                         this.applyAppearance(SettingsAppState.appearance);
                         this.saveAppearance();
                         const toast = document.getElementById('toast-notification');
@@ -2928,6 +3457,187 @@
                                 if (tBody && origBody) tBody.textContent = origBody;
                             }, 3000);
                         }
+                    });
+                },
+
+                setupYoutube() {
+                    const ytCfg = SettingsAppState.youtube;
+                    const viewSeg = document.getElementById('yt-view-mode-segmented');
+                    viewSeg.querySelectorAll('.settings-seg-btn').forEach(btn => {
+                        btn.addEventListener('click', () => {
+                            SettingsSFX.playUIClick();
+                            ytCfg.viewMode = btn.dataset.ytmode;
+                            viewSeg.querySelectorAll('.settings-seg-btn').forEach(b => b.classList.toggle('active', b === btn));
+                            this.saveSettings();
+                            if (window.YoutubeApplet) YoutubeApplet.applyViewMode();
+                        });
+                    });
+
+                    const qualSeg = document.getElementById('yt-max-quality-segmented');
+                    if (qualSeg) {
+                        qualSeg.querySelectorAll('.settings-seg-btn').forEach(btn => {
+                            btn.addEventListener('click', () => {
+                                SettingsSFX.playUIClick();
+                                ytCfg.maxQuality = btn.dataset.ytquality;
+                                qualSeg.querySelectorAll('.settings-seg-btn').forEach(b => b.classList.toggle('active', b === btn));
+                                this.saveSettings();
+                                if (window.YoutubeApplet) YoutubeApplet.setMaxQuality(ytCfg.maxQuality);
+                            });
+                        });
+                    }
+
+                    const typeSeg = document.getElementById('yt-bg-type-segmented');
+                    const controls = {
+                        gradient: document.getElementById('yt-bg-gradient-controls'),
+                        image: document.getElementById('yt-bg-image-controls'),
+                        video: document.getElementById('yt-bg-video-controls')
+                    };
+                    const switchType = (type) => {
+                        typeSeg.querySelectorAll('.settings-seg-btn').forEach(b => b.classList.toggle('active', b.dataset.yttype === type));
+                        Object.keys(controls).forEach(k => controls[k].style.display = (k === type) ? 'block' : 'none');
+                    };
+                    typeSeg.querySelectorAll('.settings-seg-btn').forEach(btn => {
+                        btn.addEventListener('click', () => { SettingsSFX.playUIClick(); switchType(btn.dataset.yttype); });
+                    });
+
+                    document.getElementById('yt-bg-color-center').addEventListener('input', (e) => { ytCfg.background.center = e.target.value; });
+                    document.getElementById('yt-bg-color-edge').addEventListener('input', (e) => { ytCfg.background.edge = e.target.value; });
+
+                    document.getElementById('yt-bg-pick-image').addEventListener('click', async () => {
+                        SettingsSFX.playUIClick();
+                        if (!ipcRenderer) return;
+                        const filePath = await ipcRenderer.invoke('select-background-file', 'image');
+                        if (filePath) {
+                            ytCfg.background.imagePath = filePath;
+                            document.getElementById('yt-bg-image-preview').textContent = path.basename(filePath);
+                        }
+                    });
+                    document.getElementById('yt-bg-pick-video').addEventListener('click', async () => {
+                        SettingsSFX.playUIClick();
+                        if (!ipcRenderer) return;
+                        const filePath = await ipcRenderer.invoke('select-background-file', 'video');
+                        if (filePath) {
+                            ytCfg.background.videoPath = filePath;
+                            document.getElementById('yt-bg-video-preview').textContent = path.basename(filePath);
+                        }
+                    });
+
+                    document.getElementById('yt-bg-apply-btn').addEventListener('click', () => {
+                        ytCfg.background.type = typeSeg.querySelector('.settings-seg-btn.active')?.dataset.yttype || 'gradient';
+                        SettingsSFX.playApply();
+                        this.saveSettings();
+                        if (window.YoutubeApplet) YoutubeApplet.applyWallpaper();
+                    });
+                    document.getElementById('yt-bg-reset-btn').addEventListener('click', () => {
+                        SettingsSFX.playUIClick();
+                        ytCfg.background = { type: 'gradient', center: '#C71515', edge: '#7A0505', imagePath: null, videoPath: null };
+                        ytCfg.maxQuality = '1080p60';
+                        document.getElementById('yt-bg-color-center').value = '#C71515';
+                        document.getElementById('yt-bg-color-edge').value = '#7A0505';
+                        switchType('gradient');
+                        document.getElementById('yt-bg-image-preview').textContent = 'No image selected';
+                        document.getElementById('yt-bg-video-preview').textContent = 'No video selected';
+                        this.saveSettings();
+                        if (window.YoutubeApplet) YoutubeApplet.applyWallpaper();
+                        if (window.YoutubeApplet) YoutubeApplet.setMaxQuality('1080p60');
+                        this.syncYoutubeUI();
+                    });
+                },
+
+                setupMirra() {
+                    const mrCfg = SettingsAppState.mirra;
+                    const viewSeg = document.getElementById('mr-view-mode-segmented');
+                    viewSeg.querySelectorAll('.settings-seg-btn').forEach(btn => {
+                        btn.addEventListener('click', () => {
+                            SettingsSFX.playUIClick();
+                            mrCfg.viewMode = btn.dataset.mrmode;
+                            viewSeg.querySelectorAll('.settings-seg-btn').forEach(b => b.classList.toggle('active', b === btn));
+                            this.saveSettings();
+                            if (window.MirraApplet) MirraApplet.applyViewMode();
+                        });
+                    });
+
+                    const typeSeg = document.getElementById('mr-bg-type-segmented');
+                    const controls = {
+                        gradient: document.getElementById('mr-bg-gradient-controls'),
+                        image: document.getElementById('mr-bg-image-controls'),
+                        video: document.getElementById('mr-bg-video-controls')
+                    };
+                    const switchType = (type) => {
+                        typeSeg.querySelectorAll('.settings-seg-btn').forEach(b => b.classList.toggle('active', b.dataset.mrtype === type));
+                        Object.keys(controls).forEach(k => controls[k].style.display = (k === type) ? 'block' : 'none');
+                    };
+                    typeSeg.querySelectorAll('.settings-seg-btn').forEach(btn => {
+                        btn.addEventListener('click', () => { SettingsSFX.playUIClick(); switchType(btn.dataset.mrtype); });
+                    });
+
+                    document.getElementById('mr-bg-color-center').addEventListener('input', (e) => { mrCfg.background.center = e.target.value; });
+                    document.getElementById('mr-bg-color-mid').addEventListener('input', (e) => { mrCfg.background.mid = e.target.value; });
+                    document.getElementById('mr-bg-color-edge').addEventListener('input', (e) => { mrCfg.background.edge = e.target.value; });
+
+                    document.getElementById('mr-bg-pick-image').addEventListener('click', async () => {
+                        SettingsSFX.playUIClick();
+                        if (!ipcRenderer) return;
+                        const filePath = await ipcRenderer.invoke('select-background-file', 'image');
+                        if (filePath) {
+                            mrCfg.background.imagePath = filePath;
+                            document.getElementById('mr-bg-image-preview').textContent = path.basename(filePath);
+                        }
+                    });
+                    document.getElementById('mr-bg-pick-video').addEventListener('click', async () => {
+                        SettingsSFX.playUIClick();
+                        if (!ipcRenderer) return;
+                        const filePath = await ipcRenderer.invoke('select-background-file', 'video');
+                        if (filePath) {
+                            mrCfg.background.videoPath = filePath;
+                            document.getElementById('mr-bg-video-preview').textContent = path.basename(filePath);
+                        }
+                    });
+
+                    document.getElementById('mr-bg-apply-btn').addEventListener('click', () => {
+                        mrCfg.background.type = typeSeg.querySelector('.settings-seg-btn.active')?.dataset.mrtype || 'gradient';
+                        SettingsSFX.playApply();
+                        this.saveSettings();
+                        if (window.MirraApplet) MirraApplet.applyWallpaper();
+                    });
+                    document.getElementById('mr-bg-reset-btn').addEventListener('click', () => {
+                        SettingsSFX.playUIClick();
+                        mrCfg.background = { type: 'gradient', center: '#2ecc71', mid: '#1abc9c', edge: '#0077b6', imagePath: null, videoPath: null };
+                        document.getElementById('mr-bg-color-center').value = '#2ecc71';
+                        document.getElementById('mr-bg-color-mid').value = '#1abc9c';
+                        document.getElementById('mr-bg-color-edge').value = '#0077b6';
+                        switchType('gradient');
+                        document.getElementById('mr-bg-image-preview').textContent = 'No image selected';
+                        document.getElementById('mr-bg-video-preview').textContent = 'No video selected';
+                        this.saveSettings();
+                        if (window.MirraApplet) MirraApplet.applyWallpaper();
+                        this.syncMirraUI();
+                    });
+
+                    // scrcpy configuration
+                    document.getElementById('settings-mirra-scrcpy-pick').addEventListener('click', async () => {
+                        SettingsSFX.playUIClick();
+                        if (!ipcRenderer) return;
+                        const filePath = await ipcRenderer.invoke('select-scrcpy-path');
+                        if (filePath) {
+                            mrCfg.scrcpyPath = filePath;
+                            document.getElementById('settings-mirra-scrcpy-path').textContent = path.basename(filePath);
+                            this.saveSettings();
+                            // Update main process config
+                            ipcRenderer.invoke('mirra:set-config', { scrcpyPath: filePath, customArgs: mrCfg.customArgs });
+                        }
+                    });
+                    document.getElementById('settings-mirra-scrcpy-reset').addEventListener('click', () => {
+                        SettingsSFX.playUIClick();
+                        mrCfg.scrcpyPath = null;
+                        document.getElementById('settings-mirra-scrcpy-path').textContent = 'In system PATH';
+                        this.saveSettings();
+                        ipcRenderer.invoke('mirra:set-config', { scrcpyPath: null, customArgs: mrCfg.customArgs });
+                    });
+                    document.getElementById('mirra-custom-args').addEventListener('change', (e) => {
+                        mrCfg.customArgs = e.target.value;
+                        this.saveSettings();
+                        ipcRenderer.invoke('mirra:set-config', { scrcpyPath: mrCfg.scrcpyPath, customArgs: e.target.value });
                     });
                 },
 
@@ -2949,9 +3659,9 @@
 
                     if (cfg.type === 'gradient') {
                         const c = cfg.colors || {};
-                        body.style.setProperty('--home-bg-top', c.top || '#074877');
-                        body.style.setProperty('--home-bg-mid', c.mid || '#177bbb');
-                        body.style.setProperty('--home-bg-bottom', c.bottom || '#2da0e3');
+                        body.style.setProperty('--home-bg-top', c.top || '#0a1b30');
+                        body.style.setProperty('--home-bg-mid', c.mid || '#10395f');
+                        body.style.setProperty('--home-bg-bottom', c.bottom || '#2e86c4');
                     } else if (cfg.type === 'image' && cfg.imagePath) {
                         body.classList.add('home-bg-image');
                         body.style.setProperty('--home-bg-image', `url("${cfg.imagePath.replace(/\\/g, '/')}")`);
@@ -3068,6 +3778,67 @@
                     if (mmPathEl) mmPathEl.textContent = SettingsAppState.sound.menuMusicPath ? path.basename(SettingsAppState.sound.menuMusicPath) : 'Default';
                     const seg = document.getElementById('bg-type-segmented');
                     if (seg) this.syncAppearanceUI();
+                    const ytSeg = document.getElementById('yt-view-mode-segmented');
+                    if (ytSeg) this.syncYoutubeUI();
+                    const mrSeg = document.getElementById('mr-view-mode-segmented');
+                    if (mrSeg) this.syncMirraUI();
+                },
+
+                syncYoutubeUI() {
+                    const ytCfg = SettingsAppState.youtube;
+                    if (!ytCfg) return;
+                    const viewSeg = document.getElementById('yt-view-mode-segmented');
+                    if (viewSeg) viewSeg.querySelectorAll('.settings-seg-btn').forEach(b => b.classList.toggle('active', b.dataset.ytmode === ytCfg.viewMode));
+                    const qualSeg = document.getElementById('yt-max-quality-segmented');
+                    if (qualSeg) qualSeg.querySelectorAll('.settings-seg-btn').forEach(b => b.classList.toggle('active', b.dataset.ytquality === (ytCfg.maxQuality || '1080p60')));
+                    const typeSeg = document.getElementById('yt-bg-type-segmented');
+                    if (typeSeg) {
+                        const type = (ytCfg.background && ytCfg.background.type) || 'gradient';
+                        typeSeg.querySelectorAll('.settings-seg-btn').forEach(b => b.classList.toggle('active', b.dataset.yttype === type));
+                        const controls = {
+                            gradient: document.getElementById('yt-bg-gradient-controls'),
+                            image: document.getElementById('yt-bg-image-controls'),
+                            video: document.getElementById('yt-bg-video-controls')
+                        };
+                        Object.keys(controls).forEach(k => controls[k].style.display = (k === type) ? 'block' : 'none');
+                    }
+                    const centerEl = document.getElementById('yt-bg-color-center');
+                    const edgeEl = document.getElementById('yt-bg-color-edge');
+                    if (centerEl && ytCfg.background) centerEl.value = ytCfg.background.center || '#C71515';
+                    if (edgeEl && ytCfg.background) edgeEl.value = ytCfg.background.edge || '#7A0505';
+                    if (ytCfg.background && ytCfg.background.imagePath) document.getElementById('yt-bg-image-preview').textContent = path.basename(ytCfg.background.imagePath);
+                    if (ytCfg.background && ytCfg.background.videoPath) document.getElementById('yt-bg-video-preview').textContent = path.basename(ytCfg.background.videoPath);
+                },
+
+                syncMirraUI() {
+                    const mrCfg = SettingsAppState.mirra;
+                    if (!mrCfg) return;
+                    const viewSeg = document.getElementById('mr-view-mode-segmented');
+                    if (viewSeg) viewSeg.querySelectorAll('.settings-seg-btn').forEach(b => b.classList.toggle('active', b.dataset.mrmode === mrCfg.viewMode));
+                    const typeSeg = document.getElementById('mr-bg-type-segmented');
+                    if (typeSeg) {
+                        const type = (mrCfg.background && mrCfg.background.type) || 'gradient';
+                        typeSeg.querySelectorAll('.settings-seg-btn').forEach(b => b.classList.toggle('active', b.dataset.mrtype === type));
+                        const controls = {
+                            gradient: document.getElementById('mr-bg-gradient-controls'),
+                            image: document.getElementById('mr-bg-image-controls'),
+                            video: document.getElementById('mr-bg-video-controls')
+                        };
+                        Object.keys(controls).forEach(k => controls[k].style.display = (k === type) ? 'block' : 'none');
+                    }
+                    const centerEl = document.getElementById('mr-bg-color-center');
+                    const midEl = document.getElementById('mr-bg-color-mid');
+                    const edgeEl = document.getElementById('mr-bg-color-edge');
+                    if (centerEl && mrCfg.background) centerEl.value = mrCfg.background.center || '#2ecc71';
+                    if (midEl && mrCfg.background) midEl.value = mrCfg.background.mid || '#1abc9c';
+                    if (edgeEl && mrCfg.background) edgeEl.value = mrCfg.background.edge || '#0077b6';
+                    if (mrCfg.background && mrCfg.background.imagePath) document.getElementById('mr-bg-image-preview').textContent = path.basename(mrCfg.background.imagePath);
+                    if (mrCfg.background && mrCfg.background.videoPath) document.getElementById('mr-bg-video-preview').textContent = path.basename(mrCfg.background.videoPath);
+                    // scrcpy settings
+                    const scrcpyPathEl = document.getElementById('settings-mirra-scrcpy-path');
+                    if (scrcpyPathEl) scrcpyPathEl.textContent = mrCfg.scrcpyPath ? path.basename(mrCfg.scrcpyPath) : 'In system PATH';
+                    const argsEl = document.getElementById('mirra-custom-args');
+                    if (argsEl) argsEl.value = mrCfg.customArgs || '';
                 },
 
                 setupUpdates() {
@@ -3185,9 +3956,11 @@
                     'music-applet': '#f011c8',
                     'photos-applet': '#4cf02a',
                     'dvd-applet': '#fdcb04',
+                    'youtube-applet': '#c71515',
+                    'mirra-applet': '#00B4D8',
                     'settings-applet': '#6b4af0'
                 },
-                EXPLICIT: 'button, .dock-item, .nav-tab, .nav-back-btn, .settings-menu-item, .settings-seg-btn, .settings-toggle, .settings-pick-btn, .settings-reset-btn, .settings-apply-btn, .settings-select-btn, .settings-select-option, .sort-option, .folder-icon, .mini-player, .photo-tile, .puzzle-piece, .album-tile, .track-pill, .details-track-pill, .np-back-btn, .visualizer-toggle-btn, .onboarding-home-btn, .doodle-tool-btn, .doodle-color, .dvd-ctrl-btn, .dvd-settings-pill, .dvd-option-item, #dvd-back-btn',
+                EXPLICIT: 'button, .dock-item, .nav-tab, .nav-back-btn, .settings-menu-item, .settings-seg-btn, .settings-toggle, .settings-pick-btn, .settings-reset-btn, .settings-apply-btn, .settings-select-btn, .settings-select-option, .sort-option, .folder-icon, .mini-player, .photo-tile, .puzzle-piece, .album-tile, .track-pill, .details-track-pill, .np-back-btn, .visualizer-toggle-btn, .onboarding-home-btn, .doodle-tool-btn, .doodle-color, .dvd-ctrl-btn, .dvd-settings-pill, .dvd-option-item, #dvd-back-btn, .youtube-mode-card, #youtube-home-btn, .mr-mode-card, #mirra-home-btn',
 
                 init() {
                     this.highlight = document.createElement('div');
@@ -3393,6 +4166,28 @@
                         this.clear();
                         return;
                     }
+                    if (app.id === 'youtube-applet') {
+                        const modeModal = document.getElementById('youtube-mode-modal');
+                        if (modeModal && modeModal.classList.contains('active')) {
+                            document.getElementById('youtube-mode-skip').click();
+                            this.clear();
+                            return;
+                        }
+                        if (window.YoutubeApplet) YoutubeApplet.promptExit();
+                        this.clear();
+                        return;
+                    }
+                    if (app.id === 'mirra-applet') {
+                        const modeModal = document.getElementById('mirra-mode-modal');
+                        if (modeModal && modeModal.classList.contains('active')) {
+                            document.getElementById('mirra-mode-skip').click();
+                            this.clear();
+                            return;
+                        }
+                        if (window.MirraApplet) MirraApplet.promptExit();
+                        this.clear();
+                        return;
+                    }
                     this.clear();
                 }
             };
@@ -3530,15 +4325,16 @@
                 rectLoop: null,
 
                 async init() {
-                    if (!ipcRenderer) return false;
+                    if (!ipcRenderer) { console.error('[dvd-core] init: ipcRenderer unavailable'); return false; }
                     try {
                         const caps = await ipcRenderer.invoke('dvd:capabilities');
                         this.real = !!(caps && caps.real);
                         this.dev = !!(caps && caps.dev);
-                    } catch (e) { this.real = false; }
-                    if (!this.real) return false;
+                        console.log('[dvd-core] capabilities:', caps);
+                    } catch (e) { console.error('[dvd-core] init: capabilities invoke failed:', e); this.real = false; }
+                    if (!this.real) { console.error('[dvd-core] init: no real VLC engine, falling back to Demo Disc'); return false; }
+                    if (!window.DvdEngine) { console.error('[dvd-core] init: DvdEngine script not loaded'); this.real = false; return false; }
                     try {
-                        if (!window.DvdEngine) return false;
                         this.engine = window.DvdEngine.create({
                             canvas: document.getElementById('dvd-canvas'),
                             onState: (s) => { this.state = s; if (window.DvdApplet) DvdApplet.applyState(s); },
@@ -3546,8 +4342,8 @@
                             onError: (err) => { if (window.DvdApplet) DvdApplet.onCoreError(err); },
                             onFirstFrame: () => { const applet = document.getElementById('dvd-applet'); if (applet) applet.classList.add('has-video'); }
                         });
-                    } catch (e) { this.engine = null; }
-                    if (!this.engine) { this.real = false; return false; }
+                    } catch (e) { console.error('[dvd-core] init: DvdEngine.create threw:', e); this.engine = null; }
+                    if (!this.engine) { console.error('[dvd-core] init: engine not created, falling back to Demo Disc'); this.real = false; return false; }
                     const applyDisc = (d) => {
                         if (d && d.status === 'ready') {
                             this.discPath = d.path;
@@ -3736,6 +4532,7 @@
 
                 open() {
                     if (this.isOpen) return;
+                    AppLog.log('dvd', 'open (requested)');
                     this.loadingPopup.classList.add('show');
                     setTimeout(() => {
                         this.loadingPopup.classList.remove('show');
@@ -3748,6 +4545,7 @@
                 finishOpen() {
                     if (this.isOpen) return;
                     this.isOpen = true;
+                    AppLog.log('dvd', 'open (ready)');
                     document.body.classList.add('dvd-applet-open');
                     AudioManager.fadeOutBGM();
                     this.applet.classList.add('visible');
@@ -3761,6 +4559,7 @@
                 close() {
                     if (!this.isOpen) return;
                     this.isOpen = false;
+                    AppLog.log('dvd', 'close');
                     this.state.isPlaying = false;
                     this.stopSeekTimeTick();
                     const playImg = document.querySelector('#dvd-btn-play img');
@@ -4356,24 +5155,977 @@
             };
             window.DvdApplet = DvdApplet;
 
+            const YoutubeApplet = {
+                applet: document.getElementById('youtube-applet'),
+                bg: document.getElementById('youtube-bg'),
+                stage: document.getElementById('youtube-stage'),
+                homeBtn: document.getElementById('youtube-home-btn'),
+                cornerZone: document.getElementById('youtube-corner-hover'),
+                isOpen: false,
+                homeIdleTimer: null,
+                cornerHovered: false,
+                bgVideo: null,
+                webview: null,
+                placeholder: null,
+                placeholderSub: null,
+                webviewStarted: false,
+                webviewLoadedOnce: false,
+                webviewGone: false,
+                skipAdblockPreload: true,
+                sponsorTimer: null,
+                sponsorToastTimer: null,
+                currentVideoId: null,
+                currentSegments: [],
+                lastSponsorCheck: 0,
+
+                init() {
+                    document.getElementById('youtube-mode-wallpaper').addEventListener('click', () => this.chooseViewMode('wallpaper'));
+                    document.getElementById('youtube-mode-fullscreen').addEventListener('click', () => this.chooseViewMode('fullscreen'));
+                    document.getElementById('youtube-mode-skip').addEventListener('click', () => this.skipModePrompt());
+                    document.getElementById('youtube-exit-yes').addEventListener('click', () => this.doClose());
+                    document.getElementById('youtube-exit-no').addEventListener('click', () => {
+                        SettingsSFX.playUIClick();
+                        document.getElementById('youtube-exit-modal').classList.remove('active');
+                    });
+                    this.homeBtn.addEventListener('click', () => this.promptExit());
+                    this.cornerZone.addEventListener('mouseenter', () => { this.cornerHovered = true; this.revealHome(); });
+                    this.cornerZone.addEventListener('mouseleave', () => { this.cornerHovered = false; this.scheduleHomeHide(); });
+                    document.addEventListener('mousemove', () => {
+                        if (!this.isOpen) return;
+                        if (this.cornerHovered) { this.revealHome(); return; }
+                        this.scheduleHomeHide();
+                    });
+
+                    this.webview = document.getElementById('youtube-webview');
+                    this.placeholder = document.getElementById('youtube-placeholder');
+                    this.placeholderSub = document.getElementById('youtube-placeholder-sub');
+                    if (this.webview) {
+                        if (ipcRenderer) {
+                            ipcRenderer.invoke('youtube:capabilities').then((caps) => {
+                                if (!caps) return;
+                                if (caps.preloadPath && !this.skipAdblockPreload) {
+                                    this.webview.setAttribute('preload', 'file:///' + String(caps.preloadPath).replace(/\\/g, '/'));
+                                }
+                                if (caps.userAgent) {
+                                    this.webview.setAttribute('useragent', caps.userAgent);
+                                }
+                            }).catch(() => {});
+                        }
+                        this.webview.addEventListener('did-finish-load', () => this.onWebviewLoaded());
+                        this.webview.addEventListener('did-fail-load', (e) => this.onWebviewError(e));
+                        this.webview.addEventListener('destroyed', () => { this.webviewGone = true; this.stopSponsorLoop(); });
+                        this.webview.addEventListener('console-message', (e) => {
+                            AppLog.log('youtube:wv', String(e.message || ''));
+                        });
+                    }
+                },
+
+                open() {
+                    if (this.isOpen) return;
+                    this.isOpen = true;
+                    AppLog.log('youtube', 'open');
+                    if (ipcRenderer) ipcRenderer.invoke('youtube:set-quality-cap', SettingsAppState.youtube.maxQuality || '1080p60').catch(() => {});
+                    document.body.classList.add('youtube-applet-open');
+                    AudioManager.fadeOutBGM();
+                    this.applet.classList.add('visible');
+                    this.applyViewMode();
+                    this.applyWallpaper();
+                    this.revealHome();
+                    this.scheduleHomeHide();
+                    if (this.webview && !this.webviewStarted) {
+                        this.webviewStarted = true;
+                        if (this.placeholderSub) this.placeholderSub.textContent = 'Loading YouTube TV…';
+                        this.webview.src = 'https://www.youtube.com/tv';
+                    }
+                    this.startSponsorLoop();
+                    if (this.webview) { try { this.webview.focus(); } catch (e) {} }
+                    if (!SettingsAppState.youtube.onboardingShown) {
+                        setTimeout(() => {
+                            document.getElementById('youtube-mode-modal').classList.add('active');
+                            AudioManager.playDvdUiAppear();
+                        }, 600);
+                    }
+                },
+
+                doClose() {
+                    if (!this.isOpen) return;
+                    this.isOpen = false;
+                    AppLog.log('youtube', 'close');
+                    document.getElementById('youtube-exit-modal').classList.remove('active');
+                    document.getElementById('youtube-mode-modal').classList.remove('active');
+                    if (this.homeIdleTimer) clearTimeout(this.homeIdleTimer);
+                    this.homeBtn.classList.remove('show');
+                    this.applet.classList.remove('visible');
+                    document.body.classList.remove('youtube-applet-open');
+                    this.stopSponsorLoop();
+                    this.pauseWebview();
+                    AudioManager.playDvdClose();
+                    AudioManager.fadeInBGM();
+                    BootManager.play();
+                },
+
+                promptExit() {
+                    SettingsSFX.playUIClick();
+                    document.getElementById('youtube-exit-modal').classList.add('active');
+                },
+
+                skipModePrompt() {
+                    SettingsSFX.playUIClick();
+                    SettingsAppState.youtube.onboardingShown = true;
+                    SettingsAppState.youtube.viewMode = 'wallpaper';
+                    SettingsApplet.saveSettings();
+                    document.getElementById('youtube-mode-modal').classList.remove('active');
+                    this.applyViewMode();
+                },
+
+                chooseViewMode(mode) {
+                    SettingsSFX.playUIClick();
+                    SettingsAppState.youtube.onboardingShown = true;
+                    SettingsAppState.youtube.viewMode = mode;
+                    SettingsApplet.saveSettings();
+                    document.getElementById('youtube-mode-modal').classList.remove('active');
+                    this.applyViewMode();
+                    if (SettingsApplet.syncYoutubeUI) SettingsApplet.syncYoutubeUI();
+                },
+
+                applyViewMode() {
+                    const mode = SettingsAppState.youtube.viewMode || 'wallpaper';
+                    this.applet.classList.toggle('yt-wallpaper-mode', mode === 'wallpaper');
+                    this.applet.classList.toggle('yt-fullscreen-mode', mode === 'fullscreen');
+                },
+
+                applyWallpaper() {
+                    const ytCfg = SettingsAppState.youtube;
+                    const bg = ytCfg.background || { type: 'gradient', center: '#C71515', edge: '#7A0505', imagePath: null, videoPath: null };
+                    if (this.bgVideo) { this.bgVideo.pause(); this.bgVideo.remove(); this.bgVideo = null; }
+                    this.bg.className = 'yt-bg';
+                    this.bg.style.removeProperty('--yt-grad-center');
+                    this.bg.style.removeProperty('--yt-grad-edge');
+                    this.bg.style.removeProperty('--yt-bg-image');
+                    if (bg.type === 'image' && bg.imagePath) {
+                        this.bg.classList.add('yt-bg-image');
+                        this.bg.style.setProperty('--yt-bg-image', `url("${bg.imagePath.replace(/\\/g, '/')}")`);
+                    } else if (bg.type === 'video' && bg.videoPath) {
+                        this.bg.classList.add('yt-bg-video');
+                        const video = document.createElement('video');
+                        video.className = 'yt-bg-video-el';
+                        video.src = bg.videoPath;
+                        video.muted = true;
+                        video.loop = true;
+                        video.autoplay = true;
+                        video.playsInline = true;
+                        video.setAttribute('playsinline', '');
+                        video.playbackRate = 1;
+                        video.play().catch(() => {});
+                        this.bg.appendChild(video);
+                        this.bgVideo = video;
+                    } else {
+                        this.bg.classList.add('yt-bg-gradient');
+                        this.bg.style.setProperty('--yt-grad-center', bg.center || '#C71515');
+                        this.bg.style.setProperty('--yt-grad-edge', bg.edge || '#7A0505');
+                    }
+                },
+
+                onWebviewLoaded() {
+                    this.webviewLoadedOnce = true;
+                    this.webviewGone = false;
+                    AppLog.log('youtube', 'webview did-finish-load url=' + String((this.webview && this.webview.getURL && this.webview.getURL()) || ''));
+                    if (this.placeholder) this.placeholder.style.display = 'none';
+                    this.setupWebviewHooks();
+                },
+
+                qualityCapFor(label) {
+                    const caps = { '720p60': 720, '1080p60': 1080, '1440p60': 1440 };
+                    return caps[label] || 1080;
+                },
+
+                setMaxQuality(label) {
+                    const cap = this.qualityCapFor(label);
+                    if (ipcRenderer) ipcRenderer.invoke('youtube:set-quality-cap', label || '1080p60').catch(() => {});
+                    if (!this.webview) return;
+                    try {
+                        this.webview.executeJavaScript('(function(){ window.__ytCap = ' + cap + '; return true; })()', true).catch(() => {});
+                    } catch (e) {}
+                },
+
+                setupWebviewHooks() {
+                    if (!this.webview) return;
+                    const cap = this.qualityCapFor(SettingsAppState.youtube.maxQuality);
+                    const script = `(function(){
+                        if (window.__midiaYtInstalled) { window.__ytCap = ${cap}; return true; }
+                        window.__midiaYtInstalled = true;
+                        window.__ytCap = ${cap};
+
+                        var ALLOW = { 'home': 1, 'search': 1, 'subscriptions': 1, 'library': 1, 'gaming': 1, 'music': 1, 'movies & tv': 1, 'movies and tv': 1, 'settings': 1 };
+
+                        function filterGuide() {
+                            var entries = document.querySelectorAll('ytlr-guide-entry-renderer');
+                            for (var i = 0; i < entries.length; i++) {
+                                var el = entries[i];
+                                var label = (el.getAttribute('aria-label') || '').trim().toLowerCase();
+                                if (!label) continue;
+                                el.style.setProperty('display', ALLOW[label] ? '' : 'none', 'important');
+                            }
+                        }
+
+                        function installXhrFilter() {
+                            if (window.__midiaXhrInstalled) return;
+                            window.__midiaXhrInstalled = true;
+                            function filterFormats(j) {
+                                if (!j || !j.streamingData) return j;
+                                var sd = j.streamingData;
+                                var keep = function(list) {
+                                    if (!Array.isArray(list)) return list;
+                                    return list.filter(function(f) { return !(f && f.height && f.height > window.__ytCap); });
+                                };
+                                sd.formats = keep(sd.formats);
+                                sd.adaptiveFormats = keep(sd.adaptiveFormats);
+                                return j;
+                            }
+                            function makeGetter(real) {
+                                return function() {
+                                    var raw = real.call(this);
+                                    var u = this.__midiaXhrUrl || '';
+                                    if (u.indexOf('/youtubei/v1/player') !== -1 && this.readyState === 4) {
+                                        try { return JSON.stringify(filterFormats(JSON.parse(raw))); } catch (e) {}
+                                    }
+                                    return raw;
+                                };
+                            }
+                            try {
+                                var d1 = Object.getOwnPropertyDescriptor(XMLHttpRequest.prototype, 'responseText');
+                                if (d1) Object.defineProperty(XMLHttpRequest.prototype, 'responseText', { get: makeGetter(d1.get), configurable: true });
+                                var d2 = Object.getOwnPropertyDescriptor(XMLHttpRequest.prototype, 'response');
+                                if (d2) Object.defineProperty(XMLHttpRequest.prototype, 'response', { get: makeGetter(d2.get), configurable: true });
+                            } catch (e) {}
+                            var open = XMLHttpRequest.prototype.open;
+                            XMLHttpRequest.prototype.open = function(m, u) { this.__midiaXhrUrl = String(u); return open.apply(this, arguments); };
+                        }
+
+                        installXhrFilter();
+                        filterGuide();
+                        try {
+                            var mo = new MutationObserver(function() { filterGuide(); });
+                            mo.observe(document.documentElement, { childList: true, subtree: true });
+                        } catch (e) {}
+                        return true;
+                    })()`;
+                    try {
+                        this.webview.executeJavaScript(script, true).catch(() => {});
+                    } catch (e) {}
+                },
+
+                onWebviewError(e) {
+                    AppLog.warn('youtube', 'webview did-fail-load errorCode=' + String(e && e.errorCode) + ' desc=' + String(e && e.errorDescription) + ' isMainFrame=' + String(e && e.isMainFrame));
+                    if (this.webviewLoadedOnce) return;
+                    if (!e || e.isMainFrame === false) return;
+                    if (e.errorCode === -3) return;
+                    if (this.placeholderSub) {
+                        this.placeholderSub.textContent = 'Could not load YouTube TV. Check your internet connection and try again.';
+                    }
+                },
+
+                startSponsorLoop() {
+                    this.stopSponsorLoop();
+                    if (!this.webview) return;
+                    this.currentVideoId = null;
+                    this.currentSegments = [];
+                    this.sponsorTimer = setInterval(() => this.pollSponsor(), 1000);
+                },
+
+                stopSponsorLoop() {
+                    if (this.sponsorTimer) { clearInterval(this.sponsorTimer); this.sponsorTimer = null; }
+                },
+
+                parseVideoId(url) {
+                    if (!url) return null;
+                    try {
+                        const u = new URL(url);
+                        const v = u.searchParams.get('v');
+                        if (v && /^[A-Za-z0-9_-]{11}$/.test(v)) return v;
+                        const m = u.pathname.match(/^\/watch\/([A-Za-z0-9_-]{11})/);
+                        if (m) return m[1];
+                    } catch (e) {}
+                    return null;
+                },
+
+                pollSponsor() {
+                    if (this.webviewGone || !this.webview) return;
+                    let url = '';
+                    try { url = this.webview.getURL(); } catch (e) { return; }
+                    const videoId = this.parseVideoId(url);
+                    if (videoId && videoId !== this.currentVideoId) {
+                        this.currentVideoId = videoId;
+                        this.currentSegments = [];
+                        this.lastSponsorCheck = 0;
+                        ipcRenderer.invoke('youtube:sponsor-segments', videoId).then((segments) => {
+                            if (this.currentVideoId === videoId) this.currentSegments = segments || [];
+                        }).catch(() => {});
+                        return;
+                    }
+                    if (!videoId || !this.currentSegments || this.currentSegments.length === 0) return;
+                    const now = Date.now();
+                    if (now - this.lastSponsorCheck < 800) return;
+                    this.lastSponsorCheck = now;
+                    this.webview.executeJavaScript('(function(){try{var v=document.querySelector("video");if(!v)return null;return {t:v.currentTime,p:!v.paused};}catch(e){return null;}})()', true)
+                        .then((state) => {
+                            if (!state || state.p !== true) return;
+                            for (const seg of this.currentSegments) {
+                                const start = Math.max(0, seg.start - 1.0);
+                                if (state.t >= start && state.t < seg.end) {
+                                    const target = seg.end + 0.5;
+                                    this.webview.executeJavaScript('(function(){try{var v=document.querySelector("video");if(v)v.currentTime=' + target + ';return true;}catch(e){return false;}})()', true).catch(() => {});
+                                    const label = seg.category === 'selfpromo' ? 'self-promotion' : 'sponsor';
+                                    this.showToast('SponsorBlock', 'Skipped a ' + label + ' segment');
+                                    this.lastSponsorCheck = now + 15000;
+                                    return;
+                                }
+                            }
+                        })
+                        .catch(() => {});
+                },
+
+                pauseWebview() {
+                    if (!this.webview || this.webviewGone) return;
+                    try {
+                        this.webview.executeJavaScript('(function(){try{var v=document.querySelector("video");if(v&&!v.paused)v.pause();return true;}catch(e){return false;}})()', true);
+                    } catch (e) {}
+                },
+
+                showToast(title, msg, ms) {
+                    let toast = document.getElementById('youtube-toast');
+                    if (!toast) {
+                        toast = document.createElement('div');
+                        toast.id = 'youtube-toast';
+                        toast.innerHTML = '<span class="yt-toast-title"></span><span class="yt-toast-msg"></span>';
+                        document.body.appendChild(toast);
+                    }
+                    toast.querySelector('.yt-toast-title').textContent = title + '  ';
+                    toast.querySelector('.yt-toast-msg').textContent = msg;
+                    toast.classList.add('show');
+                    if (this.sponsorToastTimer) clearTimeout(this.sponsorToastTimer);
+                    this.sponsorToastTimer = setTimeout(() => toast.classList.remove('show'), ms || 4200);
+                },
+
+                revealHome() {
+                    this.homeBtn.classList.add('show');
+                    if (this.homeIdleTimer) { clearTimeout(this.homeIdleTimer); this.homeIdleTimer = null; }
+                },
+
+                scheduleHomeHide() {
+                    if (this.homeIdleTimer) clearTimeout(this.homeIdleTimer);
+                    this.homeIdleTimer = setTimeout(() => {
+                        this.homeBtn.classList.remove('show');
+                    }, 5000);
+                }
+            };
+            window.YoutubeApplet = YoutubeApplet;
+
+            // ============================================================
+            // MIRRA APPLET
+            // ============================================================
+            // --- Video pipeline ---
+            // Frames arrive from the main process as raw H.264 (Annex B)
+            // payloads from the scrcpy standalone-server protocol. The codec
+            // string and dimensions are delivered via 'mirra:stream-config'
+            // before the first frames; WebCodecs decodes them onto <canvas>.
+
+            const MirraApplet = {
+                applet: document.getElementById('mirra-applet'),
+                bg: document.getElementById('mirra-bg'),
+                stage: document.getElementById('mirra-stage'),
+                canvas: document.getElementById('mirra-canvas'),
+                ctx: null,
+                connectionMenu: document.getElementById('mr-connection-menu'),
+                detectedPopup: document.getElementById('mr-detected-popup'),
+                connectingPopup: document.getElementById('mr-connecting-popup'),
+                connectedPopup: document.getElementById('mr-connected-popup'),
+                disconnectedPopup: document.getElementById('mr-disconnected-popup'),
+                homeBtn: document.getElementById('mirra-home-btn'),
+                cornerZone: document.getElementById('mirra-corner-hover'),
+                isOpen: false,
+                connectionState: 'idle', // idle | detected | connecting | connected | disconnected
+                deviceName: null,
+                deviceSerial: null,
+                homeIdleTimer: null,
+                cornerHovered: false,
+                bgVideo: null,
+                decoder: null,
+                decoderConfigured: false,
+                videoMeta: null,
+                timestampCounter: 0,
+                animationFrameId: null,
+                connectedPopupTimer: null,
+                disconnectedPopupTimer: null,
+                bgmFading: false,
+                capabilities: null,
+
+                init() {
+                    // View mode buttons
+                    document.getElementById('mirra-mode-wallpaper').addEventListener('click', () => this.chooseViewMode('wallpaper'));
+                    document.getElementById('mirra-mode-fullscreen').addEventListener('click', () => this.chooseViewMode('fullscreen'));
+                    document.getElementById('mirra-mode-skip').addEventListener('click', () => this.skipModePrompt());
+
+                    // Exit modal
+                    document.getElementById('mr-exit-yes').addEventListener('click', () => this.doClose());
+                    document.getElementById('mr-exit-no').addEventListener('click', () => {
+                        AudioManager.playClick();
+                        document.getElementById('mirra-exit-modal').classList.remove('active');
+                    });
+
+                    // Device detected popup buttons
+                    const yesBtn = document.getElementById('mr-detected-yes');
+                    const noBtn = document.getElementById('mr-detected-no');
+                    yesBtn.addEventListener('mouseenter', () => AudioManager.playMirraHover());
+                    noBtn.addEventListener('mouseenter', () => AudioManager.playMirraHover());
+                    yesBtn.addEventListener('click', () => { AudioManager.playMirraClick(); this.onConnectAccepted(); });
+                    noBtn.addEventListener('click', () => { AudioManager.playMirraClick(); this.onConnectDismissed(); });
+
+                    // Home button
+                    this.homeBtn.addEventListener('click', () => this.promptExit());
+                    this.cornerZone.addEventListener('mouseenter', () => { this.cornerHovered = true; this.revealHome(); });
+                    this.cornerZone.addEventListener('mouseleave', () => { this.cornerHovered = false; this.scheduleHomeHide(); });
+                    document.addEventListener('mousemove', () => {
+                        if (!this.isOpen) return;
+                        if (this.cornerHovered) { this.revealHome(); return; }
+                        this.scheduleHomeHide();
+                    });
+
+                    // Canvas setup
+                    this.ctx = this.canvas.getContext('2d');
+                    this.resetVideoPipeline();
+
+                    // Setup decoder if WebCodecs available
+                    this.setupDecoder();
+
+                    // Listen for IPC events from main process
+                    if (ipcRenderer) {
+                        ipcRenderer.on('mirra:device-detected', (e, data) => this.onDeviceDetected(data));
+                        ipcRenderer.on('mirra:device-disconnected', (e, data) => this.onDeviceDisconnected(data));
+                        ipcRenderer.on('mirra:video-chunk', (e, data) => this.onVideoChunk(data));
+                        ipcRenderer.on('mirra:stream-config', (e, meta) => this.onStreamConfig(meta));
+                        ipcRenderer.on('mirra:stream-start', () => this.onStreamStart());
+                        ipcRenderer.on('mirra:stream-end', (e, data) => this.onStreamEnd(data));
+                    }
+                },
+
+                setupDecoder() {
+                    console.log('[mirra] WebCodecs available:', typeof VideoDecoder !== 'undefined', 'configSupport:', typeof VideoDecoder !== 'undefined' && typeof VideoDecoder.isConfigSupported === 'function');
+                    if (typeof VideoDecoder === 'undefined') {
+                        console.warn('[mirra] WebCodecs VideoDecoder not available');
+                        return;
+                    }
+                    this._decodedFrames = 0;
+                    try {
+                        this.decoder = new VideoDecoder({
+                            output: (frame) => {
+                                this._decodedFrames++;
+                                if (this._decodedFrames === 1) console.log('[mirra] first decoded frame:', frame.displayWidth + 'x' + frame.displayHeight);
+                                if (this.canvas && this.ctx) {
+                                    const stageW = this.stage ? this.stage.clientWidth : frame.displayWidth;
+                                    const stageH = this.stage ? this.stage.clientHeight : frame.displayHeight;
+                                    const dpr = window.devicePixelRatio || 1;
+                                    const cssW = Math.max(1, Math.round(stageW * dpr));
+                                    const cssH = Math.max(1, Math.round(stageH * dpr));
+                                    if (this.canvas.width !== cssW || this.canvas.height !== cssH) {
+                                        this.canvas.width = cssW;
+                                        this.canvas.height = cssH;
+                                    }
+                                    const ctx = this.ctx;
+                                    ctx.fillStyle = '#000';
+                                    ctx.fillRect(0, 0, cssW, cssH);
+                                    const fw = frame.displayWidth;
+                                    const fh = frame.displayHeight;
+                                    const scale = Math.min(cssW / fw, cssH / fh);
+                                    const dw = Math.round(fw * scale);
+                                    const dh = Math.round(fh * scale);
+                                    const dx = Math.round((cssW - dw) / 2);
+                                    const dy = Math.round((cssH - dh) / 2);
+                                    ctx.drawImage(frame, dx, dy, dw, dh);
+                                    frame.close();
+                                }
+                            },
+                            error: (e) => {
+                                console.error('[mirra] decoder error:', e, JSON.stringify(e));
+                            }
+                        });
+                        this.decoderConfigured = false;
+                        console.log('[mirra] WebCodecs decoder created');
+                    } catch (e) {
+                        console.error('[mirra] decoder setup failed:', e);
+                    }
+                },
+
+                onStreamConfig(meta) {
+                    if (!this.decoder) return;
+                    if (!meta || !meta.codec) { console.warn('[mirra] stream-config missing codec'); return; }
+                    if (meta.width) { this._videoW = meta.width; this._videoH = meta.height; }
+                    this.updateStageLayout();
+                    this.videoMeta = meta;
+                    // Generic 'h264' only carries dimensions; the real avc1 codec
+                    // arrives with the config packet and is what configures the decoder.
+                    if (meta.codec === 'h264') {
+                        console.log('[mirra] stream dimensions:', meta.width + 'x' + meta.height);
+                        return;
+                    }
+                    const codec = meta.codec;
+                    const variants = [];
+                    if (meta.description) {
+                        variants.push({ codec, description: meta.description });
+                    }
+                    variants.push({ codec });
+                    if (this._videoW) variants.push({ codec, codedWidth: this._videoW, codedHeight: this._videoH });
+                    for (const config of variants) {
+                        try {
+                            this.decoder.configure(config);
+                            this.decoderConfigured = true;
+                            console.log('[mirra] decoder configured:', config.codec, 'desc=' + (!!config.description), 'avcc=' + !!meta.avcc, meta.width ? '(' + meta.width + 'x' + meta.height + ')' : '', 'state=' + this.decoder.state, 'queue=' + this.decoder.decodeQueueSize);
+                            return;
+                        } catch (e) {
+                            console.warn('[mirra] configure attempt failed:', config.codec, 'desc=' + (!!config.description), e.message);
+                        }
+                    }
+                    console.error('[mirra] decoder configure failed for codec', codec);
+                },
+
+                resetVideoPipeline() {
+                    this.videoMeta = null;
+                    this._videoW = null;
+                    this._videoH = null;
+                    this.timestampCounter = 0;
+                    if (this.applet) this.applet.classList.remove('mr-landscape');
+                    if (this.stage) this.stage.style.aspectRatio = '';
+                },
+
+                updateStageLayout() {
+                    if (!this.applet || !this.stage) return;
+                    if (this._videoW && this._videoH) {
+                        const landscape = this._videoW > this._videoH;
+                        this.applet.classList.toggle('mr-landscape', landscape);
+                        this.stage.style.aspectRatio = (this._videoW / this._videoH).toFixed(4);
+                    }
+                },
+
+                async checkCapabilities() {
+                    if (!ipcRenderer) return;
+                    try {
+                        this.capabilities = await ipcRenderer.invoke('mirra:capabilities');
+                        return this.capabilities;
+                    } catch (e) {
+                        return null;
+                    }
+                },
+
+                async                 open() {
+                    if (this.isOpen) return;
+                    this.isOpen = true;
+                    AppLog.log('mirra', 'open');
+
+                    // Close other applets that might still be visible
+                    if (window.YoutubeApplet && YoutubeApplet.isOpen) YoutubeApplet.doClose();
+                    if (window.DvdApplet && DvdApplet.isOpen) DvdApplet.doClose();
+                    if (window.MusicApplet && MusicApplet.isOpen) MusicApplet.doClose();
+                    if (window.PhotosApplet && PhotosApplet.isOpen) PhotosApplet.doClose();
+                    if (window.SettingsApplet && SettingsApplet.isOpen) SettingsApplet.doClose();
+
+                    // Check capabilities
+                    await this.checkCapabilities();
+
+                    // Notify main to start device polling
+                    if (ipcRenderer) ipcRenderer.send('mirra:applet-open', true);
+
+                    // Fade out home BGM before starting mirra BGM
+                    AudioManager.crossfadeTo('none');
+
+                    // Apply view mode + wallpaper gradient
+                    this.applyViewMode();
+                    this.applyWallpaper();
+
+                    // Show applet
+                    document.body.classList.add('mirra-applet-open');
+                    this.applet.classList.add('visible');
+
+                    // Start BGM
+                    this.startBgm();
+
+                    // Show connection menu
+                    this.resetToConnectionMenu();
+
+                    // Show onboarding mode modal if first time
+                    if (!SettingsAppState.mirra.onboardingShown) {
+                        setTimeout(() => {
+                            document.getElementById('mirra-mode-modal').classList.add('active');
+                            AudioManager.playDvdUiAppear();
+                        }, 600);
+                    }
+
+                    // Reveal home button
+                    this.revealHome();
+                    this.scheduleHomeHide();
+                },
+
+                doClose() {
+                    if (!this.isOpen) return;
+                    this.isOpen = false;
+                    AppLog.log('mirra', 'close');
+
+                    // Stop scrcpy
+                    if (ipcRenderer) ipcRenderer.invoke('mirra:stop');
+
+                    // Stop polling
+                    if (ipcRenderer) ipcRenderer.send('mirra:applet-open', false);
+
+                    // Hide popups
+                    this.hideAllPopups();
+
+                    // Hide applet
+                    document.getElementById('mirra-exit-modal').classList.remove('active');
+                    document.getElementById('mirra-mode-modal').classList.remove('active');
+                    if (this.homeIdleTimer) clearTimeout(this.homeIdleTimer);
+                    this.homeBtn.classList.remove('show');
+                    this.applet.classList.remove('visible');
+                    document.body.classList.remove('mirra-applet-open');
+
+                    // Stop BGM
+                    this.stopBgm();
+
+                    // Reset state
+                    this.connectionState = 'idle';
+                    this.deviceName = null;
+                    this.deviceSerial = null;
+                    this.clearCanvas();
+                    this.resetVideoPipeline();
+                    if (this.decoder) { try { this.decoder.reset(); } catch (e) {} }
+                    this.decoderConfigured = false;
+
+                    // Play exit sound and return to home
+                    AudioManager.playDvdClose();
+                    AudioManager.fadeInBGM();
+                    BootManager.play();
+                },
+
+                promptExit() {
+                    AudioManager.playClick();
+                    document.getElementById('mirra-exit-modal').classList.add('active');
+                },
+
+                skipModePrompt() {
+                    AudioManager.playClick();
+                    SettingsAppState.mirra.onboardingShown = true;
+                    SettingsAppState.mirra.viewMode = 'wallpaper';
+                    SettingsApplet.saveSettings();
+                    document.getElementById('mirra-mode-modal').classList.remove('active');
+                    this.applyViewMode();
+                },
+
+                chooseViewMode(mode) {
+                    AudioManager.playClick();
+                    SettingsAppState.mirra.onboardingShown = true;
+                    SettingsAppState.mirra.viewMode = mode;
+                    SettingsApplet.saveSettings();
+                    document.getElementById('mirra-mode-modal').classList.remove('active');
+                    this.applyViewMode();
+                    if (SettingsApplet.syncMirraUI) SettingsApplet.syncMirraUI();
+                },
+
+                applyViewMode() {
+                    const mode = SettingsAppState.mirra.viewMode || 'wallpaper';
+                    this.applet.classList.toggle('mr-wallpaper-mode', mode === 'wallpaper');
+                    this.applet.classList.toggle('mr-fullscreen-mode', mode === 'fullscreen');
+                },
+
+                applyWallpaper() {
+                    const mrCfg = SettingsAppState.mirra;
+                    const bg = mrCfg.background || { type: 'gradient', center: '#00B4D8', edge: '#0077B6', imagePath: null, videoPath: null };
+                    if (this.bgVideo) { this.bgVideo.pause(); this.bgVideo.remove(); this.bgVideo = null; }
+                    this.bg.className = '';
+                    this.bg.style.removeProperty('--mr-grad-center');
+                    this.bg.style.removeProperty('--mr-grad-mid');
+                    this.bg.style.removeProperty('--mr-grad-edge');
+                    this.bg.style.removeProperty('--mr-bg-image');
+                    if (bg.type === 'image' && bg.imagePath) {
+                        this.bg.classList.add('mr-bg-image');
+                        this.bg.style.setProperty('--mr-bg-image', `url("${bg.imagePath.replace(/\\/g, '/')}")`);
+                    } else if (bg.type === 'video' && bg.videoPath) {
+                        this.bg.classList.add('mr-bg-video');
+                        const video = document.createElement('video');
+                        video.className = 'mr-bg-video-el';
+                        video.src = bg.videoPath;
+                        video.muted = true;
+                        video.loop = true;
+                        video.autoplay = true;
+                        video.playsInline = true;
+                        video.setAttribute('playsinline', '');
+                        video.playbackRate = 1;
+                        video.play().catch(() => {});
+                        this.bg.appendChild(video);
+                        this.bgVideo = video;
+                    } else {
+                        this.bg.classList.add('mr-bg-gradient');
+                        this.bg.style.setProperty('--mr-grad-center', bg.center || '#2ecc71');
+                        this.bg.style.setProperty('--mr-grad-mid', bg.mid || '#1abc9c');
+                        this.bg.style.setProperty('--mr-grad-edge', bg.edge || '#0077b6');
+                    }
+                },
+
+                // --- Connection flow ---
+
+                resetToConnectionMenu() {
+                    this.connectionState = 'idle';
+                    this.hideAllPopups();
+                    if (this.connectionMenu) this.connectionMenu.style.display = 'flex';
+                    if (this.canvas) this.canvas.style.display = 'none';
+                    if (this.stage) this.stage.style.display = 'none';
+                },
+
+                hideAllPopups() {
+                    if (this.detectedPopup) this.detectedPopup.classList.remove('active');
+                    if (this.connectingPopup) this.connectingPopup.classList.remove('active');
+                    if (this.connectedPopup) this.connectedPopup.classList.remove('active');
+                    if (this.disconnectedPopup) this.disconnectedPopup.classList.remove('active');
+                    if (this.connectionMenu) this.connectionMenu.style.display = 'none';
+                    if (this.connectedPopupTimer) { clearTimeout(this.connectedPopupTimer); this.connectedPopupTimer = null; }
+                    if (this.disconnectedPopupTimer) { clearTimeout(this.disconnectedPopupTimer); this.disconnectedPopupTimer = null; }
+                },
+
+                onDeviceDetected(data) {
+                    if (this.connectionState !== 'idle') return; // Only show detection when idle
+                    this.connectionState = 'detected';
+                    this.deviceName = data.name || 'Android Device';
+                    this.deviceSerial = data.serial;
+
+                    // Update popup content
+                    document.getElementById('mr-device-name').textContent = this.deviceName;
+
+                    // Show popup
+                    if (this.connectionMenu) this.connectionMenu.style.display = 'none';
+                    this.detectedPopup.classList.add('active');
+
+                    // Play SFX
+                    AudioManager.playMirraDetected();
+                },
+
+                onConnectDismissed() {
+                    AudioManager.playClick();
+                    this.detectedPopup.classList.remove('active');
+                    this.connectionState = 'idle';
+                    this.deviceName = null;
+                    this.deviceSerial = null;
+                    // Return to connection menu
+                    if (this.connectionMenu) this.connectionMenu.style.display = 'flex';
+                },
+
+                async onConnectAccepted() {
+                    AudioManager.playClick();
+                    this.detectedPopup.classList.remove('active');
+                    this.connectionState = 'connecting';
+
+                    // Show connecting popup
+                    this.connectingPopup.classList.add('active');
+
+                    // Play connecting SFX
+                    AudioManager.playMirraConnecting();
+
+                    // Tell main process to start scrcpy
+                    if (ipcRenderer) {
+                        try {
+                            await ipcRenderer.invoke('mirra:start');
+                        } catch (e) {
+                            console.error('[mirra] failed to start scrcpy:', e);
+                            this.onStreamEnd({ error: e.message });
+                        }
+                    }
+                },
+
+                onStreamStart() {
+                    // Phone video stream started; wait for stream-config before decoding
+                    this.connectingPopup.classList.remove('active');
+                    AudioManager.stopMirraConnecting();
+                    this.connectionState = 'connected';
+
+                    // Reset the video pipeline for this new stream
+                    this.resetVideoPipeline();
+                    if (this.decoder) { try { this.decoder.reset(); } catch (e) {} }
+                    this.decoderConfigured = false;
+
+                    // Show connected popup briefly
+                    this.connectedPopup.classList.add('active');
+                    AudioManager.playMirraConnected();
+
+                    // Fade out BGM
+                    this.fadeOutBgm();
+
+                    // After 1 second, hide the connected popup and connection menu,
+                    // and reveal the canvas the phone stream renders into
+                    this.connectedPopupTimer = setTimeout(() => {
+                        this.connectedPopup.classList.remove('active');
+                        if (this.connectionMenu) this.connectionMenu.style.display = 'none';
+                        if (this.stage) this.stage.style.display = '';
+                        if (this.canvas) this.canvas.style.display = 'block';
+                    }, 1200);
+                },
+
+                onStreamEnd(data) {
+                    if (this.connectionState === 'idle') return;
+                    AppLog.log('mirra', 'stream ended', JSON.stringify(data || {}));
+
+                    // Kill scrcpy on main side
+                    if (ipcRenderer) ipcRenderer.invoke('mirra:stop');
+
+                    this.connectionState = 'disconnected';
+                    this.clearCanvas();
+                    AudioManager.stopMirraConnecting();
+
+                    // Reset decoder for next stream
+                    this.resetVideoPipeline();
+                    if (this.decoder) { try { this.decoder.reset(); } catch (e) {} }
+                    this.decoderConfigured = false;
+
+                    // Hide canvas, show disconnected popup
+                    if (this.connectedPopupTimer) { clearTimeout(this.connectedPopupTimer); this.connectedPopupTimer = null; }
+                    this.canvas.style.display = 'none';
+                    if (this.stage) this.stage.style.display = 'none';
+                    this.connectingPopup.classList.remove('active');
+                    this.connectedPopup.classList.remove('active');
+                    this.disconnectedPopup.classList.add('active');
+
+                    // Play disconnect SFX
+                    AudioManager.playMirraDisconnected();
+
+                    // After 3 seconds, return to connection menu
+                    this.disconnectedPopupTimer = setTimeout(() => {
+                        this.disconnectedPopup.classList.remove('active');
+                        this.resetToConnectionMenu();
+                        // Restart BGM
+                        this.startBgm();
+                    }, 3000);
+                },
+
+                onDeviceDisconnected(data) {
+                    if (this.connectionState === 'connected' || this.connectionState === 'connecting') {
+                        this.onStreamEnd({ reason: 'device-disconnected' });
+                    }
+                },
+
+                // --- Video rendering ---
+
+                onVideoChunk(data) {
+                    if (this.connectionState !== 'connected') return;
+                    if (!this.decoder) return;
+                    if (!data || !data.data) return;
+
+                    if (this._chunkCount === undefined) this._chunkCount = 0;
+                    this._chunkCount++;
+
+                    if (!this.decoderConfigured) {
+                        if (this._chunkCount === 1 || this._chunkCount % 20 === 0) {
+                            console.warn('[mirra] video chunks arriving but decoder NOT configured after', this._chunkCount, 'chunks');
+                        }
+                        return;
+                    }
+
+                    if (this._chunkCount === 1) {
+                        const d = data.data;
+                        const head = d && d.length ? Array.from(d.subarray(0, 16)).map(b => b.toString(16).padStart(2, '0')).join(' ') : '';
+                        console.log('[mirra] first video chunk, bytes:', d ? d.length : 0, 'key:', data.keyframe, 'head:', head);
+                    }
+
+                    try {
+                        const chunk = new EncodedVideoChunk({
+                            type: data.keyframe ? 'key' : 'delta',
+                            timestamp: this.timestampCounter++ * 40000,
+                            data: data.data
+                        });
+                        this.decoder.decode(chunk);
+                    } catch (e) {
+                        console.warn('[mirra] decode error:', e.message);
+                    }
+                    if (this._decodedFrames === 0 && this._chunkCount % 20 === 0) {
+                        console.log('[mirra] decoded frames still 0 after', this._chunkCount, 'chunks');
+                    }
+                },
+
+                clearCanvas() {
+                    if (this.ctx && this.canvas) {
+                        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                    }
+                },
+
+                // --- Home button ---
+
+                revealHome() {
+                    this.homeBtn.classList.add('show');
+                    if (this.homeIdleTimer) { clearTimeout(this.homeIdleTimer); this.homeIdleTimer = null; }
+                },
+
+                scheduleHomeHide() {
+                    if (this.homeIdleTimer) clearTimeout(this.homeIdleTimer);
+                    this.homeIdleTimer = setTimeout(() => {
+                        this.homeBtn.classList.remove('show');
+                    }, 5000);
+                },
+
+                // --- BGM management ---
+
+                startBgm() {
+                    const bgm = document.getElementById('mirra-bgm');
+                    if (bgm) {
+                        bgm.volume = 0;
+                        bgm.play().catch(() => {});
+                        this.fadeVolume(bgm, 0, AudioManager.APPLET_VOL, 800);
+                    }
+                },
+
+                stopBgm() {
+                    const bgm = document.getElementById('mirra-bgm');
+                    if (bgm) {
+                        this.fadeVolume(bgm, bgm.volume, 0, 500, () => { bgm.pause(); });
+                    }
+                },
+
+                fadeOutBgm() {
+                    const bgm = document.getElementById('mirra-bgm');
+                    if (bgm) {
+                        this.fadeVolume(bgm, bgm.volume, 0, 800, () => { bgm.pause(); });
+                    }
+                },
+
+                fadeVolume(audio, from, to, durationMs, onDone) {
+                    if (!audio) { if (onDone) onDone(); return; }
+                    const steps = 20;
+                    const stepTime = durationMs / steps;
+                    const delta = (to - from) / steps;
+                    let current = from;
+                    let step = 0;
+                    if (this._fadeInterval) clearInterval(this._fadeInterval);
+                    this._fadeInterval = setInterval(() => {
+                        step++;
+                        current += delta;
+                        audio.volume = Math.max(0, Math.min(1, current));
+                        if (step >= steps) {
+                            clearInterval(this._fadeInterval);
+                            this._fadeInterval = null;
+                            audio.volume = to;
+                            if (onDone) onDone();
+                        }
+                    }, stepTime);
+                }
+            };
+            window.MirraApplet = MirraApplet;
+
             const init = () => { 
                 AudioManager.init();
                 PhotosSFX.init();
                 SettingsSFX.init();
                 DvdApplet.init();
+                YoutubeApplet.init();
+                MirraApplet.init();
                 WelcomeSlideshow.init();
                 DvdOnboarding.init();
                 KeyNav.init();
                 TimeManager.init(); 
                 HoverManager.init();
 
-                const midiaLogo = document.getElementById('midia-logo');
-                const brandSlot = document.getElementById('brand-logo-slot');
-                if (midiaLogo && brandSlot) {
-                    midiaLogo.addEventListener('error', () => { brandSlot.classList.add('show-fallback'); });
-                    if (midiaLogo.complete && midiaLogo.naturalWidth === 0) brandSlot.classList.add('show-fallback');
-                }
-                
                 document.querySelectorAll('.dock-item').forEach(item => {
                     item.addEventListener('click', () => { 
                         AudioManager.playClick(); 
@@ -4383,6 +6135,10 @@
                             BootManager.exit(item, () => { PhotosApplet.open(); });
                         } else if(item.dataset.app === 'dvd') {
                             if (window.DvdApplet && !DvdApplet.isOpen) { DvdApplet.onDockClick(); }
+                        } else if(item.dataset.app === 'youtube') {
+                            if (window.YoutubeApplet && !YoutubeApplet.isOpen) { BootManager.exit(item, () => { YoutubeApplet.open(); }); }
+                        } else if(item.dataset.app === 'mirra') {
+                            if (window.MirraApplet && !MirraApplet.isOpen) { BootManager.exit(item, () => { MirraApplet.open(); }); }
                         } else if(item.dataset.app === 'settings') { 
                             BootManager.exit(item, () => { SettingsApplet.open(); }); 
                         } else { 

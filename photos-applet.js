@@ -816,6 +816,8 @@
         open() {
             if (this.isOpen) return;
             this.isOpen = true;
+            const ipcRenderer = deps && deps.ipcRenderer;
+            try { if (ipcRenderer) ipcRenderer.send('log:append', '[photos:log] open'); } catch (e) {}
             PhotosAppState.newPhotoCount = 0;
             this.updatePhotosBadge();
             document.body.classList.add('photos-applet-open');
@@ -831,6 +833,8 @@
 
         async doClose() {
             if (!this.isOpen) return;
+            const ipcRenderer = deps && deps.ipcRenderer;
+            try { if (ipcRenderer) ipcRenderer.send('log:append', '[photos:log] close'); } catch (e) {}
             if (PhotosAppState.folderPath && deps.ipcRenderer && PhotosAppState.folderLinked) {
                 try {
                     await deps.ipcRenderer.invoke('save-photos-library', {
