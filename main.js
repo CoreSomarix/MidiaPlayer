@@ -23,6 +23,10 @@ process.on('unhandledRejection', (reason) => {
 });
 
 app.commandLine.appendSwitch('force-device-scale-factor', '1');
+// Windows' native occlusion calculation intermittently reports visible
+// windows as hidden, which freezes rAF/timers and leaves the boot splash
+// hanging for minutes. Kill it and renderer throttling outright.
+app.commandLine.appendSwitch('disable-features', 'CalculateNativeWinOcclusion');
 // Hardware acceleration stays ENABLED: video now renders to a <canvas> and needs
 // the GPU compositor for 50-60fps. Weak-GPU machines are handled by the
 // gpuSoftware detection below (--midia-gpu-software disables heavy animations).
@@ -39,6 +43,7 @@ function createWindow(gpuSoftware, fxLite, launchPrefs) {
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false,
+      backgroundThrottling: false,
       webviewTag: true,
       autoplayPolicy: 'no-user-gesture-required',
       additionalArguments: [
