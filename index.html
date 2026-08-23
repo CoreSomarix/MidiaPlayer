@@ -2949,15 +2949,15 @@
                             if (!fsMod.existsSync(thumb)) {
                                 const buf = fsMod.readFileSync(norm);
                                 if (buf.length > 150 * 1024) {
-                                    const objUrl = URL.createObjectURL(new Blob([buf]));
-                                    const img = await new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = () => rej(new Error('decode')); i.src = objUrl; });
-                                    const big = Math.max(img.naturalWidth, img.naturalHeight);
-                                    let w = img.naturalWidth, h = img.naturalHeight;
-                                    if (big > 800) { const k = 800 / big; w = Math.max(1, Math.round(w * k)); h = Math.max(1, Math.round(h * k)); }
+                                    // Downsample-at-decode: Skia shrinks WHILE
+                                    // reading the JPEG (off-main-thread), which
+                                    // is dramatically cheaper than a full-size
+                                    // decode + canvas redraw on low-end CPUs.
+                                    const bmp = await createImageBitmap(new Blob([buf]), { resizeWidth: 800, resizeQuality: 'medium' });
                                     const cv = document.createElement('canvas');
-                                    cv.width = w; cv.height = h;
-                                    cv.getContext('2d').drawImage(img, 0, 0, w, h);
-                                    URL.revokeObjectURL(objUrl);
+                                    cv.width = bmp.width; cv.height = bmp.height;
+                                    cv.getContext('2d').drawImage(bmp, 0, 0);
+                                    bmp.close();
                                     const blob = await new Promise(r => cv.toBlob(r, 'image/jpeg', 0.82));
                                     if (blob) fsMod.writeFileSync(thumb, Buffer.from(await blob.arrayBuffer()));
                                 } else {
@@ -2966,7 +2966,10 @@
                             }
                             this.retileCover(norm);
                         } catch (e) { /* undecodable or unreadable art: skip quietly */ }
-                        await new Promise(r => setTimeout(r, 40));
+                        // Let the UI breathe between jobs; idle completely
+                        // while the window is minimized/hidden.
+                        await new Promise(r => setTimeout(r, 120));
+                        while (document.hidden) await new Promise(r => setTimeout(r, 600));
                     }
                     this._thumbRunning = false;
                 },
