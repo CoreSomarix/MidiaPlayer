@@ -1,6 +1,7 @@
 ﻿const { app, BrowserWindow, ipcMain, dialog, globalShortcut, Menu, session } = require('electron');
 const path = require('path');
 const fs = require('fs');
+const os = require('os');
 const https = require('https');
 const zlib = require('zlib');
 const { spawn } = require('child_process');
@@ -26,7 +27,7 @@ app.commandLine.appendSwitch('force-device-scale-factor', '1');
 // the GPU compositor for 50-60fps. Weak-GPU machines are handled by the
 // gpuSoftware detection below (--midia-gpu-software disables heavy animations).
 
-function createWindow(gpuSoftware) {
+function createWindow(gpuSoftware, fxLite, launchPrefs) {
   const win = new BrowserWindow({
     width: 1280,
     height: 720,
@@ -40,7 +41,11 @@ function createWindow(gpuSoftware) {
       contextIsolation: false,
       webviewTag: true,
       autoplayPolicy: 'no-user-gesture-required',
-      additionalArguments: gpuSoftware ? ['--midia-gpu-software'] : [],
+      additionalArguments: [
+        ...(gpuSoftware ? ['--midia-gpu-software'] : []),
+        ...(fxLite ? ['--midia-fx-lite'] : []),
+        '--midia-ui-scale=' + (launchPrefs && launchPrefs.uiScale === 'large' ? 'large' : 'small'),
+      ],
     }
   });
 
@@ -77,27 +82,171 @@ function createWindow(gpuSoftware) {
     }
   });
 
+  // Windowed mode is locked to maximized: any restore-down attempt (title bar
+  // button, double-click, Win+Down, taskbar) snaps straight back. Fullscreen
+  // is the only other allowed state (Settings > System > Window Starts).
+  win.__midiaClosing = false;
+  win.on('close', () => { win.__midiaClosing = true; });
+  win.on('unmaximize', () => {
+    if (win.__midiaClosing || win.isFullScreen()) return;
+    setTimeout(() => {
+      try {
+        if (!win.isDestroyed() && !win.__midiaClosing && !win.isFullScreen() && !win.isMaximized()) win.maximize();
+      } catch (e) { /* window gone */ }
+    }, 15);
+  });
+  win.on('leave-full-screen', () => {
+    if (!win.__midiaClosing && !win.isMaximized()) win.maximize();
+  });
+
+  if (launchPrefs && launchPrefs.fullscreen) win.setFullScreen(true);
+  else if (!win.isMaximized()) win.maximize();
+
   win.once('ready-to-show', () => {
-    win.center();
     win.show();
   });
   
   return win;
 }
 
-app.whenReady().then(() => {
-  Menu.setApplicationMenu(null);
-  let software = false;
+// getGPUFeatureStatus() queried instantly at whenReady often reports a
+// premature "disabled": the GPU process hasn't finished initializing yet.
+// Wait for GPU info updates to land (or time out) before trusting them.
+function detectGpuSoftware() {
+  return new Promise((resolve) => {
+    let done = false;
+    let stableTimer = null;
+    const readStatus = () => {
+      try {
+        const s = app.getGPUFeatureStatus();
+        return !s || (s.gpu_compositing !== 'enabled' && s.gpu_compositing !== 'native');
+      } catch (e) { return true; }
+    };
+    const finish = () => {
+      if (done) return;
+      done = true;
+      const software = readStatus();
+      console.log('[gpu] compositing=' + (() => { try { return (app.getGPUFeatureStatus() || {}).gpu_compositing || 'unknown'; } catch (e) { return 'unknown'; } })() + ' -> ' + (software ? 'software fallback' : 'native'));
+      resolve(software);
+    };
+    app.on('gpu-info-update', () => {
+      if (done) return;
+      clearTimeout(stableTimer);
+      stableTimer = setTimeout(finish, 350);
+    });
+    setTimeout(finish, 1200);
+  });
+}
+
+// One-time-per-boot cleanup: older library scans stored full-resolution
+// embedded art (up to 6000x6000). Each candidate is shrunk by a throwaway
+// helper process — decoding a 36-megapixel bitmap can trip a Skia allocation
+// assert (FATAL, uncatchable), and this way it can never take Midia down.
+async function shrinkOversizedCovers() {
   try {
-    const status = app.getGPUFeatureStatus();
-    software = !status || (status.gpu_compositing !== 'enabled' && status.gpu_compositing !== 'native');
+    // DEV-ONLY: the helper spawn relies on `electron.exe <script>` semantics.
+    // In packaged builds process.execPath is Midia.exe, which would launch a
+    // full second app instance per candidate instead of running the helper.
+    if (app.isPackaged) return;
+    const coversDir = path.join(app.getPath('userData'), 'covers');
+    if (!fs.existsSync(coversDir)) return;
+    const candidates = fs.readdirSync(coversDir)
+      // nativeImage decodes JPEG/PNG only; webp/gif/bmp would fail every boot
+      .filter(f => /\.(jpe?g|png)$/i.test(f))
+      .filter(f => { try { return fs.statSync(path.join(coversDir, f)).size >= 120 * 1024; } catch (e) { return false; } })
+      .sort((a, b) => {
+        try { return fs.statSync(path.join(coversDir, a)).size - fs.statSync(path.join(coversDir, b)).size; }
+        catch (e) { return 0; }
+      });
+    if (!candidates.length) return;
+    let shrunk = 0, skipped = 0;
+    const t0 = Date.now();
+    for (const f of candidates) {
+      if (Date.now() - t0 > 120000) break; // time-boxed; continues next boot
+      const p = path.join(coversDir, f);
+      const tmp = p + '.tmp';
+      const ok = await new Promise((resolve) => {
+        const child = spawn(process.execPath, [path.join(__dirname, '_shrink_cover.js'), p, tmp], {
+          windowsHide: true,
+          stdio: ['ignore', 'pipe', 'pipe']
+        });
+        let errTail = '';
+        child.stderr.on('data', d => { errTail = (errTail + String(d)).slice(-400); });
+        let settled = false;
+        const done = (code) => {
+          if (settled) return;
+          settled = true;
+          if (code !== 0 && code !== 5) console.log('[music] shrink fail(' + code + ') ' + f + (errTail ? ' :: ' + errTail.trim().replace(/\n/g, ' | ') : ''));
+          resolve(code === 0);
+        };
+        child.on('exit', (code) => done(code));
+        child.on('error', (e) => { errTail = String(e); done(-1); });
+        // Decoding 36-megapixel embedded art can take tens of seconds on a
+        // low-end CPU — allow it, the overall pass is time-boxed anyway.
+        setTimeout(() => { try { child.kill(); } catch (e) {} done(-2); }, 45000);
+      });
+      if (ok && fs.existsSync(tmp)) {
+        try { fs.renameSync(tmp, p); shrunk++; } catch (e) { skipped++; }
+      } else {
+        skipped++;
+      }
+      if (fs.existsSync(tmp)) { try { fs.unlinkSync(tmp); } catch (e) {} }
+      await new Promise(r => setImmediate(r));
+    }
+    if (shrunk || skipped) console.log('[music] cover shrink pass: ' + shrunk + ' resized, ' + skipped + ' skipped');
   } catch (e) {}
-  const win = createWindow(software);
+}
+
+// Single instance: a media center should never pile up parallel instances
+// (second launch just focuses the existing window).
+if (!app.requestSingleInstanceLock()) {
+  app.quit();
+} else {
+  app.on('second-instance', () => {
+    const [win] = BrowserWindow.getAllWindows();
+    if (win) {
+      if (win.isMinimized()) win.restore();
+      win.focus();
+    }
+  });
+}
+
+app.whenReady().then(async () => {
+  Menu.setApplicationMenu(null);
+  const software = await detectGpuSoftware();
+
+  // Launch prefs come straight from the persisted settings file so the very
+  // first paint already has the right window state and UI scale.
+  let launchPrefs = { fullscreen: false, uiScale: 'small' };
+  try {
+    const d = JSON.parse(fs.readFileSync(SETTINGS_FILE, 'utf8').replace(/^\uFEFF/, ''));
+    const mode = d && d.system && d.system.launchMode;
+    launchPrefs.fullscreen = mode
+      ? mode === 'fullscreen'
+      : !!(d && d.clock && d.clock.launchFullscreen); // legacy toggle migration
+    if (d && d.system && d.system.uiScale) launchPrefs.uiScale = d.system.uiScale;
+  } catch (e) { /* defaults */ }
+
+  // Low-end hardware heuristic: with native compositing on a weak iGPU,
+  // backdrop blur dominates frame cost (measured ~19fps -> ~45fps on a
+  // Braswell Chromebook when dropped). Lite keeps animations, kills blur.
+  let fxLite = false;
+  if (!software) {
+    try {
+      const cores = os.cpus().length;
+      const memGb = Math.round(os.totalmem() / (1024 * 1024 * 1024));
+      fxLite = cores <= 4 && memGb <= 4;
+    } catch (e) {}
+    if (fxLite) console.log('[gpu] low-end hardware detected -> fx-lite (blur off)');
+  }
+
+  const win = createWindow(software, fxLite, launchPrefs);
   dvdCore.start(win);
   mirraCore.start(win);
   initYoutubeBackend().catch((e) => {
     console.error('[youtube] backend init failed:', e);
   });
+  shrinkOversizedCovers();
 });
 
 // --- DVD APPLET MEDIA KEYS ---
@@ -281,7 +430,36 @@ ipcMain.on('scan-folder', async (event, { folderPath, knownTracks = [], incremen
 
                 const coverFileName = `cover_${Date.now()}_${Math.random().toString(36).substring(2, 8)}.${ext}`;
                 coverLocalPath = path.join(coversDir, coverFileName);
-                await fsp.writeFile(coverLocalPath, pic.data);
+
+                // Cap extracted art at 800px on its long side. Full-res embedded
+                // scans (up to 6000x6000) decode to ~140MB each and dominate
+                // album-grid scroll raster cost on low-end machines.
+                try {
+                  const { nativeImage } = require('electron');
+                  const img = nativeImage.createFromBuffer(Buffer.from(pic.data));
+                  if (!img.isEmpty()) {
+                    const sz = img.getSize();
+                    // >30MP: resizing risks a fatal Skia allocation failure on
+                    // low-RAM machines — keep the original bytes untouched.
+                    if (sz.width * sz.height <= 30e6) {
+                      const big = Math.max(sz.width, sz.height);
+                      if (big > 800) {
+                        const k = 800 / big;
+                        const small = img.resize({ width: Math.max(1, Math.round(sz.width * k)), height: Math.max(1, Math.round(sz.height * k)) });
+                        const out = /^png$/i.test(ext) ? small.toPNG() : small.toJPEG(82);
+                        await fsp.writeFile(coverLocalPath, out);
+                      } else {
+                        await fsp.writeFile(coverLocalPath, Buffer.from(pic.data));
+                      }
+                    } else {
+                      await fsp.writeFile(coverLocalPath, Buffer.from(pic.data));
+                    }
+                  } else {
+                    await fsp.writeFile(coverLocalPath, Buffer.from(pic.data));
+                  }
+                } catch (covErr) {
+                  await fsp.writeFile(coverLocalPath, Buffer.from(pic.data));
+                }
               }
             } catch (metaErr) {
               metadata.title = path.basename(item, path.extname(item));
@@ -441,7 +619,7 @@ ipcMain.handle('load-settings', async () => {
   try {
     if (fs.existsSync(SETTINGS_FILE)) {
       const content = fs.readFileSync(SETTINGS_FILE, 'utf8');
-      const data = JSON.parse(content);
+      const data = JSON.parse(content.replace(/^\uFEFF/, ''));
       if (data && typeof data === 'object') return data;
     }
   } catch (e) {
@@ -743,7 +921,10 @@ ipcMain.handle('set-photos-folder', async (event, folderPath) => {
 //  * SponsorBlock segment data so the applet can auto-skip in-video sponsors.
 
 const YOUTUBE_PARTITION = 'persist:youtube-tv';
-const YOUTUBE_TV_UA = 'Mozilla/5.0 (X11; Linux i686) AppleWebKit/534.24 (KHTML, like Gecko) Chrome/11.0.696.77 Large Screen Safari/534.24 GoogleTV/092754';
+// Modern Samsung TV (Tizen 6.5, Chromium 108) identity: youtube.com/tv serves
+// its current leanback build to this client class. The legacy 2011 GoogleTV UA
+// still worked but got the frozen old shell (static splash, dated UI).
+const YOUTUBE_TV_UA = 'Mozilla/5.0 (SMART-TV; LINUX; Tizen 6.5) AppleWebKit/537.36 (KHTML, like Gecko) 108.0.5359.215/6.5 TV Safari/537.36';
 const YOUTUBE_ADBLOCK_CACHE = path.join(app.getPath('userData'), 'youtube-adblock-engine.bin');
 const SPONSORBLOCK_API = 'https://sponsor.ajay.app/api/skipSegments';
 const SPONSORBLOCK_CATEGORIES = ['sponsor', 'selfpromo', 'interaction'];
@@ -836,6 +1017,12 @@ async function initYoutubeBackend() {
     // Network blocking. Electron 22 predates session.registerPreloadScript, so
     // the webRequest hooks are wired manually instead of enableBlockingInSession().
     ytSession.webRequest.onBeforeRequest({ urls: ['<all_urls>'] }, (details, callback) => {
+      // Playback-critical stream endpoints are misclassified as trackers by
+      // generic filter lists (TVHTML5 clients fetch these on every play).
+      if (/^https:\/\/[a-z0-9-]+\.googlevideo\.com\/(initplayback|videoplayback)\??/.test(details.url)) {
+        callback({ cancel: false });
+        return;
+      }
       youtubeBlocker.onBeforeRequest(details, callback);
     });
     ytSession.webRequest.onHeadersReceived({ urls: ['<all_urls>'] }, (details, callback) => {

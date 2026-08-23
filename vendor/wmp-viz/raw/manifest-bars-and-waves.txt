@@ -1,0 +1,32 @@
+BARS AND WAVES - WMP Visualization Asset Manifest
+==================================================
+
+Family display name : Bars and Waves
+Internal reg name   : Bars
+Host DLL            : wmp10-x86\wmp.dll  (32-bit, from Windows Media Player 10 for Windows XP)
+COM class (CLSID)   : {48501FF0-F6A9-11D2-9435-00A0C92A2F2D}
+
+Original registration layout (as written by WMP10 installer):
+  HKLM\SOFTWARE\Microsoft\MediaPlayer\Objects\Effects\Bars\Properties
+    val classid     = s '{48501FF0-F6A9-11D2-9435-00A0C92A2F2D}'
+    val name        = s 'res://wmploc.dll/RT_STRING/#5500'
+    val description = s 'res://wmploc.dll/RT_STRING/#5512'
+
+Display name resource : wmploc.DLL string table id 5500
+Description resource  : wmploc.DLL string table id 5512
+
+Source installer:
+  MP10Setup.exe
+  URL  : http://ftp.twaren.net/Patch/WinMedia/MP10Setup.exe
+  SHA1 : 69862273a5d9d97b4a2e5a3bd93898d259e86657
+
+Extracted file hashes (SHA256):
+  wmp.dll   7A1A5F412BBA305AB6A618BD8D2059D5942F9BA317E1BDA40A0F51510FB9E5A3
+  wmploc.DLL E5BBE57FA7922627EC96A248CA31786FC6DF427AFC932AF78A5CD12069B6CA11
+
+Hosting notes for MidiaPlayer:
+  - App is ia32 (32-bit Electron) so this legacy 32-bit in-proc COM server can load.
+  - Plan: write HKCU\Software\Classes\CLSID\{48501FF0-F6A9-11D2-9435-00A0C92A2F2D}\InprocServer32
+    pointing at the shipped wmp.dll path (no admin/global registration needed),
+    then CoCreateInstance via koffi, query IWMPEffects / IWMPEffects2,
+    call Render(TimedLevel*, HDC, RECT) per frame, blit DC pixels to canvas.

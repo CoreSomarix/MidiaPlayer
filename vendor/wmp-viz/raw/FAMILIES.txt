@@ -1,0 +1,57 @@
+WMP VISUALIZATION FAMILIES - MASTER REFERENCE
+==============================================
+
+All classic families live as COM coclasses inside a single host DLL (wmp.dll,
+WMP10 for XP, 32-bit). Registry discovery layout used by Windows Media Player:
+
+  HKLM\SOFTWARE\Microsoft\MediaPlayer\Objects\Effects\<FamilyName>\Properties
+    val classid     = s '{CLSID}'
+    val name        = s 'res://wmploc.dll/RT_STRING/#<name id>'
+    val description = s 'res://wmploc.dll/RT_STRING/#<desc id>'
+
+Families found in vendor\wmp-viz\raw\wmp10-x86\wmp.dll:
+  Bars and Waves  {48501FF0-F6A9-11D2-9435-00A0C92A2F2D}   name #5500  desc #5512
+  Ambience        {9CA6AD35-A548-4c7b-8E0A-EF29748FAA16}   name #5528  desc #5529
+  Battery         {8D2A317B-D98B-4efa-89D6-E49F0ACF98A1}   name #1563  desc #1564
+  Plenoptic       {607C27E9-AB27-11d3-A116-A0EA50C10801}   name #5530  desc #5531
+  Spikes          {4B657E70-08EF-11D3-9447-00A0C92A2F2D}   name #5505  desc #5513
+  Dotplane        {61180810-EF20-11D2-9431-00A0C92A2F2D}   name #5508
+
+Separate family in mpvis.DLL (WMP10/WMP11, Direct3D8-based):
+  Alchemy         {0AA02E8D-F851-4CB0-9F64-BBA9BE7A983D}   name via res://mpvis.dll/RT_STRING/#100
+  - registers under HKLM\SOFTWARE\Microsoft\MediaPlayer\Objects\<clsid>
+  - imports d3d8.dll / gdiplus; riskier to host, try after the GDI families work
+
+Priority order for MidiaPlayer integration (per user):
+  1. Bars and Waves
+  2. Battery
+  (Ambience / Plenoptic / Spikes / Dotplane / Alchemy can follow)
+
+Files in wmp10-x86\ (SHA256):
+  wmp.dll    7A1A5F412BBA305AB6A618BD8D2059D5942F9BA317E1BDA40A0F51510FB9E5A3
+  wmploc.DLL E5BBE57FA7922627EC96A248CA31786FC6DF427AFC932AF78A5CD12069B6CA11
+  mpvis.DLL  599201C5B179E0A7843765C1420D331EB531722BCF353CC8ABFB49561AC8DED2
+
+==============================================================================
+FINDINGS (2026-08-22): classic families CANNOT be COM-activated externally
+==============================================================================
+Tested across three genuine Microsoft binary generations, all refused with
+CLASS_E_CLASSNOTAVAILABLE (0x80040111) from DllGetClassObject:
+  - WMP10 for XP binaries (wmp10-x86\)
+  - WMP9 binaries carved from archived MPSetup.exe / MPSetupXP.exe
+    (official MS download, web.archive.org snapshot 20040621210942)
+  - MediaPlayer_9.dll from the wm9viz.exe pack
+
+Also tried, all still 0x80040111:
+  - HKLM ...\MediaPlayer\Objects\Effects\<fam>\Properties discovery tree
+  - CLSID\{...}\InprocServer32 registration + full DllRegisterServer
+  - Image-name impersonation (host process renamed wmplayer.exe)
+  - Impersonation + registration + co-located DLLs combined
+  - Unnamed ordinal exports 3000/3001/3002 (guards returning
+    E_ACCESSDENIED; 3002 ignores args and returns S_OK with null out)
+
+Conclusion: Ambience/Battery/Plenoptic/Spikes/Bars-and-Waves/Dotplane are
+instantiated by wmplayer.exe through a private internal channel in every
+era. Only the real player can host them. Midia uses the native Battery
+homage builtin instead. Alchemy remains the sole externally-hostable WMP
+family (served by mpvis.DLL).

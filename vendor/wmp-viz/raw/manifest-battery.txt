@@ -1,0 +1,42 @@
+BATTERY - WMP Visualization Asset Manifest
+===========================================
+
+Family display name : Battery
+Internal reg name   : Battery
+Host DLL            : wmp10-x86\wmp.dll  (32-bit, from Windows Media Player 10 for Windows XP)
+COM class (CLSID)   : {8D2A317B-D98B-4efa-89D6-E49F0ACF98A1}
+
+Original registration layout (as written by WMP10 installer):
+  HKLM\SOFTWARE\Microsoft\MediaPlayer\Objects\Effects\Battery\Properties
+    val classid     = s '{8D2A317B-D98B-4efa-89D6-E49F0ACF98A1}'
+    val name        = s 'res://wmploc.dll/RT_STRING/#1563'
+    val description = s 'res://wmploc.dll/RT_STRING/#1564'
+
+Display name resource : wmploc.DLL string table id 1563
+Description resource  : wmploc.DLL string table id 1564
+
+Battery internals discovered in wmp.dll:
+  - COM interfaces: IBattery, IBatteryPreset, IBatteryRandomPreset, IBatterySavedPreset
+  - User presets stored under: HKCU\Software\Microsoft\MediaPlayer\Battery\Presets\<name>
+      val Title, PreShiftCount/PostShiftCount, PreShift<N>, CurrentShift, PaletteLocked,
+      Palette (binary blob)
+  - Internal "shift" classes seen: CJiggyScribble, CStretchShift (effect transform units)
+  - References to a default presets file name "BatteryPresets.bpx" (not present in the
+    installer payload; presets are created in registry at runtime instead)
+
+Source installer:
+  MP10Setup.exe
+  URL  : http://ftp.twaren.net/Patch/WinMedia/MP10Setup.exe
+  SHA1 : 69862273a5d9d97b4a2e5a3bd93898d259e86657
+
+Extracted file hashes (SHA256):
+  wmp.dll   7A1A5F412BBA305AB6A618BD8D2059D5942F9BA317E1BDA40A0F51510FB9E5A3
+  wmploc.DLL E5BBE57FA7922627EC96A248CA31786FC6DF427AFC932AF78A5CD12069B6CA11
+
+Hosting notes for MidiaPlayer:
+  - App is ia32 (32-bit Electron) so this legacy 32-bit in-proc COM server can load.
+  - Plan: write HKCU\Software\Classes\CLSID\{8D2A317B-D98B-4efa-89D6-E49F0ACF98A1}\InprocServer32
+    pointing at the shipped wmp.dll path, then CoCreateInstance via koffi,
+    query IWMPEffects / IWMPEffects2, call Render(TimedLevel*, HDC, RECT) per frame.
+  - TimedLevel struct (WMP SDK): DWORD time; WORD state; UCHAR frequency[2][1024];
+    UCHAR waveform[2][1024]. Feed from Web Audio AnalyserNode data each frame.

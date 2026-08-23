@@ -417,7 +417,7 @@ function scheduleConnect() {
     return;
   }
   setTimeout(() => {
-    if (!serverProcess) return;
+    if (!serverProcess || serverProcess.exitCode !== null) return;
     const sock = net.connect(mirrorPort, '127.0.0.1');
     let connected = false;
     sock.once('connect', () => {
@@ -465,6 +465,25 @@ function buildServerArgs(maxSize) {
     'send_dummy_byte=false',
     'max_size=' + maxSize
   ];
+  // Honor optional tuning args from customArgs so user settings actually
+  // reach the device (previously only --max-size was parsed; the rest were
+  // silently ignored, which read as "settings do nothing").
+  // Returns the full regex match array; use [1], [2]... for capture groups.
+  const opt = (re) => { const m = customArgs.match(re); return m || null; };
+  const maxFps = opt(/--max-fps[=\s]+(\d+)/);
+  if (maxFps) parts.push('max_fps=' + maxFps[1]);
+  // scrcpy's raw server protocol wants video_bit_rate as an integer in
+  // bits/sec — the K/M/G suffixes are a CLI-client convenience only, and a
+  // literal "512K" kills the server with NumberFormatException.
+  const bitrate = opt(/--video-bit-rate[=\s]+(\d+(?:\.\d+)?)\s*([KMG])?/i);
+  if (bitrate) {
+    const mult = { k: 1024, m: 1024 * 1024, g: 1024 * 1024 * 1024 }[(bitrate[2] || '').toLowerCase()] || 1;
+    parts.push('video_bit_rate=' + Math.round(parseFloat(bitrate[1]) * mult));
+  }
+  const encoder = opt(/--video-encoder[=\s]+("?)([A-Za-z0-9._-]+)\1/);
+  if (encoder && encoder[2] && encoder[2] !== 'auto') parts.push('video_encoder=' + encoder[2]);
+  const codecOpts = opt(/--video-codec-options[=\s]+(\S+)/);
+  if (codecOpts) parts.push('video_codec_options=' + codecOpts[1]);
   return parts.join(' ');
 }
 
@@ -523,13 +542,21 @@ async function startMirroring() {
   serverProcess.stdout.on('data', (c) => { const s = c.toString().trim(); if (s) mlog('[mirra-core] server:', s); });
   serverProcess.stderr.on('data', (c) => { const s = c.toString().trim(); if (s) mlog('[mirra-core] server-err:', s); });
   serverProcess.on('error', (err) => { mlog('[mirra-core] server spawn error:', err.message); });
-  serverProcess.on('exit', (code) => {
-    mlog('[mirra-core] server process exited', code);
-    if (mirrorSocket) {
-      cleanupMirror();
-      sendAll('mirra:stream-end', { code });
-    }
-  });
+    serverProcess.on('exit', (code) => {
+      mlog('[mirra-core] server process exited', code);
+      if (!streamStarted) {
+        // Server died before producing a single frame (bad args, encoder
+        // rejection, device error): abort the connect loop right away
+        // instead of hammering a forward that will never answer.
+        cleanupMirror();
+        sendAll('mirra:stream-end', { code: code == null ? -1 : code, error: 'scrcpy server failed to start (exit ' + code + ')' });
+        return;
+      }
+      if (mirrorSocket) {
+        cleanupMirror();
+        sendAll('mirra:stream-end', { code });
+      }
+    });
 
   // 4. Connect to the forwarded port (retry until the device-side server binds)
   connectDeadline = Date.now() + 15000;
@@ -585,6 +612,21 @@ function registerIpc(win) {
   ipcMain.handle('mirra:set-config', (e, config) => {
     if (config && config.scrcpyPath !== undefined) scrcpyPath = config.scrcpyPath;
     if (config && config.customArgs !== undefined) customArgs = config.customArgs;
+    // Persist immediately: the settings file must mirror live state, or the
+    // next boot resurrects stale args (bit us before — preset vanished).
+    try {
+      const settingsFile = path.join(app.getPath('userData'), 'midia-settings.json');
+      let data = {};
+      if (fs.existsSync(settingsFile)) {
+        try { data = JSON.parse(fs.readFileSync(settingsFile, 'utf8').replace(/^\uFEFF/, '')) || {}; } catch (e2) { data = {}; }
+      }
+      if (!data.mirra) data.mirra = {};
+      if (config && config.scrcpyPath !== undefined) data.mirra.scrcpyPath = scrcpyPath;
+      if (config && config.customArgs !== undefined) data.mirra.customArgs = customArgs;
+      fs.writeFileSync(settingsFile, JSON.stringify(data, null, 4), 'utf8');
+    } catch (e3) {
+      mlog('[mirra-core] failed to persist config:', e3.message);
+    }
     mlog('[mirra-core] config updated: scrcpyPath=' + (scrcpyPath || 'PATH') + ' customArgs=' + (customArgs || 'none'));
     return { ok: true };
   });
@@ -609,7 +651,7 @@ function loadSettings() {
     const settingsFile = path.join(app.getPath('userData'), 'midia-settings.json');
     if (fs.existsSync(settingsFile)) {
       const content = fs.readFileSync(settingsFile, 'utf8');
-      const data = JSON.parse(content);
+      const data = JSON.parse(content.replace(/^\uFEFF/, ''));
       if (data && data.mirra) {
         if (data.mirra.scrcpyPath) scrcpyPath = data.mirra.scrcpyPath;
         if (data.mirra.customArgs) customArgs = data.mirra.customArgs;
