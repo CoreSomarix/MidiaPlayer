@@ -383,12 +383,23 @@ ipcMain.on('scan-folder', async (event, { folderPath, knownTracks = [], incremen
   let musicMetadata;
   try {
     const module = await import('music-metadata');
-    musicMetadata = module; 
+    musicMetadata = module;
     dvdCore.appendExternal('[music] music-metadata loaded');
   } catch (e) {
-    console.error("Failed to load music-metadata:", e);
-    dvdCore.appendExternal('[music] music-metadata FAILED to load: ' + (e && e.message ? e.message : e));
-    musicMetadata = null;
+    // Packaged builds: Electron 22 cannot import() ESM packages through
+    // app.asar, and music-metadata v10 is ESM-only (its CJS shims are just
+    // import() wrappers). Load it from the asar-unpacked copy instead.
+    try {
+      const { pathToFileURL } = require('url');
+      const unpackedDir = __dirname.replace(/app\.asar([\\/])/, 'app.asar.unpacked$1');
+      const entry = path.join(unpackedDir, 'node_modules', 'music-metadata', 'lib', 'index.js');
+      musicMetadata = await import(pathToFileURL(entry).href);
+      dvdCore.appendExternal('[music] music-metadata loaded (asar-unpacked fallback)');
+    } catch (e2) {
+      console.error('Failed to load music-metadata:', e2);
+      dvdCore.appendExternal('[music] music-metadata FAILED to load: ' + (e2 && e2.message ? e2.message : e2));
+      musicMetadata = null;
+    }
   }
   
   async function scanDir(dir) {
@@ -431,34 +442,14 @@ ipcMain.on('scan-folder', async (event, { folderPath, knownTracks = [], incremen
                 const coverFileName = `cover_${Date.now()}_${Math.random().toString(36).substring(2, 8)}.${ext}`;
                 coverLocalPath = path.join(coversDir, coverFileName);
 
-                // Cap extracted art at 800px on its long side. Full-res embedded
-                // scans (up to 6000x6000) decode to ~140MB each and dominate
-                // album-grid scroll raster cost on low-end machines.
+                // ia32 hard lesson: decoding embedded art here exhausts the
+                // 32-bit address space mid-scan (0x80000003 aborts at random
+                // files). Write the original bytes untouched; the renderer
+                // generates its own <=800px thumbnails safely.
                 try {
-                  const { nativeImage } = require('electron');
-                  const img = nativeImage.createFromBuffer(Buffer.from(pic.data));
-                  if (!img.isEmpty()) {
-                    const sz = img.getSize();
-                    // >30MP: resizing risks a fatal Skia allocation failure on
-                    // low-RAM machines — keep the original bytes untouched.
-                    if (sz.width * sz.height <= 30e6) {
-                      const big = Math.max(sz.width, sz.height);
-                      if (big > 800) {
-                        const k = 800 / big;
-                        const small = img.resize({ width: Math.max(1, Math.round(sz.width * k)), height: Math.max(1, Math.round(sz.height * k)) });
-                        const out = /^png$/i.test(ext) ? small.toPNG() : small.toJPEG(82);
-                        await fsp.writeFile(coverLocalPath, out);
-                      } else {
-                        await fsp.writeFile(coverLocalPath, Buffer.from(pic.data));
-                      }
-                    } else {
-                      await fsp.writeFile(coverLocalPath, Buffer.from(pic.data));
-                    }
-                  } else {
-                    await fsp.writeFile(coverLocalPath, Buffer.from(pic.data));
-                  }
-                } catch (covErr) {
                   await fsp.writeFile(coverLocalPath, Buffer.from(pic.data));
+                } catch (covErr) {
+                  coverLocalPath = null;
                 }
               }
             } catch (metaErr) {
@@ -485,10 +476,12 @@ ipcMain.on('scan-folder', async (event, { folderPath, knownTracks = [], incremen
             fileName: item,
             size: stats.size,
             added: Date.now(),
-            metadataParsed: true
+            // Only mark as parsed if tags were actually readable; otherwise
+            // future incremental scans re-parse and self-heal the track.
+            metadataParsed: !!musicMetadata
           });
 
-          if (fileList.length % 5 === 0) {
+          if (fileList.length % 2 === 0) {
             await new Promise(resolve => setImmediate(resolve));
             event.sender.send('scan-progress', fileList.length);
           }
@@ -873,7 +866,19 @@ ipcMain.handle('set-launch-on-startup', (event, enable) => {
 });
 
 ipcMain.handle('reset-music-library', () => {
+  // Unlink = total amnesia. Clear the cached library AND every extracted
+  // cover file, and null lastKnownLibrary so the before-quit safety net
+  // cannot write the old library back to disk afterwards.
+  lastKnownLibrary = null;
   try { if (fs.existsSync(LIBRARY_FILE)) fs.unlinkSync(LIBRARY_FILE); } catch (e) {}
+  try {
+    const coversDir = path.join(app.getPath('userData'), 'covers');
+    if (fs.existsSync(coversDir)) {
+      for (const f of fs.readdirSync(coversDir)) {
+        if (/^cover_/i.test(f)) { try { fs.unlinkSync(path.join(coversDir, f)); } catch (e2) {} }
+      }
+    }
+  } catch (e) {}
 });
 
 ipcMain.handle('reset-photos-library', () => {

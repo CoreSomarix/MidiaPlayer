@@ -2911,17 +2911,92 @@
                     if (loader) loader.classList.remove('visible');
                 },
 
+                // Prefer a cached <=800px thumbnail next to the original cover.
+                // Full-res art (up to 12000px) stays on disk untouched; the grid
+                // only ever rasterizes the small sibling file.
+                coverUrl(p) {
+                    if (!p) return null;
+                    const norm = String(p).replace(/\\/g, '/');
+                    try {
+                        const fs = require('fs');
+                        const thumb = norm.replace(/\.[^./]+$/, '') + '.thumb.jpg';
+                        if (fs.existsSync(thumb)) return 'file:///' + thumb;
+                    } catch (e) { /* fall through */ }
+                    return 'file:///' + norm;
+                },
+
+                queueCoverThumb(p) {
+                    if (!p || /\.thumb\.jpg$/i.test(String(p))) return;
+                    if (!this._thumbSeen) this._thumbSeen = new Set();
+                    if (this._thumbSeen.has(p)) return;
+                    this._thumbSeen.add(p);
+                    this._thumbQ.push(p);
+                    if (!this._thumbRunning) this.drainCoverThumbs();
+                },
+
+                // Decode happens here in the RENDERER on purpose: a hostile
+                // image can only fail a canvas op / <img> load, never take the
+                // whole app down like nativeImage did in the ia32 main process.
+                async drainCoverThumbs() {
+                    this._thumbRunning = true;
+                    let fsMod = null;
+                    try { fsMod = require('fs'); } catch (e) { this._thumbQ.length = 0; }
+                    while (this._thumbQ.length && fsMod) {
+                        const src = this._thumbQ.shift();
+                        try {
+                            const norm = String(src).replace(/\\/g, '/');
+                            const thumb = norm.replace(/\.[^./]+$/, '') + '.thumb.jpg';
+                            if (!fsMod.existsSync(thumb)) {
+                                const buf = fsMod.readFileSync(norm);
+                                if (buf.length > 150 * 1024) {
+                                    const objUrl = URL.createObjectURL(new Blob([buf]));
+                                    const img = await new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = () => rej(new Error('decode')); i.src = objUrl; });
+                                    const big = Math.max(img.naturalWidth, img.naturalHeight);
+                                    let w = img.naturalWidth, h = img.naturalHeight;
+                                    if (big > 800) { const k = 800 / big; w = Math.max(1, Math.round(w * k)); h = Math.max(1, Math.round(h * k)); }
+                                    const cv = document.createElement('canvas');
+                                    cv.width = w; cv.height = h;
+                                    cv.getContext('2d').drawImage(img, 0, 0, w, h);
+                                    URL.revokeObjectURL(objUrl);
+                                    const blob = await new Promise(r => cv.toBlob(r, 'image/jpeg', 0.82));
+                                    if (blob) fsMod.writeFileSync(thumb, Buffer.from(await blob.arrayBuffer()));
+                                } else {
+                                    fsMod.copyFileSync(norm, thumb);
+                                }
+                            }
+                            this.retileCover(norm);
+                        } catch (e) { /* undecodable or unreadable art: skip quietly */ }
+                        await new Promise(r => setTimeout(r, 40));
+                    }
+                    this._thumbRunning = false;
+                },
+
+                // Swap an already-rendered tile/detail/now-playing background
+                // from original art to its fresh thumbnail without a re-render.
+                retileCover(normSrc) {
+                    const want = 'file:///' + normSrc.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                    const re = new RegExp(want.replace(/\//g, '/'), 'i');
+                    document.querySelectorAll('.album-art[style*="background-image"], .track-art-img[style*="background-image"]').forEach(el => {
+                        const bg = el.style.backgroundImage || '';
+                        if (re.test(bg)) {
+                            const t = this.coverUrl(normSrc);
+                            if (t) el.style.backgroundImage = `url('${t}')`;
+                        }
+                    });
+                },
+
                 renderAlbums() { const grid = document.getElementById('albums-grid'); const tracks = MusicAppState.currentTracksList; if (!tracks || tracks.length === 0) { grid.innerHTML = '<div style="color:white;text-align:center;width:100%;padding:20px;">No albums found</div>'; return; } const albums = {}; tracks.forEach(track => { 
                         const albumKey = track.album || 'Unknown Album';
                         if (!albums[albumKey]) albums[albumKey] = { artist: track.artist, cover: track.cover || null, tracks: [] }; 
                         albums[albumKey].tracks.push(track); 
                         if (!albums[albumKey].cover && track.cover) albums[albumKey].cover = track.cover; 
-                    }); let html = ''; for (const [albumName, data] of Object.entries(albums)) { let coverStyle = 'background: #d3d9d3;'; if (data.cover) { const url = `file:///${data.cover.replace(/\\/g, '/')}`; coverStyle = `background-image: url('${url}'); background-size: cover; background-position: center;`; } html += `<div class="album-tile" data-album="${albumName}"><div class="album-art" style="${coverStyle} border-radius: 24px;"></div><div class="album-info"><div class="album-name">${albumName}</div><div class="artist-name">${data.artist}</div></div></div>`; } grid.innerHTML = html; this.setupTrackTooltips(); },
+                    }); let html = ''; for (const [albumName, data] of Object.entries(albums)) { let coverStyle = 'background: #d3d9d3;'; if (data.cover) { const url = this.coverUrl(data.cover); this.queueCoverThumb(data.cover); coverStyle = `background-image: url('${url}'); background-size: cover; background-position: center;`; } html += `<div class="album-tile" data-album="${albumName}"><div class="album-art" style="${coverStyle} border-radius: 24px;"></div><div class="album-info"><div class="album-name">${albumName}</div><div class="artist-name">${data.artist}</div></div></div>`; } grid.innerHTML = html; this.setupTrackTooltips(); },
 
                 renderTracks() { const grid = document.getElementById('tracks-grid'); const tracks = MusicAppState.currentTracksList; if (!tracks || tracks.length === 0) { grid.innerHTML = '<div style="color:white;text-align:center;width:100%;padding:20px;">No tracks found</div>'; document.getElementById('track-total-count').innerText = 'Total Tracks: 0'; document.getElementById('track-new-count').innerText = 'Newly Added: 0'; return; } const newCount = MusicAppState.newTrackPaths.size; document.getElementById('track-total-count').innerText = `Total Tracks: ${tracks.length}`; document.getElementById('track-new-count').innerText = `Newly Added: ${newCount}`; let html = ''; tracks.forEach((track) => { 
                         let artStyle = 'background: #ffffff;'; 
                         if (track.cover) { 
-                            const url = `file:///${track.cover.replace(/\\/g, '/')}`; 
+                            const url = this.coverUrl(track.cover); 
+                            this.queueCoverThumb(track.cover);
                             artStyle = `background-image: url('${url}'); background-size: cover; background-position: center;`; 
                         }
                         const isNew = MusicAppState.newTrackPaths.has(track.path);
@@ -2930,7 +3005,7 @@
                         html += `<div class="track-pill${newClass}" data-path="${track.path}"><div class="track-art-img" style="${artStyle}"></div><div class="track-info"><div class="track-title">${track.name}</div><div class="track-artist">${track.artist}</div></div>${badge}</div>`; 
                     }); grid.innerHTML = html; this.setupTrackTooltips(); },
 
-                renderAlbumDetails(albumName) { const tracks = MusicAppState.currentTracksList.filter(t => t.album === albumName); const artist = tracks.length > 0 ? tracks[0].artist : 'Unknown Artist'; const cover = tracks.length > 0 && tracks[0].cover ? tracks[0].cover : null; document.querySelector('#album-details-view .album-name').textContent = albumName; document.querySelector('#album-details-view .artist-name').textContent = artist; const coverEl = document.querySelector('#album-details-view .album-art'); if(cover) { const url = `file:///${cover.replace(/\\/g, '/')}`; coverEl.style.backgroundImage = `url('${url}')`; coverEl.style.backgroundSize = 'cover'; coverEl.style.backgroundColor = 'transparent'; } else { coverEl.style.backgroundImage = 'none'; coverEl.style.backgroundColor = '#d3d9d3'; } const list = document.getElementById('album-details-tracklist'); let html = ''; tracks.forEach((track, i) => { html += `<div class="details-track-pill" data-path="${track.path}"><div class="details-track-num">${i+1}</div><div class="details-track-info"><div class="details-track-title">${track.name}</div><div class="details-track-artist">${track.artist}</div></div></div>`; }); list.innerHTML = html; this.setupTrackTooltips(); },
+                renderAlbumDetails(albumName) { const tracks = MusicAppState.currentTracksList.filter(t => t.album === albumName); const artist = tracks.length > 0 ? tracks[0].artist : 'Unknown Artist'; const cover = tracks.length > 0 && tracks[0].cover ? tracks[0].cover : null; document.querySelector('#album-details-view .album-name').textContent = albumName; document.querySelector('#album-details-view .artist-name').textContent = artist; const coverEl = document.querySelector('#album-details-view .album-art'); if(cover) { const url = this.coverUrl(cover); this.queueCoverThumb(cover); coverEl.style.backgroundImage = `url('${url}')`; coverEl.style.backgroundSize = 'cover'; coverEl.style.backgroundColor = 'transparent'; } else { coverEl.style.backgroundImage = 'none'; coverEl.style.backgroundColor = '#d3d9d3'; } const list = document.getElementById('album-details-tracklist'); let html = ''; tracks.forEach((track, i) => { html += `<div class="details-track-pill" data-path="${track.path}"><div class="details-track-num">${i+1}</div><div class="details-track-info"><div class="details-track-title">${track.name}</div><div class="details-track-artist">${track.artist}</div></div></div>`; }); list.innerHTML = html; this.setupTrackTooltips(); },
 
                 setupAutoAdvance() { this.audioPlayer.addEventListener('ended', () => { this.playNextTrack(); }); },
 
@@ -3014,7 +3089,8 @@
                     const coverEl = document.querySelector('.np-album-art');
                     const placeholder = coverEl.querySelector('.placeholder-art');
                     if (track.cover) { 
-                        const url = `file:///${track.cover.replace(/\\/g, '/')}`; 
+                        const url = this.coverUrl(track.cover); 
+                        this.queueCoverThumb(track.cover);
                         coverEl.style.backgroundImage = `url('${url}')`; 
                         coverEl.style.backgroundSize = 'cover'; 
                         coverEl.style.backgroundColor = 'transparent'; 

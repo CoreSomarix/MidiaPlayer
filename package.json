@@ -1,6 +1,6 @@
 {
     "name": "miizu-media-center",
-    "version": "1.0.9",
+    "version": "1.0.10",
     "main": "main.js",
     "scripts": {
         "start": "electron .",
@@ -52,7 +52,7 @@
             }
         ],
         "asarUnpack": [
-            "node_modules/koffi/**/*"
+            "node_modules/**/*"
         ]
     },
     "dependencies": {
