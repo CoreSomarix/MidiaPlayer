@@ -2926,12 +2926,15 @@
                 },
 
                 queueCoverThumb(p) {
-                    if (!p || /\.thumb\.jpg$/i.test(String(p))) return;
-                    if (!this._thumbSeen) this._thumbSeen = new Set();
-                    if (this._thumbSeen.has(p)) return;
-                    this._thumbSeen.add(p);
-                    this._thumbQ.push(p);
-                    if (!this._thumbRunning) this.drainCoverThumbs();
+                    try {
+                        if (!p || /\.thumb\.jpg$/i.test(String(p))) return;
+                        if (!this._thumbSeen) this._thumbSeen = new Set();
+                        if (!this._thumbQ) this._thumbQ = [];
+                        if (this._thumbSeen.has(p)) return;
+                        this._thumbSeen.add(p);
+                        this._thumbQ.push(p);
+                        if (!this._thumbRunning) this.drainCoverThumbs();
+                    } catch (e) { /* thumbnails must never break rendering */ }
                 },
 
                 // Decode happens here in the RENDERER on purpose: a hostile
@@ -2939,6 +2942,7 @@
                 // whole app down like nativeImage did in the ia32 main process.
                 async drainCoverThumbs() {
                     this._thumbRunning = true;
+                    if (!this._thumbQ) this._thumbQ = [];
                     let fsMod = null;
                     try { fsMod = require('fs'); } catch (e) { this._thumbQ.length = 0; }
                     while (this._thumbQ.length && fsMod) {
